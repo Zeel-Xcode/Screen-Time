@@ -10,6 +10,8 @@ public class MyApplication extends Application {
 
     public static long COUNT;
 
+
+
     public static long getCOUNT() {
         return COUNT;
     }
