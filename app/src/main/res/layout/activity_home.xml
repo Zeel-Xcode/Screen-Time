@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context=".HomeActivity">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/app_bar" />
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/dim_40"
+                    android:layout_marginRight="@dimen/dim_40"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/datepicker"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginTop="@dimen/dim_10"
+                            android:background="@null"
+                            android:gravity="center"
+                            android:layout_marginHorizontal="20dp"
+                            android:fontFamily="@font/productsansregular"
+                            android:maxLines="1"
+                            android:hint="DD/MM/YYYY"
+                            android:textSize="20dp"
+                            android:textColor="@color/colorPrimary" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dim_1"
+                        android:layout_marginTop="@dimen/sp_10"
+                        android:background="@color/colorPrimaryDark" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/dim_25"
+                    android:layout_marginTop="@dimen/dim_15"
+                    android:layout_marginRight="@dimen/dim_25"
+                    android:background="@color/backgroundcolor"
+                    android:orientation="vertical"
+                    android:paddingLeft="@dimen/dim_25"
+                    android:paddingTop="@dimen/dim_25"
+                    android:paddingRight="@dimen/dim_14"
+                    android:paddingBottom="@dimen/dim_25">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/dim_10"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Application"
+                        android:gravity="start"
+                        android:textColor="@color/colorGrey"
+                        android:fontFamily="@font/gothambold"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                       android:layout_marginRight="@dimen/dim_20"
+                        android:text="Time"
+                        android:textColor="@color/colorGrey"
+                        android:fontFamily="@font/gothambold"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/llFacebook"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <TextView
+                                android:id="@+id/tvFacebook"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:drawableLeft="@drawable/screen_facebook"
+                                android:drawablePadding="@dimen/dim_8dp"
+                                android:fontFamily="@font/productsansregular"
+                                android:gravity="center"
+                                android:text="Facebook"
+                                android:textColor="@color/colorGrey"
+                                android:textSize="18dp" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvfbTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/sp_18"
+                            android:layout_marginRight="@dimen/sp_18"
+                            android:drawablePadding="@dimen/dim_8dp"
+                            android:gravity="center"
+                            android:padding="5dp"
+                            android:textColor="@color/colorGrey"
+                            android:textSize="14dp"
+                            android:fontFamily="@font/gothamblack" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/llInsta"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/dim_25"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <TextView
+                                android:id="@+id/tvInsta"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:drawableLeft="@drawable/screen_instagram"
+                                android:drawablePadding="@dimen/dim_8dp"
+                                android:fontFamily="@font/productsansregular"
+                                android:gravity="center"
+                                android:text="Instagram"
+                                android:textColor="@color/colorGrey"
+                                android:textSize="18dp" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvinstaTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/sp_18"
+                            android:layout_marginRight="@dimen/sp_18"
+                            android:drawablePadding="@dimen/dim_8dp"
+                            android:gravity="center"
+                            android:padding="5dp"
+                            android:textColor="@color/colorGrey"
+                            android:textSize="14dp"
+                            android:fontFamily="@font/gothamblack"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/llSnapchat"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/dim_25"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <TextView
+                                android:id="@+id/tvSnapChat"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:drawableLeft="@drawable/screen_snapchat"
+                                android:drawablePadding="@dimen/dim_8dp"
+                                android:fontFamily="@font/productsansregular"
+                                android:gravity="center"
+                                android:text="SnapChat"
+                                android:textColor="@color/colorGrey"
+                                android:textSize="18dp" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvsnapchatTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/sp_18"
+                            android:layout_marginRight="@dimen/sp_18"
+                            android:drawablePadding="@dimen/dim_8dp"
+                            android:gravity="center"
+                            android:padding="5dp"
+                            android:textColor="@color/colorGrey"
+                            android:textSize="14dp"
+                            android:fontFamily="@font/gothamblack"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

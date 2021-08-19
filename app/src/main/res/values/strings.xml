@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">Screentime</string>
+    <string name="lessanixity">LESS ANXIETY</string>
+    <string name="morehappinss">MORE HAPPINESS</string>
+    <string name="txtsplacedetail">Being aware of my social media use makes me a Happier Person Cutting back on my social media really help my mental health</string>
+    <string name="txtTotorialone">\"Me and all my friends use this to limit all social media intake and stay in a positive mental state.\"</string>
+    <string name="txtTotorialfive">This app is easy to use simply enable social media acccounts and pauce will use  transparent lighting to notify you when a dangerous amount of time is spent which can impact your mood and overall mental health. We will help monitor usage every 24 hrs.</string>
+    <string name="next">next</string>
+    <string name="finish">finish</string>
+    <string name="txtTotoriafour">Socially alerts you using transparent coloring making you aware when using an excessive amount of social media that subconsciously damages mood. Cutting back on social media use can help with following:</string>
+    <string name="lessdepression">Less Depression</string>
+    <string name="moreSelfTime">More Self-Time</string>
+    <string name="HappierPerson">Happier Person</string>
+    <string name="txtTotorialthree">\"Exactly what I needed!\"</string>
+    <string name="no_app">This app is not in use today</string>
+    <string name="txtTotorialtwo">\"I love social media but too much makes me feel uneasy. This app is great help!\"</string>
+    <string name="s1">Welcome to Pause! Swipe to continue</string>
+    <string name="s2">\"My friends and I use Pause to help maintain a positive mindset\"</string>
+    <string name="s3">\"I love social media but too much makes me feel uneasy. This app is a great help!\" </string>
+    <string name="facebook_app_id">1464914140294364</string>
+    <string name="fb_login_protocol_scheme">fb1464914140294364</string>
+    <string name="favebook">Minute\tFacebook</string>
+    <string name="que1">1. How did you hear about us?</string>
+    <string name="answer">Answer</string>
+    <string name="Next">Next</string>
+    <string name="que2">2. How often do you use PauseApp?</string>
+    <string name="que3">3. Wha about PauseApp do you like most?</string>
+    <string name="que4">4. One thing you will change.</string>
+    <string name="que5">5. Rating</string>
+    <string name="Submit">Submit</string>
+    <string name="feedback">Feedback</string>
+    <string name="rating">Please give Rating!</string>
+    <string name="successMessage">Feedback sent successfully.</string>
+    <string name="errorMessage">Sorry try again!</string>
+    <string name="alert">Alert</string>
+    <string name="networkMessage">Please check your network connection.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

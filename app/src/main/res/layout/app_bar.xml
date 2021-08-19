@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimary"
+    android:minHeight="?attr/actionBarSize"
+    app:contentInsetStart="0dp"
+    app:contentInsetStartWithNavigation="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/dim_10"
+        android:paddingRight="@dimen/dim_10">
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="@dimen/dim_25"
+            android:layout_height="@dimen/dim_25"
+            android:layout_gravity="center"
+            android:src="@drawable/back"
+            />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Title"
+            android:fontFamily="@font/gothamblack"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_24"
+            android:textStyle="bold"
+            />
+
+
+        <ImageView
+            android:id="@+id/iv_setting"
+            android:layout_width="@dimen/dim_25"
+            android:layout_height="@dimen/dim_25"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="center"
+            android:src="@drawable/screen_setting"
+            />
+
+    </LinearLayout>
+</androidx.appcompat.widget.Toolbar>

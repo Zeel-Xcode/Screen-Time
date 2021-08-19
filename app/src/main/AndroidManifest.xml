@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.screentime">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
+        <activity android:name=".ResultActivity"></activity>
+        <activity android:name=".AlertDialog2Activity" />
+        <activity android:name=".WarninghDialogActivity" />
+        <activity android:name=".StatisticsActivity" />
+        <activity android:name=".HomeActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".SettingActivity" />
+        <activity android:name=".SplashActivity"></activity>
+        <activity android:name=".MainActivity" />
+
+        <service
+            android:name="services.GetUsageService1"
+            android:enabled="true"
+            android:stopWithTask="false" />
+        <service
+            android:name="services.OnforegroundService"
+            android:enabled="true"
+            android:stopWithTask="false" />
+
+        <receiver android:name="services.ScreeOnReciever">
+            <intent-filter android:priority="100">
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.pause" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+    </application>
+
+</manifest>
