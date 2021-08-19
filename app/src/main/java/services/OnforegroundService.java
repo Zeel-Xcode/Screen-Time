@@ -16,11 +16,17 @@ import com.screentime.MyApplication;
 import com.screentime.utils.AppConstant;
 import com.screentime.utils.CommonUtils;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
+
+import Model.NewModel;
+import SQLiteDatabase.DatabaseHandler2;
 
 /**
  * This Service add time for each app every second if it is on foreground.
@@ -31,6 +37,11 @@ public class OnforegroundService extends Service {
     private Timer timer;
     private TimerTask timerTask;
     String currentPackage;
+    String appname;
+    String[] packages = {"com.facebook.katana", "com.instagram.android", "com.snapchat.android"};
+    DatabaseHandler2 databaseHandler2;
+    String id;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -43,13 +54,21 @@ public class OnforegroundService extends Service {
         try {
             if (intent != null) {
                 if (intent.getExtras() != null) {
+                    databaseHandler2 = new DatabaseHandler2(this);
                     currentPackage = intent.getExtras().getString("package");
+                    if (currentPackage.equals(packages[0])) {
+                        appname = "facebook";
+                    } else if (currentPackage.equals(packages[1])) {
+                        appname = "instagram";
+                    } else if (currentPackage.equals(packages[2])) {
+                        appname = "snapchat";
+                    }
                     startTimer();
                 }
             }
             return START_STICKY;
         } catch (NullPointerException ex) {
-            Log.e("Message",ex.getMessage());
+            Log.e("Message", ex.getMessage());
             return START_REDELIVER_INTENT;
         }
     }
@@ -66,6 +85,10 @@ public class OnforegroundService extends Service {
             timer = new Timer();
             //initialize the TimerTask's job
             initializeTimerTask();
+            long starttime = System.currentTimeMillis();
+            CommonUtils.savePreferencesInteger(getApplicationContext(), "starttime", starttime);
+            CommonUtils.savePreferencesInteger(getApplicationContext(), "endtime", 0);
+            setdatanewdatabase(appname);
             //schedule the timer, to wake up every 10 second
             timer.schedule(timerTask, 500, 500);
         }
@@ -93,6 +116,14 @@ public class OnforegroundService extends Service {
         if (timer != null) {
             timer.cancel();
             timer = null;
+            long endtime = System.currentTimeMillis();
+            CommonUtils.savePreferencesInteger(getApplicationContext(), "endtime", endtime);
+            ArrayList<NewModel> getdata = databaseHandler2.getAllTime();
+
+            if (getdata.size() > 0) {
+                id = getdata.get(getdata.size() - 1).getId();
+                updatedatabase(id);
+            }
         }
     }
 
@@ -143,5 +174,54 @@ public class OnforegroundService extends Service {
             l = l + 500;
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.ICURRENTTIME, l + "");
         }
+    }
+
+    public void setdatanewdatabase(String title) {
+        NewModel newModel = new NewModel();
+        long starttime = CommonUtils.getPreferencesInteger(getApplicationContext(), "starttime");
+        long endtime = CommonUtils.getPreferencesInteger(getApplicationContext(), "endtime");
+
+        SimpleDateFormat sdf1 = new SimpleDateFormat("ss");
+        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
+        int start_sec = Integer.parseInt(sdf1.format(starttime));
+        int end_sec = Integer.parseInt(sdf1.format(endtime));
+        long totalseconds = endtime - starttime;
+        int gettotal = Integer.parseInt(sdf1.format(totalseconds));
+        String currentdate = sdf2.format(starttime);
+
+        newModel.setAppname(title);
+        newModel.setStarttime(starttime);
+        newModel.setEndtime(endtime);
+        newModel.setTotalsec(gettotal);
+        newModel.setCurrentdate(currentdate);
+        databaseHandler2.insertRecord(newModel);
+    }
+
+    public void updatedatabase(String id) {
+        NewModel newModel = new NewModel();
+        long starttime = CommonUtils.getPreferencesInteger(getApplicationContext(), "starttime");
+        long endtime = CommonUtils.getPreferencesInteger(getApplicationContext(), "endtime");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("ss");
+        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
+        int start_sec = Integer.parseInt(sdf1.format(starttime));
+        int end_sec = Integer.parseInt(sdf1.format(endtime));
+        String currentdate = sdf2.format(starttime);
+        long totalseconds = endtime - starttime;
+        int gettotal = Integer.parseInt(sdf1.format(totalseconds));
+        newModel.setId(id);
+        newModel.setAppname(appname);
+        newModel.setStarttime(starttime);
+        newModel.setEndtime(endtime);
+        newModel.setTotalsec(gettotal);
+        newModel.setCurrentdate(currentdate);
+
+        databaseHandler2.updateRecord(newModel);
+
+    }
+
+    private String getCurrentDate() {
+        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
+        String dateInString = sdf2.format(System.currentTimeMillis());
+        return dateInString;
     }
 }

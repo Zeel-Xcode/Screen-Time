@@ -11,12 +11,19 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+
+import Model.NewModel;
+
 public class Alldataadapter extends  Adapter<Alldataadapter.dataviewholder> {
 
     Activity activity;
+    ArrayList<NewModel> getdata = new ArrayList<>();
 
-    public Alldataadapter(FragmentActivity activity) {
+    public Alldataadapter(FragmentActivity activity, ArrayList<NewModel> getdata) {
         this.activity = activity;
+        this.getdata = getdata;
 
     }
 
@@ -30,11 +37,17 @@ public class Alldataadapter extends  Adapter<Alldataadapter.dataviewholder> {
     @Override
     public void onBindViewHolder(@NonNull Alldataadapter.dataviewholder holder, int position) {
 
+        SimpleDateFormat sdf1 = new SimpleDateFormat("MM dd, yyyy hh:mm:ss aa");
+
+        holder.startresult.setText(sdf1.format(getdata.get(position).getStarttime()));
+
+        holder.endresult.setText(sdf1.format(getdata.get(position).getEndtime()));
+
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return getdata.size();
     }
 
     public class dataviewholder extends RecyclerView.ViewHolder {
@@ -46,8 +59,6 @@ public class Alldataadapter extends  Adapter<Alldataadapter.dataviewholder> {
 
             startresult = itemView.findViewById(R.id.startresult);
             endresult = itemView.findViewById(R.id.endresult);
-
-
         }
     }
 }

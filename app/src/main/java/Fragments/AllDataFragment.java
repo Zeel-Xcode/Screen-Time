@@ -13,13 +13,17 @@ import android.view.ViewGroup;
 import com.screentime.Alldataadapter;
 import com.screentime.R;
 
+import java.util.ArrayList;
+
+import Model.NewModel;
 import Model.UsageModel;
+import SQLiteDatabase.DatabaseHandler2;
 
 public class AllDataFragment extends Fragment {
 
     RecyclerView recyclerview;
-    String limit, average;
-    UsageModel model;
+    String appname;
+    private DatabaseHandler2 databaseHandler2;
 
     public AllDataFragment() {
         // Required empty public constructor
@@ -32,8 +36,28 @@ public class AllDataFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_all_data, container, false);
 
         recyclerview = view.findViewById(R.id.recyclerview);
+        databaseHandler2 = new DatabaseHandler2(getActivity());
 
-        Alldataadapter adapter = new Alldataadapter((FragmentActivity) getContext());
+        if (getArguments() != null){
+            appname = getArguments().getString("which");
+        }
+
+        ArrayList<NewModel> getdata = databaseHandler2.getAllTime();
+        ArrayList<NewModel> getAppdata = new ArrayList<>();
+
+        if (getdata.size() > 0){
+
+            for (int i = 0; i < getdata.size(); i++) {
+                if (getdata.get(i).getAppname().equals(appname)){
+                    getAppdata.add(getdata.get(i));
+                }
+            }
+
+        }else {
+
+        }
+
+        Alldataadapter adapter = new Alldataadapter((FragmentActivity) getContext(),getAppdata);
         recyclerview.setAdapter(adapter);
 
         return view;

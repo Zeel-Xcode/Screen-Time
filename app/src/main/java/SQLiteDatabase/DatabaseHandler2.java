@@ -61,10 +61,10 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getReadableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_APPNAME, newModel.getAppname());
-        values.put(KEY_CURRENTDATE, getCurrentDate());
         values.put(KEY_STARTTIME, newModel.getStarttime());
         values.put(KEY_ENDTIME, newModel.getEndtime());
         values.put(KEY_TOTALSEC, newModel.getTotalsec());
+        values.put(KEY_CURRENTDATE, getCurrentDate());
 
         database.insert(TABLE_CONTACTS, null, values);
         database.close();
@@ -74,10 +74,10 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getReadableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_APPNAME, newModel.getAppname());
-        values.put(KEY_CURRENTDATE, getCurrentDate());
         values.put(KEY_STARTTIME, newModel.getStarttime());
         values.put(KEY_ENDTIME, newModel.getEndtime());
         values.put(KEY_TOTALSEC, newModel.getTotalsec());
+        values.put(KEY_CURRENTDATE, getCurrentDate());
 
        database.update(TABLE_CONTACTS, values, KEY_ID + "= ?", new String[]{newModel.getId()});
        database.close();
@@ -93,11 +93,11 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
                 cursor.moveToNext();
                 contactModel = new NewModel();
                 contactModel.setId(cursor.getString(0));
-                contactModel.setCurrentdate(cursor.getString(1));
-                contactModel.setStarttime(cursor.getInt(2));
-                contactModel.setEndtime(cursor.getInt(3));
-                contactModel.setTotalsec(cursor.getInt(4));
-                contactModel.setAppname(cursor.getString(5));
+                contactModel.setAppname(cursor.getString(1));
+                contactModel.setStarttime(cursor.getLong(2));
+                contactModel.setEndtime(cursor.getLong(3));
+                contactModel.setTotalsec(cursor.getLong(4));
+                contactModel.setCurrentdate(cursor.getString(5));
 
                 contacts.add(contactModel);
             }

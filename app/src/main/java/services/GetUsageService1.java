@@ -227,6 +227,7 @@ public class GetUsageService1 extends Service {
                 }
                 isReset();
                 currentPackage = getRecentApps(getApplicationContext());
+                CommonUtils.savePreferencesString(getApplicationContext(),"appname",currentPackage);
                 getUsage();
             }
         };

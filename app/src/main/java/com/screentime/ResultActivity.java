@@ -26,6 +26,7 @@ public class ResultActivity extends AppCompatActivity {
 
     private int mYear, mMonth, mDay;
     String currentdate;
+    String appname;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +35,8 @@ public class ResultActivity extends AppCompatActivity {
 
         tabLayout = findViewById(R.id.tablayout);
         viewpager = findViewById(R.id.viewpager);
+
+        appname = getIntent().getStringExtra("which");
 
         replaceFragment(new AllDataFragment(), false);
 
@@ -115,6 +118,9 @@ public class ResultActivity extends AppCompatActivity {
 
     public void replaceFragment(androidx.fragment.app.Fragment someFragment, boolean isshow) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        Bundle bundle = new Bundle();
+        bundle.putString("which",appname);
+        someFragment.setArguments(bundle);
         transaction.replace(R.id.viewpager, someFragment);
         transaction.commit();
     }

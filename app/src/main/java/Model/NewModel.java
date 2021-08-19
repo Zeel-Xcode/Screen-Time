@@ -4,9 +4,9 @@ public class NewModel {
 
     String Id;
     String appname;
-    int starttime;
-    int endtime;
-    int totalsec;
+    long starttime;
+    long endtime;
+    long totalsec;
     String currentdate;
 
     public String getId() {
@@ -25,27 +25,27 @@ public class NewModel {
         this.appname = appname;
     }
 
-    public int getStarttime() {
+    public long getStarttime() {
         return starttime;
     }
 
-    public void setStarttime(int starttime) {
+    public void setStarttime(long starttime) {
         this.starttime = starttime;
     }
 
-    public int getEndtime() {
+    public long getEndtime() {
         return endtime;
     }
 
-    public void setEndtime(int endtime) {
+    public void setEndtime(long endtime) {
         this.endtime = endtime;
     }
 
-    public int getTotalsec() {
+    public long getTotalsec() {
         return totalsec;
     }
 
-    public void setTotalsec(int totalsec) {
+    public void setTotalsec(long totalsec) {
         this.totalsec = totalsec;
     }
 
