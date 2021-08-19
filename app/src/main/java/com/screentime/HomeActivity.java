@@ -1,22 +1,35 @@
 package com.screentime;
 
 import android.app.AppOpsManager;
+import android.app.DatePickerDialog;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.facebook.appevents.AppEventsLogger;
 import com.screentime.utils.AppConstant;
@@ -27,6 +40,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 import Model.NewModel;
@@ -49,6 +63,11 @@ public class HomeActivity extends AppCompatActivity {
     private DatabaseHandler db;
     private DatabaseHandler2 databaseHandler2;
     private String id;
+    String datepickerstamp;
+
+    public static final String NOTIFICATION_CHANNEL_NAME = "App Tracking";
+    public static final String NOTIFICATION_CHANNEL_ID = "Screentimer_background_service_channel";
+    public static final int ONGOING_NOTIFICATION_ID = 100;
 
     private int mYear, mMonth, mDay;
 
@@ -102,36 +121,38 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-//        final Calendar c = Calendar.getInstance();
-//        mYear = c.get(Calendar.YEAR);
-//        mMonth = c.get(Calendar.MONTH);
-//        mDay = c.get(Calendar.DAY_OF_MONTH);
-//
-//        datepicker.setText(new StringBuilder()
-//                // Month is 0 based, just add 1
-//                .append(mYear).append(" ").append("-").append(mMonth + 1).append("-")
-//                .append(mDay));
+        final Calendar c = Calendar.getInstance();
+        mYear = c.get(Calendar.YEAR);
+        mMonth = c.get(Calendar.MONTH);
+        mDay = c.get(Calendar.DAY_OF_MONTH);
 
-//        datepicker.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-//                DatePickerDialog datePickerDialog = new DatePickerDialog(HomeActivity.this, R.style.DialogTheme,
-//                        new DatePickerDialog.OnDateSetListener() {
-//
-//                            @Override
-//                            public void onDateSet(DatePicker view, int year,
-//                                                  int monthOfYear, int dayOfMonth) {
-//
-//                                datepicker.setText(year + "-" + (monthOfYear + 1) + "-" + dayOfMonth);
-//
-//                                String datepickerstamp = datepicker.getText().toString();
-//
-//                            }
-//                        }, mYear, mMonth, mDay);
-//                datePickerDialog.show();
-//            }
-//        });
+        datepickerstamp =  String.format("%d-%02d-%02d", mYear, (mMonth + 1), mDay);
+        datepicker.setText(datepickerstamp);
+
+        datepicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                DatePickerDialog datePickerDialog = new DatePickerDialog(HomeActivity.this, R.style.DialogTheme,
+                        new DatePickerDialog.OnDateSetListener() {
+
+                            @Override
+                            public void onDateSet(DatePicker view, int year,
+                                                  int monthOfYear, int dayOfMonth) {
+                                mYear = year;
+                                mMonth = monthOfYear;
+                                mDay = dayOfMonth;
+
+                                datepickerstamp =  String.format("%d-%02d-%02d", year, (monthOfYear + 1), dayOfMonth);
+                                datepicker.setText(datepickerstamp);
+
+                                setData(datepickerstamp);
+
+                            }
+                        }, mYear, mMonth, mDay);
+                datePickerDialog.show();
+            }
+        });
 
     }
 
@@ -143,13 +164,15 @@ public class HomeActivity extends AppCompatActivity {
         iv_back.setEnabled(false);
 
         if (checkPermission()) {
-            setData();
+            setData(getCurrentDate());
             startService(new Intent(this, GetUsageService1.class));
         } else {
             Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
             startActivity(intent);
         }
     }
+
+
 
     private void setToolbar() {
         setSupportActionBar(toolbar);
@@ -237,21 +260,22 @@ public class HomeActivity extends AppCompatActivity {
 
     /**
      * To set data  on Screen.
+     * @param currentDate
      */
-    private void setData() {
+    private void setData(String currentDate) {
 //        setDatafb();
 //        setDatainsta();
 //        setDatasnap();
 
-        int totalfb = 0;
-        int totalinsta = 0;
-        int totalsnap = 0;
+        long totalfb = 0;
+        long totalinsta = 0;
+        long totalsnap = 0;
 
         ArrayList<NewModel> getdata = databaseHandler2.getAllTime();
 
         if (getdata.size() > 0) {
             for (int i = 0; i < getdata.size(); i++) {
-                if (getdata.get(i).getCurrentdate().equals(getCurrentDate())) {
+                if (getdata.get(i).getCurrentdate().equals(currentDate)) {
                     if (getdata.get(i).getAppname().equals("facebook")) {
                         totalfb = totalfb + (int) getdata.get(i).getTotalsec();
                     } else if (getdata.get(i).getAppname().equals("snapchat")) {
@@ -261,11 +285,11 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 }
             }
-
-            tvfbTime.setText(totalfb+"");
-            tvinstaTime.setText(totalinsta+"");
-            tvsnapchatTime.setText(totalsnap+"");
         }
+
+        tvfbTime.setText(totalfb / 3600 + ":" + formatter.format((totalfb % 3600) / 60) + ":" + formatter.format(totalfb % 60));
+        tvinstaTime.setText(totalinsta / 3600 + ":" + formatter.format((totalinsta % 3600) / 60) + ":" + formatter.format(totalinsta % 60));
+        tvsnapchatTime.setText(totalsnap / 3600 + ":" + formatter.format((totalsnap % 3600) / 60) + ":" + formatter.format(totalsnap % 60));
 
     }
 
@@ -519,4 +543,9 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        NotificationManagerCompat.from(HomeActivity.this).cancel(ONGOING_NOTIFICATION_ID);
+    }
 }

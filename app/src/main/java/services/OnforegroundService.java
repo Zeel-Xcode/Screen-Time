@@ -1,18 +1,35 @@
 package services;
 
+import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_ID;
+import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_NAME;
+import static com.screentime.HomeActivity.ONGOING_NOTIFICATION_ID;
+
 import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
+import com.screentime.HomeActivity;
 import com.screentime.MyApplication;
+import com.screentime.R;
 import com.screentime.utils.AppConstant;
 import com.screentime.utils.CommonUtils;
 
@@ -63,6 +80,11 @@ public class OnforegroundService extends Service {
                     } else if (currentPackage.equals(packages[2])) {
                         appname = "snapchat";
                     }
+
+
+//                    final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+//                    notificationManager.notify();
+
                     startTimer();
                 }
             }
@@ -72,6 +94,8 @@ public class OnforegroundService extends Service {
             return START_REDELIVER_INTENT;
         }
     }
+
+
 
     @Override
     public void onDestroy() {

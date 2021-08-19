@@ -1,20 +1,32 @@
 package services;
 
+import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_ID;
+import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_NAME;
+import static com.screentime.HomeActivity.ONGOING_NOTIFICATION_ID;
+
 import android.app.ActivityManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
 
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.screentime.AlertDialog2Activity;
 import com.screentime.HomeActivity;
@@ -43,6 +55,7 @@ public class GetUsageService1 extends Service {
     private TimerTask timerTask;
     String currentPackage;
 
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -58,14 +71,48 @@ public class GetUsageService1 extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         startTimer();
+
+        final Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        createNotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME,
+                NotificationManagerCompat.IMPORTANCE_HIGH, this);
+        final NotificationCompat.Builder notification = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+                .setAutoCancel(false)
+                .setOngoing(true)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
+                .setContentTitle(getResources().getString(R.string.app_name))
+                .setContentText("Background Service")
+                .setSound(soundUri)
+                .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000})
+                .setLights(Color.RED, 3000, 3000)
+                .setPriority(Notification.PRIORITY_LOW);
+
+        Notification notification1 = notification.build();
+        notification1.flags = Notification.FLAG_ONGOING_EVENT;
+        startForeground(ONGOING_NOTIFICATION_ID, notification1);
+
         return START_REDELIVER_INTENT;
     }
+
+    private void createNotificationChannel(@NonNull String aChannelId, @NonNull String aChannelName,
+                                           int aImportance, Context aContext) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(aChannelId, aChannelName, aImportance);
+
+            final NotificationManager manager = aContext.getSystemService(NotificationManager.class);
+
+            assert manager != null;
+            manager.createNotificationChannel(channel);
+        }
+    }
+
 
     @Override
     public void onDestroy() {
         stoptimertask();
-        Intent intent = new Intent("com.pause");
-        sendBroadcast(intent);
+//        Intent intent = new Intent("com.pause");
+//        sendBroadcast(intent);
+
     }
 
 

@@ -57,7 +57,7 @@ public class AllDataFragment extends Fragment {
 
         }
 
-        Alldataadapter adapter = new Alldataadapter((FragmentActivity) getContext(),getAppdata);
+        Alldataadapter adapter = new Alldataadapter(getActivity(),getAppdata);
         recyclerview.setAdapter(adapter);
 
         return view;

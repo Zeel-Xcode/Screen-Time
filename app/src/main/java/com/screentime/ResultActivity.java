@@ -13,6 +13,7 @@ import android.widget.TableLayout;
 
 import com.google.android.material.tabs.TabLayout;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import Fragments.AllDataFragment;
@@ -38,8 +39,6 @@ public class ResultActivity extends AppCompatActivity {
 
         appname = getIntent().getStringExtra("which");
 
-        replaceFragment(new AllDataFragment(), false);
-
         final Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
         mMonth = c.get(Calendar.MONTH);
@@ -50,6 +49,13 @@ public class ResultActivity extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setText("All Data"));
         tabLayout.addTab(tabLayout.newTab().setText(currentdate));
 
+
+        Fragment fragment = new AllDataFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("which",appname);
+        fragment.setArguments(bundle);
+        replaceFragment(fragment, false);
+
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @SuppressLint("ResourceAsColor")
             @Override
@@ -58,6 +64,9 @@ public class ResultActivity extends AppCompatActivity {
                 switch (tab.getPosition()) {
                     case 0:
                         fragment[0] = new AllDataFragment();
+                        Bundle bundle = new Bundle();
+                        bundle.putString("which",appname);
+                        fragment[0].setArguments(bundle);
                         replaceFragment(fragment[0], false);
                         break;
                     case 1:
@@ -69,15 +78,26 @@ public class ResultActivity extends AppCompatActivity {
                                     public void onDateSet(DatePicker view, int year,
                                                           int monthOfYear, int dayOfMonth) {
 
-                                        currentdate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
-                                        tab.setText(currentdate);
+                                        mYear = year;
+                                        mMonth = monthOfYear;
+                                        mDay = dayOfMonth;
+
+                                       currentdate =  String.format("%d-%02d-%02d", year, (monthOfYear + 1), dayOfMonth);
+                                       tab.setText(currentdate);
+
+                                        fragment[0] = new DateFragment();
+                                        Bundle bundle1 = new Bundle();
+                                        bundle1.putString("which",appname);
+                                        bundle1.putString("date",currentdate);
+                                        fragment[0].setArguments(bundle1);
+                                        replaceFragment(fragment[0],false);
 
                                     }
                                 }, mYear, mMonth, mDay);
+
                         datePickerDialog.show();
 
-                        fragment[0] = new DateFragment();
-                        replaceFragment(fragment[0],false);
+
 
                         break;
                 }
@@ -92,6 +112,7 @@ public class ResultActivity extends AppCompatActivity {
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
+                final Fragment[] fragment = {null};
                 switch (tab.getPosition()) {
                     case 1:
 
@@ -102,8 +123,19 @@ public class ResultActivity extends AppCompatActivity {
                                     public void onDateSet(DatePicker view, int year,
                                                           int monthOfYear, int dayOfMonth) {
 
-                                        currentdate = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
+                                        mYear = year;
+                                        mMonth = monthOfYear;
+                                        mDay = dayOfMonth;
+
+                                        currentdate =  String.format("%d-%02d-%02d", year, (monthOfYear + 1), dayOfMonth);
                                         tab.setText(currentdate);
+
+                                        fragment[0] = new DateFragment();
+                                        Bundle bundle1 = new Bundle();
+                                        bundle1.putString("which",appname);
+                                        bundle1.putString("date",currentdate);
+                                        fragment[0].setArguments(bundle1);
+                                        replaceFragment(fragment[0],false);
 
                                     }
                                 }, mYear, mMonth, mDay);
@@ -118,9 +150,6 @@ public class ResultActivity extends AppCompatActivity {
 
     public void replaceFragment(androidx.fragment.app.Fragment someFragment, boolean isshow) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        Bundle bundle = new Bundle();
-        bundle.putString("which",appname);
-        someFragment.setArguments(bundle);
         transaction.replace(R.id.viewpager, someFragment);
         transaction.commit();
     }
