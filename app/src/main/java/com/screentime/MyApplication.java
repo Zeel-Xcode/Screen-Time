@@ -12,6 +12,12 @@ public class MyApplication extends Application {
 
 
 
+
+
+
+
+
+
     public static long getCOUNT() {
         return COUNT;
     }
