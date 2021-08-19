@@ -10,14 +10,6 @@ public class MyApplication extends Application {
 
     public static long COUNT;
 
-
-
-
-
-
-
-
-
     public static long getCOUNT() {
         return COUNT;
     }
@@ -25,8 +17,6 @@ public class MyApplication extends Application {
     public static void setCOUNT(long COUNT) {
         com.screentime.MyApplication.COUNT = COUNT;
     }
-
-
 
     @Override
     public void onCreate() {

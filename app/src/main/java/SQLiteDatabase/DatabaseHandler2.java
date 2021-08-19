@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import Model.NewModel;
 import Model.SqLiteDatabaseModel;
 
 public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
@@ -56,45 +57,46 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void insertRecord(SqLiteDatabaseModel sqLiteDatabaseModel) {
+    public void insertRecord(NewModel newModel) {
         SQLiteDatabase database = this.getReadableDatabase();
         ContentValues values = new ContentValues();
-        values.put(KEY_APPNAME, sqLiteDatabaseModel.getAppname());
-        values.put(KEY_CURRENTDATE, timeStamp(getCurrentDate()));
-        values.put(KEY_STARTTIME, sqLiteDatabaseModel.getStarttime());
-        values.put(KEY_ENDTIME, sqLiteDatabaseModel.getEndtime());
-        values.put(KEY_TOTALSEC, sqLiteDatabaseModel.getTotalsec());
+        values.put(KEY_APPNAME, newModel.getAppname());
+        values.put(KEY_CURRENTDATE, getCurrentDate());
+        values.put(KEY_STARTTIME, newModel.getStarttime());
+        values.put(KEY_ENDTIME, newModel.getEndtime());
+        values.put(KEY_TOTALSEC, newModel.getTotalsec());
 
         database.insert(TABLE_CONTACTS, null, values);
         database.close();
     }
 
-    public void updateRecord(SqLiteDatabaseModel sqLiteDatabaseModel){
+    public void updateRecord(NewModel newModel){
         SQLiteDatabase database = this.getReadableDatabase();
         ContentValues values = new ContentValues();
-        values.put(KEY_APPNAME, sqLiteDatabaseModel.getAppname());
-        values.put(KEY_STARTTIME, sqLiteDatabaseModel.getStarttime());
-        values.put(KEY_ENDTIME, sqLiteDatabaseModel.getEndtime());
-        values.put(KEY_TOTALSEC, sqLiteDatabaseModel.getTotalsec());
+        values.put(KEY_APPNAME, newModel.getAppname());
+        values.put(KEY_CURRENTDATE, getCurrentDate());
+        values.put(KEY_STARTTIME, newModel.getStarttime());
+        values.put(KEY_ENDTIME, newModel.getEndtime());
+        values.put(KEY_TOTALSEC, newModel.getTotalsec());
 
-       database.update(TABLE_CONTACTS, values, KEY_ID + "= ?", new String[]{sqLiteDatabaseModel.getId()});
+       database.update(TABLE_CONTACTS, values, KEY_ID + "= ?", new String[]{newModel.getId()});
        database.close();
     }
 
-    public ArrayList<SqLiteDatabaseModel> getAllTime() {
+    public ArrayList<NewModel> getAllTime() {
         SQLiteDatabase database = this.getReadableDatabase();
         Cursor cursor = database.query(TABLE_CONTACTS, null, null, null, null, null, null);
-        ArrayList<SqLiteDatabaseModel> contacts = new ArrayList<SqLiteDatabaseModel>();
-        SqLiteDatabaseModel contactModel;
+        ArrayList<NewModel> contacts = new ArrayList<NewModel>();
+        NewModel contactModel;
         if (cursor.getCount() > 0) {
             for (int i = 0; i < cursor.getCount(); i++) {
                 cursor.moveToNext();
-                contactModel = new SqLiteDatabaseModel();
+                contactModel = new NewModel();
                 contactModel.setId(cursor.getString(0));
-                contactModel.setCurentDate(cursor.getString(1));
-                contactModel.setStarttime(cursor.getString(2));
-                contactModel.setEndtime(cursor.getString(3));
-                contactModel.setTotalsec(cursor.getString(4));
+                contactModel.setCurrentdate(cursor.getString(1));
+                contactModel.setStarttime(cursor.getInt(2));
+                contactModel.setEndtime(cursor.getInt(3));
+                contactModel.setTotalsec(cursor.getInt(4));
                 contactModel.setAppname(cursor.getString(5));
 
                 contacts.add(contactModel);
@@ -107,6 +109,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
 
     public String getCurrentDate() {
         String pattern = "yyyy-MM-dd";
+
         String dateInString = new SimpleDateFormat(pattern).format(new Date());
         return dateInString;
     }

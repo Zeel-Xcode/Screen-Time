@@ -1,11 +1,6 @@
 package com.screentime;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.app.AppOpsManager;
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -14,10 +9,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
-import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.facebook.appevents.AppEventsLogger;
 import com.screentime.utils.AppConstant;
@@ -28,9 +26,9 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 
+import Model.NewModel;
 import Model.SqLiteDatabaseModel;
 import Model.UsageModel;
 import SQLiteDatabase.DatabaseHandler;
@@ -240,7 +238,7 @@ public class HomeActivity extends AppCompatActivity {
     /**
      * To set data  on Screen.
      */
-    private void setData(){
+    private void setData() {
         setDatafb();
         setDatainsta();
         setDatasnap();
@@ -263,7 +261,7 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
-    private void setDatainsta(){
+    private void setDatainsta() {
         long time = getTimes(packages[1]);
         int minutes = (int) ((time / (1000 * 60)) % 60);
         int hours = (int) ((time / (1000 * 60 * 60)) % 24);
@@ -290,7 +288,7 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
-    private void setDatasnap(){
+    private void setDatasnap() {
         long time = getTimes(packages[2]);
         int minutes = (int) ((time / (1000 * 60)) % 60);
         int hours = (int) ((time / (1000 * 60 * 60)) % 24);
@@ -355,21 +353,32 @@ public class HomeActivity extends AppCompatActivity {
             long l = Long.parseLong(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME));
             CommonUtils.savePreferencesInteger(getApplicationContext(), AppConstant.FWEEKTTIME, CommonUtils.getPreferencesInteger(getApplicationContext(), AppConstant.FWEEKTTIME) + l);
             getSetDataInSqLite(l, "facebook");
+            setdatanewdatabase(l, "facebook");
             return l;
 
         } else if (packageName.equals("com.snapchat.android")) {
             long l = Long.parseLong(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME));
             CommonUtils.savePreferencesInteger(getApplicationContext(), AppConstant.SWEEKTTIME, CommonUtils.getPreferencesInteger(getApplicationContext(), AppConstant.SWEEKTTIME) + l);
-
             getSetDataInSqLite(l, "snapchat");
+            setdatanewdatabase(l, "snapchat");
             return l;
         } else {
             long l = Long.parseLong(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.ICURRENTTIME));
             CommonUtils.savePreferencesInteger(getApplicationContext(), AppConstant.IWEEKTIME, CommonUtils.getPreferencesInteger(getApplicationContext(), AppConstant.IWEEKTIME) + l);
             getSetDataInSqLite(l, "instagram");
-
+            setdatanewdatabase(l, "instagram");
             return l;
         }
+    }
+
+    public void setdatanewdatabase(long l, String title) {
+        NewModel newModel = new NewModel();
+        newModel.setAppname(title);
+        int seconds = (int) ((l / (1000) % 60));
+        newModel.setStarttime(seconds);
+        databaseHandler2.insertRecord(newModel);
+
+
     }
 
     public void getSetDataInSqLite(long l, String title) {
@@ -411,8 +420,7 @@ public class HomeActivity extends AppCompatActivity {
                             CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.ICURRENTTIME)));
                 }
 
-            }
-            else {
+            } else {
                 if (title.equals("facebook")) {
 
                     sqLiteDatabaseModel.setId(id);
@@ -437,8 +445,7 @@ public class HomeActivity extends AppCompatActivity {
 
 
             }
-        }
-        else {
+        } else {
             if (title.equals("facebook")) {
                 sqLiteDatabaseModel.setId(id);
                 sqLiteDatabaseModel.setFacebookTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME));

@@ -7,10 +7,6 @@ package Model;
 public class SqLiteDatabaseModel {
 
     String id;
-    String appname;
-    String starttime;
-    String endtime;
-    String totalsec;
     String FacebookTime;
     String InstagramTime;
     String SnapChatTime;
@@ -19,39 +15,6 @@ public class SqLiteDatabaseModel {
     public SqLiteDatabaseModel() {
 
     }
-
-    public String getAppname() {
-        return appname;
-    }
-
-    public void setAppname(String appname) {
-        this.appname = appname;
-    }
-
-    public String getStarttime() {
-        return starttime;
-    }
-
-    public void setStarttime(String starttime) {
-        this.starttime = starttime;
-    }
-
-    public String getEndtime() {
-        return endtime;
-    }
-
-    public void setEndtime(String endtime) {
-        this.endtime = endtime;
-    }
-
-    public String getTotalsec() {
-        return totalsec;
-    }
-
-    public void setTotalsec(String totalsec) {
-        this.totalsec = totalsec;
-    }
-
     public SqLiteDatabaseModel(String id, String facebookTime) {
         this.id = id;
         this.FacebookTime = facebookTime;
