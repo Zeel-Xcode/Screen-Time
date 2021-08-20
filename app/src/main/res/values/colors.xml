@@ -2,38 +2,11 @@
 <resources>
     <color name="colorPrimary">#1976d2</color>
     <color name="colorPrimaryDark">#0066cc</color>
-    <color name="colorAccent">#0066cc</color>
-    <color name="textColor">#0B669B</color>
     <color name="backgroundcolor">#D3DDE6</color>
-    <color name="colorlightGrey">#d9d9d9</color>
     <color name="colorGrey">#4d4d4d</color>
     <color name="black">#000000</color>
-    <color name="colorRed">#c0504d</color>
-    <color name="colorGreen">#1a915b</color>
-    <color name="colorSilver">#565656</color>
-    <color name="colorYellow">#f07c00</color>
-    <color name="colorOrange">#f37934</color>
-    <color name="lightRed">#ff1a1a</color>
-    <color name="lightYellow">#ffcc00</color>
     <!-- dots inactive colors -->
-    <color name="dot_dark_screen1">#ffffff</color>
-    <color name="bg_screen4">#c873f4</color>
     <!-- dots active colors -->
-    <color name="dot_light_screen1">#017c87</color>
     <color name="white">#ffffff</color>
-    <color name="snapchat">#CCCC00</color>
-    <color name="instagram">#008000</color>
-    <color name="unselected_indicator">#bebebe</color>
 
-    <array name="array_dot_active">
-        <item>@color/colorPrimaryDark</item>
-        <item>@color/colorPrimaryDark</item>
-        <item>@color/colorPrimaryDark</item>
-    </array>
-
-    <array name="array_dot_inactive">
-        <item>@color/dot_light_screen1</item>
-        <item>@color/dot_light_screen1</item>
-        <item>@color/dot_light_screen1</item>
-    </array>
 </resources>

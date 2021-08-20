@@ -1,61 +1,18 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="dim_150">150dp</dimen>
     <dimen name="dim_20">20dp</dimen>
     <dimen name="dim_10">10dp</dimen>
-    <dimen name="large_text_size">18sp</dimen>
     <dimen name="dim_40">40dp</dimen>
     <dimen name="dim_25">25dp</dimen>
-    <dimen name="dim_5">5dp</dimen>
-    <dimen name="dim_3">3dp</dimen>
     <dimen name="dim_1">1dp</dimen>
-    <dimen name="dim_.8">.8dp</dimen>
-    <dimen name="medium_text_size">15sp</dimen>
-    <dimen name="dim_30">30dp</dimen>
     <dimen name="dp_10">10dp</dimen>
-    <dimen name="dim_100">100dp</dimen>
 
-    <dimen name="card_height">304dp</dimen>
-    <dimen name="md_keylines">16dp</dimen>
-    <dimen name="tile_padding">8dp</dimen>
-    <dimen name="tile_height">160dp</dimen>
-    <dimen name="app_bar_height">256dp</dimen>
-    <dimen name="article_keylines">72dp</dimen>
-    <dimen name="avator_size">40dp</dimen>
-    <dimen name="card_title_height">40dp</dimen>
-    <dimen name="article_titles">20sp</dimen>
-    <dimen name="cards_button_width">48dp</dimen>
-    <dimen name="cards_button_height">48dp</dimen>
-    <dimen name="article_subheading">16sp</dimen>
-    <dimen name="card_image_height">200dp</dimen>
-    <dimen name="list_body">14sp</dimen>
-    <dimen name="navheader_height">222dp</dimen>
-    <dimen name="fab_margin">16dp</dimen>
-
-    <dimen name="dots_height">30dp</dimen>
-    <dimen name="dots_margin_bottom">20dp</dimen>
-    <dimen name="img_width_height">120dp</dimen>
-    <dimen name="slide_title">30dp</dimen>
-    <dimen name="slide_desc">16dp</dimen>
-    <dimen name="desc_padding">40dp</dimen>
     <dimen name="dim_15">15dp</dimen>
-    <dimen name="dim_16dp">16dp</dimen>
     <dimen name="dim_8dp">8dp</dimen>
     <dimen name="dim_14">14dp</dimen>
-    <dimen name="dim_12">12dp</dimen>
-    <dimen name="dim_50">50dp</dimen>
-    <dimen name="dim_4">4dp</dimen>
 
 
     <dimen name="sp_10">10sp</dimen>
-    <dimen name="sp_12">12sp</dimen>
-    <dimen name="sp_20">20sp</dimen>
     <dimen name="sp_18">18sp</dimen>
     <dimen name="sp_24">24sp</dimen>
-    <dimen name="sp_16">16sp</dimen>
-    <dimen name="sp_14">14sp</dimen>
-    <dimen name="sp_23">23sp</dimen>
-    <dimen name="sp_15">15</dimen>
 </resources>

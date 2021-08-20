@@ -13,6 +13,10 @@ import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
@@ -55,7 +59,10 @@ public class OnforegroundService extends Service {
     private TimerTask timerTask;
     String currentPackage;
     String appname;
-    String[] packages = {"com.facebook.katana", "com.instagram.android", "com.snapchat.android"};
+    String packagename;
+    ArrayList<String> packageslist = new ArrayList<>();
+    ArrayList<String> messagelist = new ArrayList<>();
+    ArrayList<String> diallist = new ArrayList<>();
     DatabaseHandler2 databaseHandler2;
     String id;
 
@@ -68,22 +75,65 @@ public class OnforegroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+
+        packageslist.clear();
+        messagelist.clear();
+        diallist.clear();
+
+        packageslist.add("com.facebook.katana");
+        packageslist.add("com.instagram.android");
+        packageslist.add("com.snapchat.android");
+        packageslist.add("com.zhiliaoapp.musically");
+        packageslist.add("com.google.android.youtube");
+        packageslist.add("com.twitter.android");
+
+        messagelist = getMessagingAppPackageNames(getApplicationContext());
+        diallist = getPackagesOfDialerApps(getApplicationContext());
+        packageslist.addAll(messagelist);
+        packageslist.addAll(diallist);
+
         try {
             if (intent != null) {
                 if (intent.getExtras() != null) {
                     databaseHandler2 = new DatabaseHandler2(this);
                     currentPackage = intent.getExtras().getString("package");
-                    if (currentPackage.equals(packages[0])) {
-                        appname = "facebook";
-                    } else if (currentPackage.equals(packages[1])) {
-                        appname = "instagram";
-                    } else if (currentPackage.equals(packages[2])) {
-                        appname = "snapchat";
+
+                    for (int i = 0; i < packageslist.size(); i++) {
+
+                        if (packageslist.get(i).equals(currentPackage)) {
+                            packagename = packageslist.get(i);
+                            CommonUtils.savePreferencesString(getApplicationContext(), "packagename", packagename);
+                        }
+
                     }
 
+                    if (packagename.equals("com.facebook.katana")) {
+                        appname = "facebook";
+                    } else if (packagename.equals("com.instagram.android")) {
+                        appname = "instagram";
+                    } else if (packagename.equals("com.snapchat.android")) {
+                        appname = "snapchat";
+                    } else if (packagename.equals("com.zhiliaoapp.musically")){
+                        appname = "tiktok";
+                    }else if (packagename.equals("com.google.android.youtube")){
+                        appname = "youtube";
+                    }else if (packagename.equals("com.twitter.android")){
+                        appname = "twitter";
+                    }
+                    else {
+                        for (int i = 0; i < messagelist.size(); i++) {
+                            if (packagename.equals(messagelist.get(i))) {
+                                appname = "message";
+                            }
+                        }
 
-//                    final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-//                    notificationManager.notify();
+                        for (int i = 0; i < diallist.size(); i++) {
+                            if (packagename.equals(diallist.get(i))) {
+                                appname = "phone";
+                            }
+                        }
+                    }
+                    CommonUtils.savePreferencesString(getApplicationContext(), "appname", appname);
 
                     startTimer();
                 }
@@ -95,6 +145,42 @@ public class OnforegroundService extends Service {
         }
     }
 
+    private ArrayList<String> getMessagingAppPackageNames(Context context) {
+        ArrayList<String> messagingAppPackgeNameList = new ArrayList<>();
+        final PackageManager pm = context.getPackageManager();
+        //get metaData for installed apps
+        List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+
+        for (ApplicationInfo appInfo : packages) {
+            String packageName = appInfo.packageName;
+            if (packageName != null && (packageName.contains("sms")
+                    || packageName.contains("mms") || packageName.contains("message")
+                    || packageName.contains("SMS") || packageName.contains("MMS")
+                    || packageName.contains("Message") || packageName.contains("media")
+                    || packageName.contains("Media") || packageName.contains("messaging"))) {
+                messagingAppPackgeNameList.add(packageName);
+            }
+        }
+        return messagingAppPackgeNameList;
+    }
+
+    public ArrayList<String> getPackagesOfDialerApps(Context context) {
+
+        ArrayList<String> packageNames = new ArrayList<>();
+
+        // Declare action which target application listen to initiate phone call
+        final Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_DIAL);
+        // Query for all those applications
+        List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(intent, 0);
+        // Read package name of all those applications
+        for (ResolveInfo resolveInfo : resolveInfos) {
+            ActivityInfo activityInfo = resolveInfo.activityInfo;
+            packageNames.add(activityInfo.applicationInfo.packageName);
+        }
+
+        return packageNames;
+    }
 
 
     @Override
@@ -112,7 +198,7 @@ public class OnforegroundService extends Service {
             long starttime = System.currentTimeMillis();
             CommonUtils.savePreferencesInteger(getApplicationContext(), "starttime", starttime);
             CommonUtils.savePreferencesInteger(getApplicationContext(), "endtime", 0);
-            setdatanewdatabase(appname);
+            setdatanewdatabase(appname,packagename);
             //schedule the timer, to wake up every 10 second
             timer.schedule(timerTask, 500, 500);
         }
@@ -126,7 +212,7 @@ public class OnforegroundService extends Service {
                 }
                 if (currentPackage.equals(getRecentApps(getApplicationContext()))) {
                     MyApplication.setCOUNT(MyApplication.getCOUNT() + 500);
-                    setTimes(currentPackage);
+
                 } else {
                     MyApplication.setCOUNT(0);
                     stopSelf();
@@ -180,27 +266,7 @@ public class OnforegroundService extends Service {
         return currentApp;
     }
 
-
-    /**
-     * Adds time for each app in every second.
-     */
-    private void setTimes(String packageName) {
-        if (packageName.equals("com.facebook.katana")) {
-            long l = Long.parseLong(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME));
-            l = l + 500;
-            CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME, l + "");
-        } else if (packageName.equals("com.snapchat.android")) {
-            long l = Long.parseLong(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME));
-            l = l + 500;
-            CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME, l + "");
-        } else {
-            long l = Long.parseLong(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.ICURRENTTIME));
-            l = l + 500;
-            CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.ICURRENTTIME, l + "");
-        }
-    }
-
-    public void setdatanewdatabase(String title) {
+    public void setdatanewdatabase(String title, String packagename) {
         NewModel newModel = new NewModel();
         long starttime = CommonUtils.getPreferencesInteger(getApplicationContext(), "starttime");
         long endtime = CommonUtils.getPreferencesInteger(getApplicationContext(), "endtime");
@@ -213,6 +279,7 @@ public class OnforegroundService extends Service {
         int gettotal = Integer.parseInt(sdf1.format(totalseconds));
         String currentdate = sdf2.format(starttime);
 
+        newModel.setPackagename(packagename);
         newModel.setAppname(title);
         newModel.setStarttime(starttime);
         newModel.setEndtime(endtime);
@@ -233,6 +300,7 @@ public class OnforegroundService extends Service {
         long totalseconds = endtime - starttime;
         int gettotal = Integer.parseInt(sdf1.format(totalseconds));
         newModel.setId(id);
+        newModel.setPackagename(packagename);
         newModel.setAppname(appname);
         newModel.setStarttime(starttime);
         newModel.setEndtime(endtime);
@@ -243,9 +311,4 @@ public class OnforegroundService extends Service {
 
     }
 
-    private String getCurrentDate() {
-        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
-        String dateInString = sdf2.format(System.currentTimeMillis());
-        return dateInString;
-    }
 }

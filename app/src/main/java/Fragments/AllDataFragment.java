@@ -3,7 +3,6 @@ package Fragments;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
@@ -16,7 +15,6 @@ import com.screentime.R;
 import java.util.ArrayList;
 
 import Model.NewModel;
-import Model.UsageModel;
 import SQLiteDatabase.DatabaseHandler2;
 
 public class AllDataFragment extends Fragment {
@@ -49,7 +47,7 @@ public class AllDataFragment extends Fragment {
 
             for (int i = 0; i < getdata.size(); i++) {
                 if (getdata.get(i).getAppname().equals(appname)){
-                    getAppdata.add(getdata.get(i));
+                    getAppdata.add(0,getdata.get(i));
                 }
             }
 

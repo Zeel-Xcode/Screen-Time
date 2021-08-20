@@ -48,7 +48,7 @@ public class DateFragment extends Fragment {
 
             for (int i = 0; i < getdata.size(); i++) {
                 if (getdata.get(i).getAppname().equals(appname) && getdata.get(i).getCurrentdate().equals(date)){
-                    getAppdata.add(getdata.get(i));
+                    getAppdata.add(0,getdata.get(i));
                 }
             }
 

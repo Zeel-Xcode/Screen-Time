@@ -3,6 +3,7 @@ package Model;
 public class NewModel {
 
     String Id;
+    String packagename;
     String appname;
     long starttime;
     long endtime;
@@ -15,6 +16,14 @@ public class NewModel {
 
     public void setId(String id) {
         Id = id;
+    }
+
+    public String getPackagename() {
+        return packagename;
+    }
+
+    public void setPackagename(String packagename) {
+        this.packagename = packagename;
     }
 
     public String getAppname() {

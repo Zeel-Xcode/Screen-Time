@@ -1,34 +1,26 @@
 package com.screentime;
 
+import android.annotation.SuppressLint;
 import android.app.AppOpsManager;
 import android.app.DatePickerDialog;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.media.RingtoneManager;
-import android.net.Uri;
+import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.facebook.appevents.AppEventsLogger;
@@ -42,11 +34,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import Model.NewModel;
-import Model.SqLiteDatabaseModel;
-import Model.UsageModel;
-import SQLiteDatabase.DatabaseHandler;
 import SQLiteDatabase.DatabaseHandler2;
 import services.GetUsageService1;
 
@@ -54,18 +44,16 @@ public class HomeActivity extends AppCompatActivity {
 
     Toolbar toolbar;
     ImageView iv_back, iv_setting;
-    TextView tvTitle, tvFacebook, tvInsta, tvSnapChat, tvfbTime, tvinstaTime, tvsnapchatTime, datepicker;
-    LinearLayout llFacebook, llSnapchat, llInsta;
+    TextView tvTitle, tvFacebook, tvInsta, tvSnapChat, tvfbTime, tvinstaTime, tvsnapchatTime, datepicker, tvMessages, tvmessageTime, tvTiktok, tvtiktokTime, tvPhone, tvphoneTime,tvtwitterTime,tvyoutubeTime;
+    LinearLayout llFacebook, llSnapchat, llInsta, llMessages, llTktok, llPhone,llyoutube,lltwitter;
 
-    String[] packages = {"com.facebook.katana", "com.instagram.android", "com.snapchat.android"};
     NumberFormat formatter;
     private AppEventsLogger logger;
-    private DatabaseHandler db;
     private DatabaseHandler2 databaseHandler2;
     private String id;
     String datepickerstamp;
 
-    public static final String NOTIFICATION_CHANNEL_NAME = "App Tracking";
+    public static final String NOTIFICATION_CHANNEL_NAME = "App usages Tracking";
     public static final String NOTIFICATION_CHANNEL_ID = "Screentimer_background_service_channel";
     public static final int ONGOING_NOTIFICATION_ID = 100;
 
@@ -76,6 +64,12 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        tvphoneTime = findViewById(R.id.tvphoneTime);
+        tvPhone = findViewById(R.id.tvPhone);
+        tvtiktokTime = findViewById(R.id.tvtiktokTime);
+        tvTiktok = findViewById(R.id.tvTiktok);
+        tvmessageTime = findViewById(R.id.tvmessageTime);
+        tvMessages = findViewById(R.id.tvMessages);
         datepicker = findViewById(R.id.datepicker);
         toolbar = findViewById(R.id.toolbar);
         iv_back = findViewById(R.id.iv_back);
@@ -87,16 +81,20 @@ public class HomeActivity extends AppCompatActivity {
         tvfbTime = findViewById(R.id.tvfbTime);
         tvinstaTime = findViewById(R.id.tvinstaTime);
         tvsnapchatTime = findViewById(R.id.tvsnapchatTime);
+        tvtwitterTime = findViewById(R.id.tvtwitterTime);
+        tvyoutubeTime = findViewById(R.id.tvyoutubeTime);
         llFacebook = findViewById(R.id.llFacebook);
         llSnapchat = findViewById(R.id.llSnapchat);
         llInsta = findViewById(R.id.llInsta);
+        llMessages = findViewById(R.id.llMessages);
+        llTktok = findViewById(R.id.llTktok);
+        llPhone = findViewById(R.id.llPhone);
+        llyoutube = findViewById(R.id.llyoutube);
+        lltwitter = findViewById(R.id.lltwitter);
 
         formatter = new DecimalFormat("00");
         setToolbar();
-        setAverageTime();
 
-
-        db = new DatabaseHandler(this);
         databaseHandler2 = new DatabaseHandler2(this);
         logger = AppEventsLogger.newLogger(this);
 
@@ -104,6 +102,20 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 facebook();
+            }
+        });
+
+        llyoutube.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                youtube();
+            }
+        });
+
+        lltwitter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                twitter();
             }
         });
 
@@ -118,6 +130,27 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 snapchat();
+            }
+        });
+
+        llMessages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                messages();
+            }
+        });
+
+        llTktok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tiktok();
+            }
+        });
+
+        llPhone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                phone();
             }
         });
 
@@ -185,60 +218,53 @@ public class HomeActivity extends AppCompatActivity {
      * Navigate to Statistics Screen with Facebook's details.
      */
     private void facebook() {
-//        long time = getTimes(packages[0]);
-//        int minutes = (int) ((time / (1000 * 60)) % 60);
-//        int hours = (int) ((time / (1000 * 60 * 60)) % 24);
-//        UsageModel model = new UsageModel();
-//        model.setHrs(hours);
-//        model.setMint(minutes);
-//        if (time > 0) {
+
             startActivity(new Intent(this, ResultActivity.class)
                     .putExtra("which", "facebook"));
-//                    .putExtra("image", R.drawable.screen_facebook)
-//                    .putExtra("data", model)
-//                    .putExtra("limit", "0:40")
-//                    .putExtra("average", CommonUtils.getPreferencesString(this, AppConstant.FB_ATIME)));
-//        } else {
-//            CommonUtils.snackBar(tvFacebook, getResources().getString(R.string.no_app));
-//        }
+
+    }
+
+    private void twitter() {
+
+            startActivity(new Intent(this, ResultActivity.class)
+                    .putExtra("which", "twitter"));
+
+    }
+
+    private void youtube() {
+
+        startActivity(new Intent(this, ResultActivity.class)
+                .putExtra("which", "youtube"));
+
     }
 
     private void snapchat() {
-//        long time = getTimes(packages[2]);
-//        int minutes = (int) ((time / (1000 * 60)) % 60);
-//        int hours = (int) ((time / (1000 * 60 * 60)) % 24);
-//        UsageModel model = new UsageModel();
-//        model.setHrs(hours);
-//        model.setMint(minutes);
-//        if (time > 0) {
-            startActivity(new Intent(this, ResultActivity.class)
-                    .putExtra("which", "snapchat"));
-//                    .putExtra("image", R.drawable.screen_snapchat)
-//                    .putExtra("data", model)
-//                    .putExtra("limit", "0:25")
-//                    .putExtra("average", CommonUtils.getPreferencesString(this, AppConstant.SNAPCHAT_ATIME)));
-//        } else {
-//            CommonUtils.snackBar(tvFacebook, getResources().getString(R.string.no_app));
-//        }
+
+        startActivity(new Intent(this, ResultActivity.class)
+                .putExtra("which", "snapchat"));
+
     }
 
     private void instagram() {
-//        long time = getTimes(packages[1]);
-//        int minutes = (int) ((time / (1000 * 60)) % 60);
-//        int hours = (int) ((time / (1000 * 60 * 60)) % 24);
-//        UsageModel model = new UsageModel();
-//        model.setHrs(hours);
-//        model.setMint(minutes);
-//
-//        if (time > 0) {
+
             startActivity(new Intent(this, ResultActivity.class)
                     .putExtra("which", "instagram"));
-//                    .putExtra("data", model)
-//                    .putExtra("limit", "0:15")
-//                    .putExtra("average", CommonUtils.getPreferencesString(this, AppConstant.INSTA_ATIME)));
-//        } else {
-//            CommonUtils.snackBar(tvFacebook, getResources().getString(R.string.no_app));
-//        }
+
+    }
+
+    private void messages(){
+        startActivity(new Intent(this, ResultActivity.class)
+             .putExtra("which","message"));
+    }
+
+    private void tiktok(){
+        startActivity(new Intent(this, ResultActivity.class)
+                .putExtra("which","tiktok"));
+    }
+
+    private void phone(){
+        startActivity(new Intent(this, ResultActivity.class)
+                .putExtra("which","phone"));
     }
 
     /**
@@ -262,14 +288,17 @@ public class HomeActivity extends AppCompatActivity {
      * To set data  on Screen.
      * @param currentDate
      */
+    @SuppressLint("SetTextI18n")
     private void setData(String currentDate) {
-//        setDatafb();
-//        setDatainsta();
-//        setDatasnap();
 
         long totalfb = 0;
         long totalinsta = 0;
         long totalsnap = 0;
+        long totalmessage = 0;
+        long totaltiktok = 0;
+        long totalphone = 0;
+        long totaltwitter = 0;
+        long totalyoutube = 0;
 
         ArrayList<NewModel> getdata = databaseHandler2.getAllTime();
 
@@ -282,6 +311,16 @@ public class HomeActivity extends AppCompatActivity {
                         totalsnap = totalsnap + (int) getdata.get(i).getTotalsec();
                     } else if (getdata.get(i).getAppname().equals("instagram")) {
                         totalinsta = totalinsta + (int) getdata.get(i).getTotalsec();
+                    } else if (getdata.get(i).getAppname().equals("message")) {
+                        totalmessage = totalmessage + (int) getdata.get(i).getTotalsec();
+                    } else if (getdata.get(i).getAppname().equals("tiktok")) {
+                        totaltiktok = totaltiktok + (int) getdata.get(i).getTotalsec();
+                    } else if (getdata.get(i).getAppname().equals("phone")) {
+                        totalphone = totalphone + (int) getdata.get(i).getTotalsec();
+                    } else if (getdata.get(i).getAppname().equals("youtube")) {
+                        totalyoutube = totalyoutube + (int) getdata.get(i).getTotalsec();
+                    } else if (getdata.get(i).getAppname().equals("twitter")) {
+                        totaltwitter = totaltwitter + (int) getdata.get(i).getTotalsec();
                     }
                 }
             }
@@ -290,257 +329,20 @@ public class HomeActivity extends AppCompatActivity {
         tvfbTime.setText(totalfb / 3600 + ":" + formatter.format((totalfb % 3600) / 60) + ":" + formatter.format(totalfb % 60));
         tvinstaTime.setText(totalinsta / 3600 + ":" + formatter.format((totalinsta % 3600) / 60) + ":" + formatter.format(totalinsta % 60));
         tvsnapchatTime.setText(totalsnap / 3600 + ":" + formatter.format((totalsnap % 3600) / 60) + ":" + formatter.format(totalsnap % 60));
+        tvmessageTime.setText(totalmessage / 3600 + ":" + formatter.format(totalmessage % 3600 / 60) + ":" + formatter.format(totalmessage % 60));
+        tvtiktokTime.setText(totaltiktok / 3600 + ":" + formatter.format(totaltiktok % 3600 / 60) + ":" + formatter.format(totaltiktok % 60));
+        tvphoneTime.setText(totalphone / 3600 + ":" + formatter.format(totalphone % 3600 / 60) + ":" + formatter.format(totalphone % 60));
+        tvtwitterTime.setText(totaltwitter / 3600 + ":" + formatter.format(totaltwitter % 3600 / 60) + ":" + formatter.format(totaltwitter % 60));
+        tvyoutubeTime.setText(totalyoutube / 3600 + ":" + formatter.format(totalyoutube % 3600 / 60) + ":" + formatter.format(totalyoutube % 60));
 
     }
 
-    private void setDatafb() {
 
-        long time = getTimes(packages[0]);
-        int minutes = (int) ((time / (1000 * 60)) % 60);
-        int hours = (int) ((time / (1000 * 60 * 60)) % 24);
-        int seconds = (int) ((time / (1000) % 60));
-
-        UsageModel model = new UsageModel();
-        model.setHrs(hours);
-        model.setMint(minutes);
-        model.setSec(seconds);
-
-        tvfbTime.setText(model.getHrs() + ":" + formatter.format(model.getMint()) + ":" + formatter.format(model.getSec()));
-
-    }
-
-    private void setDatainsta() {
-        long time = getTimes(packages[1]);
-        int minutes = (int) ((time / (1000 * 60)) % 60);
-        int hours = (int) ((time / (1000 * 60 * 60)) % 24);
-        int seconds = (int) ((time / (1000) % 60));
-
-//        // formula for conversion for
-//        // milliseconds to minutes.
-//        long minutes1 = (time / 1000) / 60;
-//
-//        // formula for conversion for
-//        // milliseconds to seconds
-//        long seconds1 = (time / 1000) % 60;
-//
-//        Toast.makeText(this, " " + time + " Milliseconds = "
-//                + minutes1 + " minutes and "
-//                + seconds1 + " seconds.", Toast.LENGTH_LONG).show();
-
-        UsageModel model = new UsageModel();
-        model.setHrs(hours);
-        model.setMint(minutes);
-        model.setSec(seconds);
-
-        tvinstaTime.setText(model.getHrs() + ":" + formatter.format(model.getMint()) + ":" + formatter.format(model.getSec()));
-
-    }
-
-    private void setDatasnap() {
-        long time = getTimes(packages[2]);
-        int minutes = (int) ((time / (1000 * 60)) % 60);
-        int hours = (int) ((time / (1000 * 60 * 60)) % 24);
-        int seconds = (int) ((time / (1000) % 60));
-
-        UsageModel model = new UsageModel();
-        model.setHrs(hours);
-        model.setMint(minutes);
-        model.setSec(seconds);
-
-        tvsnapchatTime.setText(model.getHrs() + ":" + formatter.format(model.getMint()) + ":" + formatter.format(model.getSec()));
-    }
-
-    /**
-     * Calculate if is average time has exceeded.
-     */
-    private boolean isAverageTime(long count, String limit) {
-        boolean time = false;
-        long given = getTimeInMil(limit);
-        if (count >= given) {
-            time = true;
-        } else {
-            time = false;
-        }
-        return time;
-    }
-
-    /**
-     * Calculate if is limit time has exceeded.
-     */
-    private boolean isTimeOver(long count, String limit) {
-        boolean time = false;
-        long given = getTimeInMil(limit);
-        if (count >= given) {
-            time = true;
-        } else {
-            time = false;
-        }
-        return time;
-    }
-
-    private long getTimeInMil(String time) {
-        long mili = 0;
-        String t[] = time.split(":");
-        int h = Integer.parseInt(t[0]);
-        int m = Integer.parseInt(t[1]);
-        if (h > 0 && m == 0) {
-            mili = h * 60 * 60 * 1000;
-        } else if (h == 0 && m > 0) {
-            mili = m * 60 * 1000;
-        } else if (h > 0 && m > 0) {
-            mili = (h * 60 * 60 * 1000) + (m * 60 * 1000);
-        }
-        return mili;
-    }
-
-    /**
-     * Gets current used time for each app.
-     */
-    private long getTimes(String packageName) {
-        if (packageName.equals("com.facebook.katana")) {
-            long l = Long.parseLong(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME));
-            CommonUtils.savePreferencesInteger(getApplicationContext(), AppConstant.FWEEKTTIME, CommonUtils.getPreferencesInteger(getApplicationContext(), AppConstant.FWEEKTTIME) + l);
-            getSetDataInSqLite(l, "facebook");
-            return l;
-        } else if (packageName.equals("com.snapchat.android")) {
-            long l = Long.parseLong(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME));
-            CommonUtils.savePreferencesInteger(getApplicationContext(), AppConstant.SWEEKTTIME, CommonUtils.getPreferencesInteger(getApplicationContext(), AppConstant.SWEEKTTIME) + l);
-            getSetDataInSqLite(l, "snapchat");
-            return l;
-        } else {
-            long l = Long.parseLong(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.ICURRENTTIME));
-            CommonUtils.savePreferencesInteger(getApplicationContext(), AppConstant.IWEEKTIME, CommonUtils.getPreferencesInteger(getApplicationContext(), AppConstant.IWEEKTIME) + l);
-            getSetDataInSqLite(l, "instagram");
-            return l;
-        }
-    }
-
-    public void getSetDataInSqLite(long l, String title) {
-        SqLiteDatabaseModel sqLiteDatabaseModel = new SqLiteDatabaseModel();
-        boolean isDateAvailabel = false;
-//        db.deleteDatabase();
-        ArrayList<SqLiteDatabaseModel> getAllData = db.getAllTime();
-        if (getAllData.size() > 0) {
-            for (int i = 0; i < getAllData.size(); i++) {
-                String date = getAllData.get(i).getCurentDate();
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                String dateString = formatter.format(new Date(Long.parseLong(date)));
-                if (getAllData.get(i).getCurentDate().equals(timeStamp())) {
-                    isDateAvailabel = true;
-                    id = getAllData.get(i).getId();
-                    break;
-                }
-            }
-            if (isDateAvailabel) {
-                if (title.equals("facebook")) {
-                    sqLiteDatabaseModel.setId(id);
-                    sqLiteDatabaseModel.setFacebookTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME));
-                    db.updateFacebookTime(new SqLiteDatabaseModel(id, CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME)));
-                } else if (title.equals("snapchat")) {
-
-                    sqLiteDatabaseModel.setId(id);
-                    sqLiteDatabaseModel.setFacebookTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME));
-                    sqLiteDatabaseModel.setSnapChatTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME));
-                    db.updateSnapChatTime(new SqLiteDatabaseModel(id, CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME),
-                            CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME)));
-                } else {
-
-                    sqLiteDatabaseModel.setId(id);
-                    sqLiteDatabaseModel.setFacebookTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME));
-                    sqLiteDatabaseModel.setSnapChatTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME));
-                    sqLiteDatabaseModel.setInstagramTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.ICURRENTTIME));
-                    db.updateInstagramTime(new SqLiteDatabaseModel(id, CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME),
-                            CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME),
-                            CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.ICURRENTTIME)));
-                }
-
-            } else {
-                if (title.equals("facebook")) {
-
-                    sqLiteDatabaseModel.setId(id);
-                    sqLiteDatabaseModel.setFacebookTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME));
-                    db.insertRecord(new SqLiteDatabaseModel(id, CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME)));
-                } else if (title.equals("snapchat")) {
-
-                    sqLiteDatabaseModel.setId(id);
-                    sqLiteDatabaseModel.setFacebookTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME));
-                    sqLiteDatabaseModel.setSnapChatTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME));
-                    db.insertRecord(new SqLiteDatabaseModel(id, CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME),
-                            CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME)));
-                } else {
-                    sqLiteDatabaseModel.setId(id);
-                    sqLiteDatabaseModel.setFacebookTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME));
-                    sqLiteDatabaseModel.setSnapChatTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME));
-                    sqLiteDatabaseModel.setInstagramTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.ICURRENTTIME));
-                    db.insertRecord(new SqLiteDatabaseModel(id, CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME),
-                            CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME),
-                            CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.ICURRENTTIME)));
-                }
-
-
-            }
-        } else {
-            if (title.equals("facebook")) {
-                sqLiteDatabaseModel.setId(id);
-                sqLiteDatabaseModel.setFacebookTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME));
-                db.insertRecord(new SqLiteDatabaseModel(id, CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME)));
-
-            } else if (title.equals("snapchat")) {
-
-                sqLiteDatabaseModel.setId(id);
-                sqLiteDatabaseModel.setFacebookTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME));
-                sqLiteDatabaseModel.setSnapChatTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME));
-                db.insertRecord(new SqLiteDatabaseModel(id, CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME),
-                        CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME)));
-            } else {
-                sqLiteDatabaseModel.setId(id);
-                sqLiteDatabaseModel.setFacebookTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME));
-                sqLiteDatabaseModel.setSnapChatTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME));
-                sqLiteDatabaseModel.setInstagramTime(CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.ICURRENTTIME));
-                db.insertRecord(new SqLiteDatabaseModel(id, CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME),
-                        CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME),
-                        CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.ICURRENTTIME)));
-            }
-        }
-    }
 
     private String getCurrentDate() {
         SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
         String dateInString = sdf2.format(System.currentTimeMillis());
         return dateInString;
-    }
-
-
-    public String timeStamp() {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Date date = sdf.parse(getCurrentDate());
-            return String.valueOf(date.getTime());
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return "";
-        }
-    }
-
-    private void setAverageTime() {
-        CommonUtils.savePreferencesString(this, AppConstant.FB_ATIME, "0:35");
-        CommonUtils.savePreferencesString(this, AppConstant.SNAPCHAT_ATIME, "0:20");
-        CommonUtils.savePreferencesString(this, AppConstant.INSTA_ATIME, "0:10");
-
-        if (CommonUtils.getPreferencesString(this, AppConstant.CURRENTDATE).equals("")) {
-            String timeStamp = new SimpleDateFormat("yyyy.MM.dd").format(new Date());
-            CommonUtils.savePreferencesString(this, AppConstant.CURRENTDATE, timeStamp);
-        }
-
-        if (CommonUtils.getPreferencesString(this, AppConstant.FCURRENTTIME).equals("")) {
-            CommonUtils.savePreferencesString(this, AppConstant.FCURRENTTIME, "0");
-        }
-        if (CommonUtils.getPreferencesString(this, AppConstant.SCURRENTTIME).equals("")) {
-            CommonUtils.savePreferencesString(this, AppConstant.SCURRENTTIME, "0");
-        }
-        if (CommonUtils.getPreferencesString(this, AppConstant.ICURRENTTIME).equals("")) {
-            CommonUtils.savePreferencesString(this, AppConstant.ICURRENTTIME, "0");
-        }
     }
 
     @Override

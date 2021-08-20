@@ -69,36 +69,4 @@ public class CommonUtils {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         return sharedPreferences.getLong(key, 0);
     }
-
-    public static void showDialog(final Context context) {
-        final ImageView iv_cancel;
-        final LayoutInflater inflater = LayoutInflater.from(context);
-        final Dialog mDialog = new Dialog(context,
-                android.R.style.Theme_Translucent_NoTitleBar);
-        mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-        mDialog.setCanceledOnTouchOutside(true);
-        mDialog.setCancelable(true);
-        mDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        mDialog.getWindow().setGravity(Gravity.CENTER);
-
-        WindowManager.LayoutParams lp = mDialog.getWindow().getAttributes();
-        lp.dimAmount = 0.75f;
-        mDialog.getWindow()
-                .addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        mDialog.getWindow();
-        mDialog.getWindow().setAttributes(lp);
-        final View dialoglayout = inflater.inflate(R.layout.activity_alert_dialog2, null);
-        mDialog.setContentView(dialoglayout);
-        mDialog.setCanceledOnTouchOutside(false);
-        iv_cancel = dialoglayout.findViewById(R.id.ivCancel);
-        iv_cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mDialog.dismiss();
-            }
-        });
-        mDialog.show();
-    }
 }

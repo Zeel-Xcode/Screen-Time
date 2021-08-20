@@ -9,16 +9,13 @@ import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
 
 import com.google.android.material.tabs.TabLayout;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import Fragments.AllDataFragment;
 import Fragments.DateFragment;
-import Model.UsageModel;
 
 public class ResultActivity extends AppCompatActivity {
 
@@ -44,7 +41,7 @@ public class ResultActivity extends AppCompatActivity {
         mMonth = c.get(Calendar.MONTH);
         mDay = c.get(Calendar.DAY_OF_MONTH);
 
-        currentdate = mYear + "-" + (mMonth + 1) + "-" + mDay;
+        currentdate =  String.format("%d-%02d-%02d", mYear, (mMonth + 1), mDay);
 
         tabLayout.addTab(tabLayout.newTab().setText("All Data"));
         tabLayout.addTab(tabLayout.newTab().setText(currentdate));

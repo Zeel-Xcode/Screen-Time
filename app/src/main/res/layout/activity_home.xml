@@ -11,7 +11,6 @@
         android:id="@+id/toolbar"
         layout="@layout/app_bar" />
 
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -186,6 +185,92 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/lltwitter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/dim_25"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <TextView
+                                android:id="@+id/tvtwitter"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:drawableLeft="@drawable/twitter"
+                                android:drawablePadding="@dimen/dim_8dp"
+                                android:fontFamily="@font/productsansregular"
+                                android:gravity="center"
+                                android:text="Twitter"
+                                android:textColor="@color/colorGrey"
+                                android:textSize="18dp" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvtwitterTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/sp_18"
+                            android:layout_marginRight="@dimen/sp_18"
+                            android:drawablePadding="@dimen/dim_8dp"
+                            android:gravity="center"
+                            android:padding="5dp"
+                            android:textColor="@color/colorGrey"
+                            android:textSize="14dp"
+                            android:fontFamily="@font/gothamblack"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/llyoutube"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/dim_25"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <TextView
+                                android:id="@+id/tvyoutube"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:drawableLeft="@drawable/youtube"
+                                android:drawablePadding="@dimen/dim_8dp"
+                                android:fontFamily="@font/productsansregular"
+                                android:gravity="center"
+                                android:text="Youtube"
+                                android:textColor="@color/colorGrey"
+                                android:textSize="18dp" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvyoutubeTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/sp_18"
+                            android:layout_marginRight="@dimen/sp_18"
+                            android:drawablePadding="@dimen/dim_8dp"
+                            android:gravity="center"
+                            android:padding="5dp"
+                            android:textColor="@color/colorGrey"
+                            android:textSize="14dp"
+                            android:fontFamily="@font/gothamblack"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:id="@+id/llSnapchat"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -215,6 +300,135 @@
 
                         <TextView
                             android:id="@+id/tvsnapchatTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/sp_18"
+                            android:layout_marginRight="@dimen/sp_18"
+                            android:drawablePadding="@dimen/dim_8dp"
+                            android:gravity="center"
+                            android:padding="5dp"
+                            android:textColor="@color/colorGrey"
+                            android:textSize="14dp"
+                            android:fontFamily="@font/gothamblack"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/llTktok"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/dim_25"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <TextView
+                                android:id="@+id/tvTiktok"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:drawableLeft="@drawable/ic_mujra"
+                                android:drawablePadding="@dimen/dim_8dp"
+                                android:fontFamily="@font/productsansregular"
+                                android:gravity="center"
+                                android:text="Tiktok"
+                                android:textColor="@color/colorGrey"
+                                android:textSize="18dp" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvtiktokTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/sp_18"
+                            android:layout_marginRight="@dimen/sp_18"
+                            android:drawablePadding="@dimen/dim_8dp"
+                            android:gravity="center"
+                            android:padding="5dp"
+                            android:textColor="@color/colorGrey"
+                            android:textSize="14dp"
+                            android:fontFamily="@font/gothamblack"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/llMessages"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/dim_25"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <TextView
+                                android:id="@+id/tvMessages"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:drawableLeft="@drawable/ic_msg"
+                                android:drawablePadding="@dimen/dim_8dp"
+                                android:fontFamily="@font/productsansregular"
+                                android:gravity="center"
+                                android:text="Messages"
+                                android:textColor="@color/colorGrey"
+                                android:textSize="18dp" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvmessageTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/sp_18"
+                            android:layout_marginRight="@dimen/sp_18"
+                            android:drawablePadding="@dimen/dim_8dp"
+                            android:gravity="center"
+                            android:padding="5dp"
+                            android:textColor="@color/colorGrey"
+                            android:textSize="14dp"
+                            android:fontFamily="@font/gothamblack"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/llPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/dim_25"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <TextView
+                                android:id="@+id/tvPhone"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:drawableLeft="@drawable/ic_phone"
+                                android:drawablePadding="@dimen/dim_8dp"
+                                android:fontFamily="@font/productsansregular"
+                                android:gravity="center"
+                                android:text="Phone "
+                                android:textColor="@color/colorGrey"
+                                android:textSize="18dp" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvphoneTime"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="@dimen/sp_18"

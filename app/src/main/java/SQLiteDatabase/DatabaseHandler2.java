@@ -3,21 +3,16 @@ package SQLiteDatabase;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.renderscript.Sampler;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 import Model.NewModel;
-import Model.SqLiteDatabaseModel;
 
 public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
 
@@ -28,6 +23,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
     private static final String TABLE_CONTACTS = "socialMedia_Timemanager2";
     // Contacts Table Columns names
     private static final String KEY_ID = "id";
+    private static final String KEY_PACKAGENAME = "packagename";
     private static final String KEY_APPNAME = "appname";
     private static final String KEY_STARTTIME = "starttime";
     private static final String KEY_ENDTIME = "endtime";
@@ -42,6 +38,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_CONTACTS + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_PACKAGENAME + " TEXT,"
                 + KEY_APPNAME + " TEXT,"
                 + KEY_STARTTIME + " TEXT,"
                 + KEY_ENDTIME + " TEXT,"
@@ -60,6 +57,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
     public void insertRecord(NewModel newModel) {
         SQLiteDatabase database = this.getReadableDatabase();
         ContentValues values = new ContentValues();
+        values.put(KEY_PACKAGENAME, newModel.getPackagename());
         values.put(KEY_APPNAME, newModel.getAppname());
         values.put(KEY_STARTTIME, newModel.getStarttime());
         values.put(KEY_ENDTIME, newModel.getEndtime());
@@ -73,6 +71,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
     public void updateRecord(NewModel newModel){
         SQLiteDatabase database = this.getReadableDatabase();
         ContentValues values = new ContentValues();
+        values.put(KEY_PACKAGENAME, newModel.getPackagename());
         values.put(KEY_APPNAME, newModel.getAppname());
         values.put(KEY_STARTTIME, newModel.getStarttime());
         values.put(KEY_ENDTIME, newModel.getEndtime());
@@ -85,7 +84,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
 
     public ArrayList<NewModel> getAllTime() {
         SQLiteDatabase database = this.getReadableDatabase();
-        Cursor cursor = database.query(TABLE_CONTACTS, null, null, null, null, null, null);
+        Cursor cursor = database.query(TABLE_CONTACTS, null, null,null, null, null, null, null);
         ArrayList<NewModel> contacts = new ArrayList<NewModel>();
         NewModel contactModel;
         if (cursor.getCount() > 0) {
@@ -93,11 +92,12 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
                 cursor.moveToNext();
                 contactModel = new NewModel();
                 contactModel.setId(cursor.getString(0));
-                contactModel.setAppname(cursor.getString(1));
-                contactModel.setStarttime(cursor.getLong(2));
-                contactModel.setEndtime(cursor.getLong(3));
-                contactModel.setTotalsec(cursor.getLong(4));
-                contactModel.setCurrentdate(cursor.getString(5));
+                contactModel.setPackagename(cursor.getString(1));
+                contactModel.setAppname(cursor.getString(2));
+                contactModel.setStarttime(cursor.getLong(3));
+                contactModel.setEndtime(cursor.getLong(4));
+                contactModel.setTotalsec(cursor.getLong(5));
+                contactModel.setCurrentdate(cursor.getString(6));
 
                 contacts.add(contactModel);
             }
@@ -112,17 +112,6 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
 
         String dateInString = new SimpleDateFormat(pattern).format(new Date());
         return dateInString;
-    }
-
-    public String timeStamp(String dateFormat) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Date date = sdf.parse(dateFormat);
-            return String.valueOf(date.getTime());
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return "";
-        }
     }
 
 }

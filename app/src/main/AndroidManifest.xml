@@ -21,9 +21,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
         <activity android:name=".ResultActivity"></activity>
-        <activity android:name=".AlertDialog2Activity" />
-        <activity android:name=".WarninghDialogActivity" />
-        <activity android:name=".StatisticsActivity" />
         <activity android:name=".HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,9 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SettingActivity" />
         <activity android:name=".SplashActivity"></activity>
-        <activity android:name=".MainActivity" />
 
         <service
             android:name="services.GetUsageService1"

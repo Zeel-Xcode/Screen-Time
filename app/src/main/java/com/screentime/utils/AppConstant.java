@@ -19,14 +19,17 @@ public class AppConstant {
     public static final String FBACTIVE = "FBACTIVE";
     public static final String INSTAACTIVE = "INSTAACTIVE";
     public static final String SNAPACTIVE = "SNAPACTIVE";
+    public static final String MNAPACTIVE = "MNAPACTIVE";
     public static final String CURRENTDATE = "CURRENTDATE";
     public static final String FCURRENTTIME = "FCURRENTTIME";
     public static final String ICURRENTTIME = "ICURRENTTIME";
     public static final String SCURRENTTIME = "SCURRENTTIME";
+    public static final String MCURRENTTIME = "MCURRENTTIME";
 
 
     public static final String FWEEKTTIME = "FWEEKTTIME";
     public static final String IWEEKTIME = "IWEEKTIME";
     public static final String SWEEKTTIME = "SWEEKTTIME";
+    public static final String MWEEKTTIME = "MWEEKTTIME";
     public static final String ISACCESS = "ISACCESS";
 }
