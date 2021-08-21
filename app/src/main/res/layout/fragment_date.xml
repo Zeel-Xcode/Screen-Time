@@ -18,11 +18,14 @@
         android:textColor="@color/colorPrimaryDark"
         android:visibility="gone"/>
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/llrecycler"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview"
@@ -33,6 +36,6 @@
             android:orientation="vertical"
             tools:listitem="@layout/alldata" />
 
-    </RelativeLayout>
+    </LinearLayout>
 
 </LinearLayout>

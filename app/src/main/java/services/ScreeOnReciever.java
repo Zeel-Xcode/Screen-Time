@@ -14,7 +14,11 @@ public class ScreeOnReciever extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Toast.makeText(context, "Alarm", Toast.LENGTH_SHORT).show();
-        context.startService(new Intent(context,GetUsageService1.class));
+        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+            Toast.makeText(context, "Alarm", Toast.LENGTH_SHORT).show();
+            Intent startService = new Intent(context, GetUsageService1.class);
+            context.startService(startService);
+        }
+
     }
 }

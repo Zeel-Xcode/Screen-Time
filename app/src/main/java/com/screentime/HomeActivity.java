@@ -44,7 +44,7 @@ public class HomeActivity extends AppCompatActivity {
 
     Toolbar toolbar;
     ImageView iv_back, ic_export;
-    TextView tvTitle, tvFacebook, tvInsta, tvSnapChat, tvfbTime, tvinstaTime, tvsnapchatTime, datepicker, tvMessages, tvmessageTime, tvTiktok, tvtiktokTime, tvPhone, tvphoneTime,tvtwitterTime,tvyoutubeTime;
+    TextView tvTitle, tvFacebook, tvInsta, tvSnapChat, tvfbTime, tvinstaTime, tvsnapchatTime, datepicker, tvMessages, tvmessageTime, tvTiktok, tvtiktokTime, tvPhone, tvphoneTime, tvtwitterTime, tvyoutubeTime;
     LinearLayout llFacebook, llSnapchat, llInsta, llMessages, llTktok, llPhone,llyoutube,lltwitter;
 
     NumberFormat formatter;

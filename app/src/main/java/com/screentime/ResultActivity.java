@@ -94,8 +94,6 @@ public class ResultActivity extends AppCompatActivity {
 
                         datePickerDialog.show();
 
-
-
                         break;
                 }
 

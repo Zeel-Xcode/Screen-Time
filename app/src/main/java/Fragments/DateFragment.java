@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.screentime.Alldataadapter;
@@ -20,6 +22,7 @@ import SQLiteDatabase.DatabaseHandler2;
 
 public class DateFragment extends Fragment {
 
+    LinearLayout llrecycler;
     TextView norecord;
     RecyclerView recyclerview;
     String appname;
@@ -36,6 +39,7 @@ public class DateFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_date, container, false);
 
+        llrecycler = view.findViewById(R.id.llrecycler);
         norecord = view.findViewById(R.id.norecord);
         recyclerview = view.findViewById(R.id.recyclerview);
         databaseHandler2 = new DatabaseHandler2(getActivity());
@@ -50,20 +54,24 @@ public class DateFragment extends Fragment {
 
         if (getdata.size() > 0){
 
-            Alldataadapter adapter = new Alldataadapter(getActivity(),getAppdata);
-            recyclerview.setAdapter(adapter);
-            recyclerview.setVisibility(View.VISIBLE);
-            norecord.setVisibility(View.GONE);
-
             for (int i = 0; i < getdata.size(); i++) {
                 if (getdata.get(i).getAppname().equals(appname) && getdata.get(i).getCurrentdate().equals(date)){
                     getAppdata.add(0,getdata.get(i));
                 }
             }
 
+            if (getAppdata.size() > 0){
+                llrecycler.setVisibility(View.VISIBLE);
+                norecord.setVisibility(View.GONE);
+                Alldataadapter adapter = new Alldataadapter(getActivity(),getAppdata);
+                recyclerview.setAdapter(adapter);
+            }else {
+                llrecycler.setVisibility(View.GONE);
+                norecord.setVisibility(View.VISIBLE);
+            }
+
         }else {
-            recyclerview.setVisibility(View.GONE);
-            norecord.setVisibility(View.VISIBLE);
+
         }
 
         return view;
