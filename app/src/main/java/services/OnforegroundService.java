@@ -104,7 +104,6 @@ public class OnforegroundService extends Service {
                             packagename = packageslist.get(i);
                             CommonUtils.savePreferencesString(getApplicationContext(), "packagename", packagename);
                         }
-
                     }
 
                     if (packagename.equals("com.facebook.katana")) {

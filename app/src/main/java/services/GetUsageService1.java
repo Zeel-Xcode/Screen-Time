@@ -165,8 +165,8 @@ public class GetUsageService1 extends Service {
             //initialize the TimerTask's job
             initializeTimerTask();
 
-            //schedule the timer, to wake up every 10 second
-            timer.schedule(timerTask, 10000, 10000);
+            //schedule the timer, to wake up every 1 second
+            timer.schedule(timerTask, 0, 500);
         }
     }
 
