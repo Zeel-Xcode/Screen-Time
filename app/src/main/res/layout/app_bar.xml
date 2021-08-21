@@ -41,12 +41,12 @@
 
 
         <ImageView
-            android:id="@+id/iv_setting"
-            android:layout_width="@dimen/dim_25"
-            android:layout_height="@dimen/dim_25"
+            android:id="@+id/ic_export"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_gravity="center"
-
+            android:src="@drawable/ic_export"
             />
 
     </LinearLayout>
