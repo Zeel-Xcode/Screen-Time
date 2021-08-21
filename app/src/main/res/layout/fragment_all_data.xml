@@ -1,23 +1,31 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="Fragments.AllDataFragment">
+    tools:context="Fragments.AllDataFragment"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/norecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="No record found!"
+        android:fontFamily="@font/productsansbold"
+        android:textSize="25dp"
+        android:textColor="@color/colorPrimaryDark"
+        android:visibility="gone"/>
 
     <LinearLayout
+        android:id="@+id/llrecycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
         android:gravity="center"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="fdfdddffdffdd ddfdfdfd"
-            android:textSize="@dimen/dim_20"
-            android:textColor="@color/black"
-            android:visibility="gone"/>
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview"
@@ -30,4 +38,4 @@
 
     </LinearLayout>
 
-</FrameLayout>
+</LinearLayout>

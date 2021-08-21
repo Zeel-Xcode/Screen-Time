@@ -43,7 +43,7 @@ import services.GetUsageService1;
 public class HomeActivity extends AppCompatActivity {
 
     Toolbar toolbar;
-    ImageView iv_back, iv_setting;
+    ImageView iv_back, ic_export;
     TextView tvTitle, tvFacebook, tvInsta, tvSnapChat, tvfbTime, tvinstaTime, tvsnapchatTime, datepicker, tvMessages, tvmessageTime, tvTiktok, tvtiktokTime, tvPhone, tvphoneTime,tvtwitterTime,tvyoutubeTime;
     LinearLayout llFacebook, llSnapchat, llInsta, llMessages, llTktok, llPhone,llyoutube,lltwitter;
 
@@ -73,7 +73,7 @@ public class HomeActivity extends AppCompatActivity {
         datepicker = findViewById(R.id.datepicker);
         toolbar = findViewById(R.id.toolbar);
         iv_back = findViewById(R.id.iv_back);
-        iv_setting = findViewById(R.id.iv_setting);
+        ic_export = findViewById(R.id.ic_export);
         tvTitle = findViewById(R.id.tvTitle);
         tvFacebook = findViewById(R.id.tvFacebook);
         tvInsta = findViewById(R.id.tvInsta);
@@ -205,12 +205,10 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-
-
     private void setToolbar() {
         setSupportActionBar(toolbar);
         tvTitle.setText("Home screen");
-        iv_setting.setVisibility(View.INVISIBLE);
+        ic_export.setVisibility(View.INVISIBLE);
 
     }
 
@@ -336,8 +334,6 @@ public class HomeActivity extends AppCompatActivity {
         tvyoutubeTime.setText(totalyoutube / 3600 + ":" + formatter.format(totalyoutube % 3600 / 60) + ":" + formatter.format(totalyoutube % 60));
 
     }
-
-
 
     private String getCurrentDate() {
         SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
