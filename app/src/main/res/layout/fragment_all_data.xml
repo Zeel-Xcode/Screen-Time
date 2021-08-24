@@ -18,14 +18,36 @@
         android:textColor="@color/colorPrimaryDark"
         android:visibility="gone"/>
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/llrecycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="5dp"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="gone" >
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_centerHorizontal="true"
+            android:visibility="gone"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="25dp"
+            android:layout_marginBottom="25dp"
+            app:backgroundTint="@color/colorPrimaryDark"
+            app:fabSize="auto"
+            android:src="@drawable/ic_export"
+            app:tint="@android:color/white"
+            android:layout_marginRight="25dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview"
@@ -34,8 +56,9 @@
             android:layout_gravity="center"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:orientation="vertical"
-            tools:listitem="@layout/alldata" />
+            tools:listitem="@layout/alldata"/>
 
-    </LinearLayout>
+
+    </FrameLayout>
 
 </LinearLayout>

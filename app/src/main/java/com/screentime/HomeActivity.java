@@ -3,6 +3,7 @@ package com.screentime;
 import android.annotation.SuppressLint;
 import android.app.AppOpsManager;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -24,6 +25,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.facebook.appevents.AppEventsLogger;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.screentime.utils.AppConstant;
 import com.screentime.utils.CommonUtils;
 
@@ -40,8 +42,12 @@ import Model.NewModel;
 import SQLiteDatabase.DatabaseHandler2;
 import services.GetUsageService1;
 
+import static Fragments.AllDataFragment.spinner;
+
 public class HomeActivity extends AppCompatActivity {
 
+    FloatingActionButton fab;
+    String date;
     Toolbar toolbar;
     ImageView iv_back, ic_export;
     TextView tvTitle, tvFacebook, tvInsta, tvSnapChat, tvfbTime, tvinstaTime, tvsnapchatTime, datepicker, tvMessages, tvmessageTime, tvTiktok, tvtiktokTime, tvPhone, tvphoneTime, tvtwitterTime, tvyoutubeTime;
@@ -64,6 +70,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        fab = findViewById(R.id.fab);
         tvphoneTime = findViewById(R.id.tvphoneTime);
         tvPhone = findViewById(R.id.tvPhone);
         tvtiktokTime = findViewById(R.id.tvtiktokTime);
@@ -97,6 +104,35 @@ public class HomeActivity extends AppCompatActivity {
 
         databaseHandler2 = new DatabaseHandler2(this);
         logger = AppEventsLogger.newLogger(this);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Dialog dialog = new Dialog(HomeActivity.this);
+                dialog.setContentView(R.layout.custom_export_dialog);
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+                TextView export = dialog.findViewById(R.id.export);
+                export.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialog.dismiss();
+                        databaseHandler2.exportallappdata(date);
+
+                    }
+                });
+
+                TextView cancel = dialog.findViewById(R.id.cancel);
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialog.dismiss();
+                    }
+                });
+
+                dialog.show();
+            }
+        });
 
         llFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -189,6 +225,8 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
+
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onResume() {
@@ -208,7 +246,7 @@ public class HomeActivity extends AppCompatActivity {
     private void setToolbar() {
         setSupportActionBar(toolbar);
         tvTitle.setText("Home screen");
-        ic_export.setVisibility(View.INVISIBLE);
+//        ic_export.setVisibility(View.INVISIBLE);
 
     }
 
