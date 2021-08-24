@@ -1,13 +1,6 @@
 package services;
 
-import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_ID;
-import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_NAME;
-import static com.screentime.HomeActivity.ONGOING_NOTIFICATION_ID;
-
 import android.app.ActivityManager;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.Service;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
@@ -17,29 +10,17 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
-import com.screentime.HomeActivity;
 import com.screentime.MyApplication;
-import com.screentime.R;
-import com.screentime.utils.AppConstant;
 import com.screentime.utils.CommonUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.Timer;
@@ -112,14 +93,13 @@ public class OnforegroundService extends Service {
                         appname = "instagram";
                     } else if (packagename.equals("com.snapchat.android")) {
                         appname = "snapchat";
-                    } else if (packagename.equals("com.zhiliaoapp.musically")){
+                    } else if (packagename.equals("com.zhiliaoapp.musically")) {
                         appname = "tiktok";
-                    }else if (packagename.equals("com.google.android.youtube")){
+                    } else if (packagename.equals("com.google.android.youtube")) {
                         appname = "youtube";
-                    }else if (packagename.equals("com.twitter.android")){
+                    } else if (packagename.equals("com.twitter.android")) {
                         appname = "twitter";
-                    }
-                    else {
+                    } else {
                         for (int i = 0; i < messagelist.size(); i++) {
                             if (packagename.equals(messagelist.get(i))) {
                                 appname = "message";
@@ -197,7 +177,7 @@ public class OnforegroundService extends Service {
             long starttime = System.currentTimeMillis();
             CommonUtils.savePreferencesInteger(getApplicationContext(), "starttime", starttime);
             CommonUtils.savePreferencesInteger(getApplicationContext(), "endtime", 0);
-            setdatanewdatabase(appname,packagename);
+            setdatanewdatabase(appname, packagename);
             //schedule the timer, to wake up every 10 second
             timer.schedule(timerTask, 500, 500);
         }
@@ -272,8 +252,6 @@ public class OnforegroundService extends Service {
 
         SimpleDateFormat sdf1 = new SimpleDateFormat("ss");
         SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
-        int start_sec = Integer.parseInt(sdf1.format(starttime));
-        int end_sec = Integer.parseInt(sdf1.format(endtime));
         long totalseconds = endtime - starttime;
         int gettotal = Integer.parseInt(sdf1.format(totalseconds));
         String currentdate = sdf2.format(starttime);
@@ -293,8 +271,6 @@ public class OnforegroundService extends Service {
         long endtime = CommonUtils.getPreferencesInteger(getApplicationContext(), "endtime");
         SimpleDateFormat sdf1 = new SimpleDateFormat("ss");
         SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
-        int start_sec = Integer.parseInt(sdf1.format(starttime));
-        int end_sec = Integer.parseInt(sdf1.format(endtime));
         String currentdate = sdf2.format(starttime);
         long totalseconds = endtime - starttime;
         int gettotal = Integer.parseInt(sdf1.format(totalseconds));
@@ -305,9 +281,6 @@ public class OnforegroundService extends Service {
         newModel.setEndtime(endtime);
         newModel.setTotalsec(gettotal);
         newModel.setCurrentdate(currentdate);
-
         databaseHandler2.updateRecord(newModel);
-
     }
-
 }

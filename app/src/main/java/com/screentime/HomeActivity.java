@@ -1,15 +1,17 @@
 package com.screentime;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.app.AppOpsManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -18,31 +20,30 @@ import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 
 import com.facebook.appevents.AppEventsLogger;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.screentime.utils.AppConstant;
-import com.screentime.utils.CommonUtils;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 
 import Model.NewModel;
 import SQLiteDatabase.DatabaseHandler2;
 import services.GetUsageService1;
-
-import static Fragments.AllDataFragment.spinner;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -51,7 +52,7 @@ public class HomeActivity extends AppCompatActivity {
     Toolbar toolbar;
     ImageView iv_back, ic_export;
     TextView tvTitle, tvFacebook, tvInsta, tvSnapChat, tvfbTime, tvinstaTime, tvsnapchatTime, datepicker, tvMessages, tvmessageTime, tvTiktok, tvtiktokTime, tvPhone, tvphoneTime, tvtwitterTime, tvyoutubeTime;
-    LinearLayout llFacebook, llSnapchat, llInsta, llMessages, llTktok, llPhone,llyoutube,lltwitter;
+    LinearLayout llFacebook, llSnapchat, llInsta, llMessages, llTktok, llPhone, llyoutube, lltwitter;
 
     NumberFormat formatter;
     private AppEventsLogger logger;
@@ -104,6 +105,8 @@ public class HomeActivity extends AppCompatActivity {
 
         databaseHandler2 = new DatabaseHandler2(this);
         logger = AppEventsLogger.newLogger(this);
+
+        checkStoragePermission();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -195,7 +198,7 @@ public class HomeActivity extends AppCompatActivity {
         mMonth = c.get(Calendar.MONTH);
         mDay = c.get(Calendar.DAY_OF_MONTH);
 
-        datepickerstamp =  String.format("%d-%02d-%02d", mYear, (mMonth + 1), mDay);
+        datepickerstamp = String.format("%d-%02d-%02d", mYear, (mMonth + 1), mDay);
         datepicker.setText(datepickerstamp);
 
         datepicker.setOnClickListener(new View.OnClickListener() {
@@ -212,7 +215,7 @@ public class HomeActivity extends AppCompatActivity {
                                 mMonth = monthOfYear;
                                 mDay = dayOfMonth;
 
-                                datepickerstamp =  String.format("%d-%02d-%02d", year, (monthOfYear + 1), dayOfMonth);
+                                datepickerstamp = String.format("%d-%02d-%02d", year, (monthOfYear + 1), dayOfMonth);
                                 datepicker.setText(datepickerstamp);
 
                                 setData(datepickerstamp);
@@ -225,7 +228,64 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
+    private void checkStoragePermission() {
+        int currentAPIVersion = Build.VERSION.SDK_INT;
+        if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    AlertDialog.Builder alertBuilder = new AlertDialog.Builder(HomeActivity.this);
+                    alertBuilder.setCancelable(true);
+                    alertBuilder.setTitle("Permission necessary");
+                    alertBuilder.setMessage("Write Storage permission is necessary to Download Images and Videos!!!");
+                    alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+                        }
+                    });
+                    AlertDialog alert = alertBuilder.create();
+                    alert.show();
+                } else {
+                    ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+                }
 
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode==123){
+            if (grantResults.length > 0) {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(this, "All permission Granted", Toast.LENGTH_SHORT).show();
+                    } else {
+                        //code for deny
+                        checkAgain();
+                    }
+                }
+        }
+    }
+
+    private void checkAgain() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(HomeActivity.this);
+            alertBuilder.setCancelable(true);
+            alertBuilder.setTitle("Permission necessary");
+            alertBuilder.setMessage("Write Storage permission is necessary to export App Data");
+            alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+                public void onClick(DialogInterface dialog, int which) {
+                    ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+                }
+            });
+            AlertDialog alert = alertBuilder.create();
+            alert.show();
+        } else {
+            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+        }
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -254,53 +314,43 @@ public class HomeActivity extends AppCompatActivity {
      * Navigate to Statistics Screen with Facebook's details.
      */
     private void facebook() {
-
-            startActivity(new Intent(this, ResultActivity.class)
-                    .putExtra("which", "facebook"));
-
+        startActivity(new Intent(this, ResultActivity.class)
+                .putExtra("which", "facebook"));
     }
 
     private void twitter() {
-
-            startActivity(new Intent(this, ResultActivity.class)
-                    .putExtra("which", "twitter"));
-
+        startActivity(new Intent(this, ResultActivity.class)
+                .putExtra("which", "twitter"));
     }
 
     private void youtube() {
-
         startActivity(new Intent(this, ResultActivity.class)
                 .putExtra("which", "youtube"));
-
     }
 
     private void snapchat() {
-
         startActivity(new Intent(this, ResultActivity.class)
                 .putExtra("which", "snapchat"));
-
     }
 
     private void instagram() {
-
-            startActivity(new Intent(this, ResultActivity.class)
-                    .putExtra("which", "instagram"));
-
+        startActivity(new Intent(this, ResultActivity.class)
+                .putExtra("which", "instagram"));
     }
 
-    private void messages(){
+    private void messages() {
         startActivity(new Intent(this, ResultActivity.class)
-             .putExtra("which","message"));
+                .putExtra("which", "message"));
     }
 
-    private void tiktok(){
+    private void tiktok() {
         startActivity(new Intent(this, ResultActivity.class)
-                .putExtra("which","tiktok"));
+                .putExtra("which", "tiktok"));
     }
 
-    private void phone(){
+    private void phone() {
         startActivity(new Intent(this, ResultActivity.class)
-                .putExtra("which","phone"));
+                .putExtra("which", "phone"));
     }
 
     /**
@@ -322,6 +372,7 @@ public class HomeActivity extends AppCompatActivity {
 
     /**
      * To set data  on Screen.
+     *
      * @param currentDate
      */
     @SuppressLint("SetTextI18n")
@@ -336,40 +387,14 @@ public class HomeActivity extends AppCompatActivity {
         long totaltwitter = 0;
         long totalyoutube = 0;
 
-        ArrayList<NewModel> getdata = databaseHandler2.getAllTime();
-
-        if (getdata.size() > 0) {
-            for (int i = 0; i < getdata.size(); i++) {
-                if (getdata.get(i).getCurrentdate().equals(currentDate)) {
-                    if (getdata.get(i).getAppname().equals("facebook")) {
-                        totalfb = totalfb + (int) getdata.get(i).getTotalsec();
-                    } else if (getdata.get(i).getAppname().equals("snapchat")) {
-                        totalsnap = totalsnap + (int) getdata.get(i).getTotalsec();
-                    } else if (getdata.get(i).getAppname().equals("instagram")) {
-                        totalinsta = totalinsta + (int) getdata.get(i).getTotalsec();
-                    } else if (getdata.get(i).getAppname().equals("message")) {
-                        totalmessage = totalmessage + (int) getdata.get(i).getTotalsec();
-                    } else if (getdata.get(i).getAppname().equals("tiktok")) {
-                        totaltiktok = totaltiktok + (int) getdata.get(i).getTotalsec();
-                    } else if (getdata.get(i).getAppname().equals("phone")) {
-                        totalphone = totalphone + (int) getdata.get(i).getTotalsec();
-                    } else if (getdata.get(i).getAppname().equals("youtube")) {
-                        totalyoutube = totalyoutube + (int) getdata.get(i).getTotalsec();
-                    } else if (getdata.get(i).getAppname().equals("twitter")) {
-                        totaltwitter = totaltwitter + (int) getdata.get(i).getTotalsec();
-                    }
-                }
-            }
-        }
-
-        tvfbTime.setText(totalfb / 3600 + ":" + formatter.format((totalfb % 3600) / 60) + ":" + formatter.format(totalfb % 60));
-        tvinstaTime.setText(totalinsta / 3600 + ":" + formatter.format((totalinsta % 3600) / 60) + ":" + formatter.format(totalinsta % 60));
-        tvsnapchatTime.setText(totalsnap / 3600 + ":" + formatter.format((totalsnap % 3600) / 60) + ":" + formatter.format(totalsnap % 60));
-        tvmessageTime.setText(totalmessage / 3600 + ":" + formatter.format(totalmessage % 3600 / 60) + ":" + formatter.format(totalmessage % 60));
-        tvtiktokTime.setText(totaltiktok / 3600 + ":" + formatter.format(totaltiktok % 3600 / 60) + ":" + formatter.format(totaltiktok % 60));
-        tvphoneTime.setText(totalphone / 3600 + ":" + formatter.format(totalphone % 3600 / 60) + ":" + formatter.format(totalphone % 60));
-        tvtwitterTime.setText(totaltwitter / 3600 + ":" + formatter.format(totaltwitter % 3600 / 60) + ":" + formatter.format(totaltwitter % 60));
-        tvyoutubeTime.setText(totalyoutube / 3600 + ":" + formatter.format(totalyoutube % 3600 / 60) + ":" + formatter.format(totalyoutube % 60));
+        tvfbTime.setText(formatter.format(totalfb / 3600) + ":" + formatter.format((totalfb % 3600) / 60) + ":" + formatter.format(totalfb % 60));
+        tvinstaTime.setText(formatter.format(totalinsta / 3600) + ":" + formatter.format((totalinsta % 3600) / 60) + ":" + formatter.format(totalinsta % 60));
+        tvsnapchatTime.setText(formatter.format(totalsnap / 3600) + ":" + formatter.format((totalsnap % 3600) / 60) + ":" + formatter.format(totalsnap % 60));
+        tvmessageTime.setText(formatter.format(totalmessage / 3600) + ":" + formatter.format(totalmessage % 3600 / 60) + ":" + formatter.format(totalmessage % 60));
+        tvtiktokTime.setText(formatter.format(totaltiktok / 3600) + ":" + formatter.format(totaltiktok % 3600 / 60) + ":" + formatter.format(totaltiktok % 60));
+        tvphoneTime.setText(formatter.format(totalphone / 3600) + ":" + formatter.format(totalphone % 3600 / 60) + ":" + formatter.format(totalphone % 60));
+        tvtwitterTime.setText(formatter.format(totaltwitter / 3600) + ":" + formatter.format(totaltwitter % 3600 / 60) + ":" + formatter.format(totaltwitter % 60));
+        tvyoutubeTime.setText(formatter.format(totalyoutube / 3600) + ":" + formatter.format(totalyoutube % 3600 / 60) + ":" + formatter.format(totalyoutube % 60));
 
     }
 

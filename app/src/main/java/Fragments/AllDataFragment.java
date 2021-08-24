@@ -72,7 +72,7 @@ public class AllDataFragment extends Fragment {
         norecord = view.findViewById(R.id.norecord);
         recyclerview = view.findViewById(R.id.recyclerview);
         llrecycler = view.findViewById(R.id.llrecycler);
-        spinner = (ProgressBar)view.findViewById(R.id.progressBar);
+        spinner = (ProgressBar)view.findViewById(R.id.progress_bar);
 
         databaseHandler2 = new DatabaseHandler2(getContext());
 
