@@ -150,9 +150,6 @@ public class GetUsageService1 extends Service {
         return currentApp;
     }
 
-
-
-
     /**
      * Starts the timer.
      */
@@ -166,7 +163,7 @@ public class GetUsageService1 extends Service {
             initializeTimerTask();
 
             //schedule the timer, to wake up every 1 second
-            timer.schedule(timerTask, 0, 500);
+            timer.schedule(timerTask, 0, 100);
         }
     }
 
