@@ -459,7 +459,8 @@
                 app:fabSize="auto"
                 android:src="@drawable/ic_export"
                 app:tint="@android:color/white"
-                android:layout_marginRight="25dp" />
+                android:layout_marginRight="25dp"
+                android:visibility="gone"/>
 
         </LinearLayout>
 

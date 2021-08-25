@@ -38,8 +38,8 @@ public class Alldataadapter extends RecyclerView.Adapter<Alldataadapter.DataView
 
         SimpleDateFormat sdf1 = new SimpleDateFormat("MMM dd,yyyy hh:mm:ss aa");
 
-        holder.startresult.setText(sdf1.format(getAppdata.get(position).getStarttime())+"");
-        holder.endresult.setText(sdf1.format(getAppdata.get(position).getEndtime())+"");
+        holder.startresult.setText(getAppdata.get(position).getStarttime());
+        holder.endresult.setText(getAppdata.get(position).getEndtime());
 
     }
 

@@ -5,8 +5,8 @@ public class NewModel {
     String Id;
     String packagename;
     String appname;
-    long starttime;
-    long endtime;
+    String starttime;
+    String endtime;
     long totalsec;
     String currentdate;
 
@@ -34,19 +34,19 @@ public class NewModel {
         this.appname = appname;
     }
 
-    public long getStarttime() {
+    public String getStarttime() {
         return starttime;
     }
 
-    public void setStarttime(long starttime) {
+    public void setStarttime(String starttime) {
         this.starttime = starttime;
     }
 
-    public long getEndtime() {
+    public String getEndtime() {
         return endtime;
     }
 
-    public void setEndtime(long endtime) {
+    public void setEndtime(String endtime) {
         this.endtime = endtime;
     }
 

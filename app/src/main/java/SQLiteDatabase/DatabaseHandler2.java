@@ -112,8 +112,8 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
                 contactModel.setId(cursor.getString(0));
                 contactModel.setPackagename(cursor.getString(1));
                 contactModel.setAppname(cursor.getString(2));
-                contactModel.setStarttime(cursor.getLong(3));
-                contactModel.setEndtime(cursor.getLong(4));
+                contactModel.setStarttime(cursor.getString(3));
+                contactModel.setEndtime(cursor.getString(4));
                 contactModel.setTotalsec(cursor.getLong(5));
                 contactModel.setCurrentdate(cursor.getString(6));
 
@@ -181,8 +181,21 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
             while (curCSV.moveToNext()) {
                 //Which column you want to exprort
                 String arrStr[] = new String[curCSV.getColumnCount()];
-                for (int i = 0; i < curCSV.getColumnCount(); i++)
-                    arrStr[i] = curCSV.getString(i);
+                for (int i = 0; i < curCSV.getColumnCount(); i++){
+                    if (i == 5){
+                        long t = Long.parseLong(curCSV.getString(5));
+                        int seconds = (int) (t / 1000) % 60 ;
+                        int minutes = (int) ((t / (1000*60)) % 60);
+                        int hours   = (int) ((t / (1000*60*60)) % 24);
+
+                        String total = hours + ":" + minutes + ":" + seconds;
+                        arrStr[5] = total;
+                    }
+
+                    else {
+                        arrStr[i] = curCSV.getString(i);
+                    }
+                }
                 csvWrite.writeNext(arrStr);
             }
             csvWrite.close();
@@ -213,8 +226,21 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
             while (curCSV.moveToNext()) {
                 //Which column you want to exprort
                 String arrStr[] = new String[curCSV.getColumnCount()];
-                for (int i = 0; i < curCSV.getColumnCount(); i++)
-                    arrStr[i] = curCSV.getString(i);
+                for (int i = 0; i < curCSV.getColumnCount(); i++){
+                    if (i == 5){
+                        long t = Long.parseLong(curCSV.getString(5));
+                        int seconds = (int) (t / 1000) % 60 ;
+                        int minutes = (int) ((t / (1000*60)) % 60);
+                        int hours   = (int) ((t / (1000*60*60)) % 24);
+
+                        String total = hours + ":" + minutes + ":" + seconds;
+                        arrStr[5] = total;
+                    }
+
+                    else {
+                        arrStr[i] = curCSV.getString(i);
+                    }
+                }
                 csvWrite.writeNext(arrStr);
             }
             csvWrite.close();
@@ -246,8 +272,23 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
             while (curCSV.moveToNext()) {
                 //Which column you want to exprort
                 String arrStr[] = new String[curCSV.getColumnCount()];
-                for (int i = 0; i < curCSV.getColumnCount(); i++)
-                    arrStr[i] = curCSV.getString(i);
+                for (int i = 0; i < curCSV.getColumnCount(); i++){
+
+                    if (i == 5){
+                        long t = Long.parseLong(curCSV.getString(5));
+                        int seconds = (int) (t / 1000) % 60 ;
+                        int minutes = (int) ((t / (1000*60)) % 60);
+                        int hours   = (int) ((t / (1000*60*60)) % 24);
+
+                        String total = hours + ":" + minutes + ":" + seconds;
+                        arrStr[5] = total;
+                    }
+
+                    else {
+                        arrStr[i] = curCSV.getString(i);
+                    }
+
+                }
                 csvWrite.writeNext(arrStr);
             }
             csvWrite.close();

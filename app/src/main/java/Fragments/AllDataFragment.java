@@ -76,7 +76,6 @@ public class AllDataFragment extends Fragment {
 
         databaseHandler2 = new DatabaseHandler2(getContext());
 
-
         if (getArguments() != null){
             appname = getArguments().getString("which");
         }
@@ -115,6 +114,14 @@ public class AllDataFragment extends Fragment {
             }
         });
 
+        if (getAppdata.size() > 0){
+            llrecycler.setVisibility(View.VISIBLE);
+            norecord.setVisibility(View.GONE);
+        }else {
+            llrecycler.setVisibility(View.GONE);
+            norecord.setVisibility(View.VISIBLE);
+        }
+
         if (getdata.size() > 0){
 
             for (int i = 0; i < getdata.size(); i++) {
@@ -122,7 +129,6 @@ public class AllDataFragment extends Fragment {
                     getAppdata.add(0,getdata.get(i));
                 }
             }
-
             if (getAppdata.size() > 0){
                 llrecycler.setVisibility(View.VISIBLE);
                 norecord.setVisibility(View.GONE);
@@ -139,8 +145,5 @@ public class AllDataFragment extends Fragment {
 
         return view;
     }
-
-
-
 
 }

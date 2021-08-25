@@ -91,6 +91,14 @@ public class DateFragment extends Fragment {
         ArrayList<NewModel> getdata = databaseHandler2.getAllTime();
         ArrayList<NewModel> getAppdata = new ArrayList<>();
 
+        if (getAppdata.size() > 0){
+            llrecycler.setVisibility(View.VISIBLE);
+            norecord.setVisibility(View.GONE);
+        }else {
+            llrecycler.setVisibility(View.GONE);
+            norecord.setVisibility(View.VISIBLE);
+        }
+
         if (getdata.size() > 0){
 
             for (int i = 0; i < getdata.size(); i++) {

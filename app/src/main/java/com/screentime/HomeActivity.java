@@ -108,6 +108,8 @@ public class HomeActivity extends AppCompatActivity {
 
         checkStoragePermission();
 
+
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -120,7 +122,7 @@ public class HomeActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         dialog.dismiss();
-                        databaseHandler2.exportallappdata(date);
+                        databaseHandler2.exportallappdata(datepicker.getText().toString());
 
                     }
                 });
@@ -389,7 +391,14 @@ public class HomeActivity extends AppCompatActivity {
 
         ArrayList<NewModel> getdata = databaseHandler2.getAllTime();
 
+        if (getdata.size() > 0){
+            fab.setVisibility(View.VISIBLE);
+        }else {
+            fab.setVisibility(View.GONE);
+        }
+
         if (getdata.size() > 0) {
+
             for (int i = 0; i < getdata.size(); i++) {
                 if (getdata.get(i).getCurrentdate().equals(currentDate)) {
                     if (getdata.get(i).getAppname().equals("facebook")) {
@@ -413,14 +422,14 @@ public class HomeActivity extends AppCompatActivity {
             }
         }
 
-        tvfbTime.setText(formatter.format(totalfb / 3600) + ":" + formatter.format((totalfb % 3600) / 60) + ":" + formatter.format(totalfb % 60));
-        tvinstaTime.setText(formatter.format(totalinsta / 3600) + ":" + formatter.format((totalinsta % 3600) / 60) + ":" + formatter.format(totalinsta % 60));
-        tvsnapchatTime.setText(formatter.format(totalsnap / 3600) + ":" + formatter.format((totalsnap % 3600) / 60) + ":" + formatter.format(totalsnap % 60));
-        tvmessageTime.setText(formatter.format(totalmessage / 3600) + ":" + formatter.format(totalmessage % 3600 / 60) + ":" + formatter.format(totalmessage % 60));
-        tvtiktokTime.setText(formatter.format(totaltiktok / 3600) + ":" + formatter.format(totaltiktok % 3600 / 60) + ":" + formatter.format(totaltiktok % 60));
-        tvphoneTime.setText(formatter.format(totalphone / 3600) + ":" + formatter.format(totalphone % 3600 / 60) + ":" + formatter.format(totalphone % 60));
-        tvtwitterTime.setText(formatter.format(totaltwitter / 3600) + ":" + formatter.format(totaltwitter % 3600 / 60) + ":" + formatter.format(totaltwitter % 60));
-        tvyoutubeTime.setText(formatter.format(totalyoutube / 3600) + ":" + formatter.format(totalyoutube % 3600 / 60) + ":" + formatter.format(totalyoutube % 60));
+        tvfbTime.setText(formatter.format(((totalfb / (1000*60*60)) % 24))  + ":" + formatter.format(((totalfb / (1000*60)) % 60)) + ":" + formatter.format((totalfb / 1000) % 60));
+        tvinstaTime.setText(formatter.format(((totalinsta / (1000*60*60)) % 24)) + ":" + formatter.format(((totalinsta / (1000*60)) % 60)) + ":" +  formatter.format((totalinsta / 1000) % 60));
+        tvmessageTime.setText(formatter.format(((totalmessage / (1000*60*60)) % 24))  + ":" + formatter.format(((totalmessage / (1000*60)) % 60)) + ":" + formatter.format((totalmessage / 1000) % 60));
+        tvtiktokTime.setText(formatter.format(((totaltiktok / (1000*60*60)) % 24)) + ":" + formatter.format(((totaltiktok / (1000*60)) % 60)) + ":" +  formatter.format((totaltiktok / 1000) % 60));
+        tvphoneTime.setText(formatter.format(((totalphone / (1000*60*60)) % 24)) + ":" + formatter.format(((totalphone / (1000*60)) % 60)) + ":" +  formatter.format((totalphone / 1000) % 60));
+        tvsnapchatTime.setText(formatter.format(((totalsnap / (1000*60*60)) % 24)) + ":" + formatter.format(((totalsnap / (1000*60)) % 60)) + ":" +  formatter.format((totalsnap / 1000) % 60));
+        tvtwitterTime.setText(formatter.format(((totaltwitter / (1000*60*60)) % 24)) + ":" + formatter.format(((totaltwitter / (1000*60)) % 60)) + ":" +  formatter.format((totaltwitter / 1000) % 60));
+        tvyoutubeTime.setText(formatter.format(((totalyoutube / (1000*60*60)) % 24)) + ":" + formatter.format(((totalyoutube / (1000*60)) % 60)) + ":" +  formatter.format((totalyoutube / 1000) % 60));
 
     }
 

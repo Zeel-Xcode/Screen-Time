@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.IBinder;
 import android.os.Looper;
+import android.text.format.DateFormat;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -19,13 +20,20 @@ import androidx.annotation.Nullable;
 import com.screentime.MyApplication;
 import com.screentime.utils.CommonUtils;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.SortedMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import Model.NewModel;
 import SQLiteDatabase.DatabaseHandler2;
@@ -46,6 +54,13 @@ public class OnforegroundService extends Service {
     ArrayList<String> diallist = new ArrayList<>();
     DatabaseHandler2 databaseHandler2;
     String id;
+    NumberFormat formatter;
+    Calendar startcal;
+    Calendar endcal;
+
+    Date startdate1;
+    Date enddate1;
+
 
     @Nullable
     @Override
@@ -56,6 +71,7 @@ public class OnforegroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+        formatter = new DecimalFormat("00");
 
         packageslist.clear();
         messagelist.clear();
@@ -175,8 +191,23 @@ public class OnforegroundService extends Service {
             //initialize the TimerTask's job
             initializeTimerTask();
             long starttime = System.currentTimeMillis();
-            CommonUtils.savePreferencesInteger(getApplicationContext(), "starttime", starttime);
-            CommonUtils.savePreferencesInteger(getApplicationContext(), "endtime", 0);
+
+            startcal = Calendar.getInstance(Locale.getDefault());
+
+            startcal.setTimeInMillis(starttime);
+
+            String startdate = DateFormat.format("yyyy-MM-dd HH:mm:ss", startcal).toString();
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            try {
+                startdate1 = dateFormat.parse(startdate);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            CommonUtils.savePreferencesString(getApplicationContext(), "starttime", startdate);
+            CommonUtils.savePreferencesString(getApplicationContext(), "endtime", "");
             setdatanewdatabase(appname, packagename);
             //schedule the timer, to wake up every 10 second
             timer.schedule(timerTask, 0, 100);
@@ -206,7 +237,21 @@ public class OnforegroundService extends Service {
             timer.cancel();
             timer = null;
             long endtime = System.currentTimeMillis();
-            CommonUtils.savePreferencesInteger(getApplicationContext(), "endtime", endtime);
+
+            endcal = Calendar.getInstance(Locale.getDefault());
+            endcal.setTimeInMillis(endtime);
+
+            String enddate = DateFormat.format("yyyy-MM-dd HH:mm:ss", endcal).toString();
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            try {
+                enddate1 = dateFormat.parse(enddate);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            CommonUtils.savePreferencesString(getApplicationContext(), "endtime", enddate);
             ArrayList<NewModel> getdata = databaseHandler2.getAllTime();
 
             if (getdata.size() > 0) {
@@ -247,39 +292,42 @@ public class OnforegroundService extends Service {
 
     public void setdatanewdatabase(String title, String packagename) {
         NewModel newModel = new NewModel();
-        long starttime = CommonUtils.getPreferencesInteger(getApplicationContext(), "starttime");
-        long endtime = CommonUtils.getPreferencesInteger(getApplicationContext(), "endtime");
 
-        SimpleDateFormat sdf1 = new SimpleDateFormat("ss");
-        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
-        long totalseconds = endtime - starttime;
-        int gettotal = Integer.parseInt(sdf1.format(totalseconds));
-        String currentdate = sdf2.format(starttime);
+        String starttime1 = DateFormat.format("yyyy-MM-dd hh:mm:ss aa", startcal).toString();
+
+        String currentdate = DateFormat.format("yyyy-MM-dd", startcal).toString();
 
         newModel.setPackagename(packagename);
         newModel.setAppname(title);
-        newModel.setStarttime(starttime);
-        newModel.setEndtime(endtime);
-        newModel.setTotalsec(gettotal);
+        newModel.setStarttime(starttime1);
+        newModel.setEndtime("");
+        newModel.setTotalsec(0);
         newModel.setCurrentdate(currentdate);
         databaseHandler2.insertRecord(newModel);
     }
 
     public void updatedatabase(String id) {
         NewModel newModel = new NewModel();
-        long starttime = CommonUtils.getPreferencesInteger(getApplicationContext(), "starttime");
-        long endtime = CommonUtils.getPreferencesInteger(getApplicationContext(), "endtime");
-        SimpleDateFormat sdf1 = new SimpleDateFormat("ss");
-        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
-        String currentdate = sdf2.format(starttime);
-        long totalseconds = endtime - starttime;
-        int gettotal = Integer.parseInt(sdf1.format(totalseconds));
+
+        String currentdate = DateFormat.format("yyyy-MM-dd", startcal).toString();
+
+        String starttime1 = DateFormat.format("yyyy-MM-dd hh:mm:ss aa", startcal).toString();
+
+        String endtime1 = DateFormat.format("yyyy-MM-dd hh:mm:ss aa", endcal).toString();
+
+
+        long totalseconds = enddate1.getTime() - startdate1.getTime();
+
+        int seconds = (int) (totalseconds / 1000) % 60 ;
+        int minutes = (int) ((totalseconds / (1000*60)) % 60);
+        int hours   = (int) ((totalseconds / (1000*60*60)) % 24);
+
         newModel.setId(id);
         newModel.setPackagename(packagename);
         newModel.setAppname(appname);
-        newModel.setStarttime(starttime);
-        newModel.setEndtime(endtime);
-        newModel.setTotalsec(gettotal);
+        newModel.setStarttime(starttime1);
+        newModel.setEndtime(endtime1);
+        newModel.setTotalsec(totalseconds);
         newModel.setCurrentdate(currentdate);
         databaseHandler2.updateRecord(newModel);
     }
