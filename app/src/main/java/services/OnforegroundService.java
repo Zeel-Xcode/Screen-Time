@@ -179,7 +179,7 @@ public class OnforegroundService extends Service {
             CommonUtils.savePreferencesInteger(getApplicationContext(), "endtime", 0);
             setdatanewdatabase(appname, packagename);
             //schedule the timer, to wake up every 10 second
-            timer.schedule(timerTask, 500, 500);
+            timer.schedule(timerTask, 0, 100);
         }
     }
 

@@ -443,48 +443,6 @@
                             android:fontFamily="@font/gothamblack"/>
 
                     </LinearLayout>
-                    <LinearLayout
-                        android:id="@+id/llTiktok"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="@dimen/dim_25"
-                        android:gravity="center"
-                        android:orientation="horizontal">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1">
-
-                            <TextView
-                                android:id="@+id/tvTiktok"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:drawableLeft="@drawable/tiktok"
-                                android:drawablePadding="@dimen/dim_8dp"
-                                android:fontFamily="@font/productsansregular"
-                                android:gravity="center"
-                                android:text="Tiktok"
-                                android:textColor="@color/colorGrey"
-                                android:textSize="18dp" />
-
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/tvTiktokTime"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/sp_18"
-                            android:layout_marginRight="@dimen/sp_18"
-                            android:drawablePadding="@dimen/dim_8dp"
-                            android:gravity="center"
-                            android:padding="5dp"
-                            android:textColor="@color/colorGrey"
-                            android:textSize="14dp"
-                            android:fontFamily="@font/gothamblack"/>
-
-                    </LinearLayout>
 
                 </LinearLayout>
 

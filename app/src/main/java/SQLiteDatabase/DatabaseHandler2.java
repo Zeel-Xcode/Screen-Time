@@ -185,7 +185,6 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
                     arrStr[i] = curCSV.getString(i);
                 csvWrite.writeNext(arrStr);
             }
-            AllDataFragment.spinner.setVisibility(View.GONE);
             csvWrite.close();
             curCSV.close();
 
@@ -218,7 +217,6 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
                     arrStr[i] = curCSV.getString(i);
                 csvWrite.writeNext(arrStr);
             }
-            AllDataFragment.spinner.setVisibility(View.GONE);
             csvWrite.close();
             curCSV.close();
 
@@ -252,7 +250,6 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
                     arrStr[i] = curCSV.getString(i);
                 csvWrite.writeNext(arrStr);
             }
-            AllDataFragment.spinner.setVisibility(View.GONE);
             csvWrite.close();
             curCSV.close();
 

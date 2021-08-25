@@ -215,10 +215,10 @@ public class HomeActivity extends AppCompatActivity {
                                 mMonth = monthOfYear;
                                 mDay = dayOfMonth;
 
-                                datepickerstamp = String.format("%d-%02d-%02d", year, (monthOfYear + 1), dayOfMonth);
-                                datepicker.setText(datepickerstamp);
+                                date = String.format("%d-%02d-%02d", year, (monthOfYear + 1), dayOfMonth);
+                                datepicker.setText(date);
 
-                                setData(datepickerstamp);
+                                setData(date);
 
                             }
                         }, mYear, mMonth, mDay);
@@ -236,7 +236,7 @@ public class HomeActivity extends AppCompatActivity {
                     AlertDialog.Builder alertBuilder = new AlertDialog.Builder(HomeActivity.this);
                     alertBuilder.setCancelable(true);
                     alertBuilder.setTitle("Permission necessary");
-                    alertBuilder.setMessage("Write Storage permission is necessary to Download Images and Videos!!!");
+                    alertBuilder.setMessage("Write Storage permission is necessary to export App data!");
                     alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
                         public void onClick(DialogInterface dialog, int which) {
@@ -295,7 +295,7 @@ public class HomeActivity extends AppCompatActivity {
         iv_back.setEnabled(false);
 
         if (checkPermission()) {
-            setData(getCurrentDate());
+            setData(datepicker.getText().toString());
             startService(new Intent(this, GetUsageService1.class));
         } else {
             Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
@@ -386,6 +386,32 @@ public class HomeActivity extends AppCompatActivity {
         long totalphone = 0;
         long totaltwitter = 0;
         long totalyoutube = 0;
+
+        ArrayList<NewModel> getdata = databaseHandler2.getAllTime();
+
+        if (getdata.size() > 0) {
+            for (int i = 0; i < getdata.size(); i++) {
+                if (getdata.get(i).getCurrentdate().equals(currentDate)) {
+                    if (getdata.get(i).getAppname().equals("facebook")) {
+                        totalfb = totalfb + (int) getdata.get(i).getTotalsec();
+                    } else if (getdata.get(i).getAppname().equals("snapchat")) {
+                        totalsnap = totalsnap + (int) getdata.get(i).getTotalsec();
+                    } else if (getdata.get(i).getAppname().equals("instagram")) {
+                        totalinsta = totalinsta + (int) getdata.get(i).getTotalsec();
+                    } else if (getdata.get(i).getAppname().equals("message")) {
+                        totalmessage = totalmessage + (int) getdata.get(i).getTotalsec();
+                    } else if (getdata.get(i).getAppname().equals("tiktok")) {
+                        totaltiktok = totaltiktok + (int) getdata.get(i).getTotalsec();
+                    } else if (getdata.get(i).getAppname().equals("phone")) {
+                        totalphone = totalphone + (int) getdata.get(i).getTotalsec();
+                    } else if (getdata.get(i).getAppname().equals("youtube")) {
+                        totalyoutube = totalyoutube + (int) getdata.get(i).getTotalsec();
+                    } else if (getdata.get(i).getAppname().equals("twitter")) {
+                        totaltwitter = totaltwitter + (int) getdata.get(i).getTotalsec();
+                    }
+                }
+            }
+        }
 
         tvfbTime.setText(formatter.format(totalfb / 3600) + ":" + formatter.format((totalfb % 3600) / 60) + ":" + formatter.format(totalfb % 60));
         tvinstaTime.setText(formatter.format(totalinsta / 3600) + ":" + formatter.format((totalinsta % 3600) / 60) + ":" + formatter.format(totalinsta % 60));
