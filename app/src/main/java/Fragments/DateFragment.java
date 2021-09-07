@@ -19,6 +19,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.screentime.Alldataadapter;
 import com.screentime.R;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 
 import Model.NewModel;
@@ -30,8 +32,8 @@ public class DateFragment extends Fragment {
     FrameLayout llrecycler;
     TextView norecord;
     RecyclerView recyclerview;
-    String appname;
-    String date;
+    String appname, date;
+    NumberFormat formatter;
 
     private DatabaseHandler2 databaseHandler2;
 
@@ -50,8 +52,8 @@ public class DateFragment extends Fragment {
         norecord = view.findViewById(R.id.norecord);
         recyclerview = view.findViewById(R.id.recyclerview);
 
-
         databaseHandler2 = new DatabaseHandler2(getActivity());
+        formatter = new DecimalFormat("00");
 
         if (getArguments() != null){
             appname = getArguments().getString("which");
@@ -71,7 +73,7 @@ public class DateFragment extends Fragment {
                     public void onClick(View view) {
                         dialog.dismiss();
 
-                        databaseHandler2.exportdatedata(appname,date);
+                        databaseHandler2.exportdatedata(appname,date,formatter);
 
                     }
                 });

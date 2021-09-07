@@ -33,6 +33,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -44,7 +46,6 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 public class AllDataFragment extends Fragment {
 
     FloatingActionButton fab;
-    ImageView  ic_export;
     Toolbar toolbar;
     TextView norecord, tvTitle;
     RecyclerView recyclerview;
@@ -52,6 +53,7 @@ public class AllDataFragment extends Fragment {
     FrameLayout llrecycler;
     public static ProgressBar spinner;
     DatabaseHandler2 databaseHandler2;
+    NumberFormat formatter;
 
     public AllDataFragment() {
         // Required empty public constructor
@@ -63,10 +65,7 @@ public class AllDataFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_all_data, container, false);
 
-        ProgressDialog progressDialog = new ProgressDialog(getContext());
-
         fab = view.findViewById(R.id.fab);
-        ic_export = view.findViewById(R.id.ic_export);
         tvTitle = view.findViewById(R.id.tvTitle);
         toolbar = view.findViewById(R.id.toolbar);
         norecord = view.findViewById(R.id.norecord);
@@ -75,6 +74,7 @@ public class AllDataFragment extends Fragment {
         spinner = (ProgressBar)view.findViewById(R.id.progress_bar);
 
         databaseHandler2 = new DatabaseHandler2(getContext());
+        formatter = new DecimalFormat("00");
 
         if (getArguments() != null){
             appname = getArguments().getString("which");
@@ -96,7 +96,7 @@ public class AllDataFragment extends Fragment {
                     public void onClick(View view) {
                         dialog.dismiss();
                         spinner.setVisibility(View.VISIBLE);
-                        databaseHandler2.exportappdata(appname);
+                        databaseHandler2.exportappdata(appname,formatter);
 
                     }
                 });

@@ -21,8 +21,7 @@
             android:layout_width="@dimen/dim_25"
             android:layout_height="@dimen/dim_25"
             android:layout_gravity="center"
-            android:src="@drawable/back"
-            />
+            android:src="@drawable/back"/>
 
         <TextView
             android:id="@+id/tvTitle"
@@ -36,17 +35,16 @@
             android:fontFamily="@font/gothamblack"
             android:textColor="@color/white"
             android:textSize="@dimen/sp_24"
-            android:textStyle="bold"
-            />
+            android:textStyle="bold"/>
 
 
         <ImageView
-            android:id="@+id/ic_export"
+            android:id="@+id/ic_share"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_gravity="center"
-            />
+            android:src="@drawable/ic_share"/>
 
     </LinearLayout>
 </androidx.appcompat.widget.Toolbar>

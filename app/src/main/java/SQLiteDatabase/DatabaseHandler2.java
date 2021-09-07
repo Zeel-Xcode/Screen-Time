@@ -2,45 +2,40 @@ package SQLiteDatabase;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Reader;
 import java.io.Writer;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
-import Fragments.AllDataFragment;
 import Model.NewModel;
-
-import static android.content.ContentValues.TAG;
 
 public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 2;
     // Database Name
-    private static final String DATABASE_NAME = "TimeManager2";
+    public static final String DATABASE_NAME = "TimeManager2";
     // Contacts table name
     private static final String TABLE_CONTACTS = "socialMedia_Timemanager2";
     // Contacts Table Columns names
     private static final String KEY_ID = "id";
+    private static final String KEY_DEVICEID = "deviceid";
     private static final String KEY_PACKAGENAME = "packagename";
     private static final String KEY_APPNAME = "appname";
     private static final String KEY_STARTTIME = "starttime";
@@ -56,6 +51,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_CONTACTS + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_DEVICEID + " TEXT,"
                 + KEY_PACKAGENAME + " TEXT,"
                 + KEY_APPNAME + " TEXT,"
                 + KEY_STARTTIME + " TEXT,"
@@ -75,6 +71,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
     public void insertRecord(NewModel newModel) {
         SQLiteDatabase database = this.getReadableDatabase();
         ContentValues values = new ContentValues();
+        values.put(KEY_DEVICEID, newModel.getDeviceid());
         values.put(KEY_PACKAGENAME, newModel.getPackagename());
         values.put(KEY_APPNAME, newModel.getAppname());
         values.put(KEY_STARTTIME, newModel.getStarttime());
@@ -89,6 +86,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
     public void updateRecord(NewModel newModel) {
         SQLiteDatabase database = this.getReadableDatabase();
         ContentValues values = new ContentValues();
+        values.put(KEY_DEVICEID, newModel.getDeviceid());
         values.put(KEY_PACKAGENAME, newModel.getPackagename());
         values.put(KEY_APPNAME, newModel.getAppname());
         values.put(KEY_STARTTIME, newModel.getStarttime());
@@ -132,35 +130,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
         return dateInString;
     }
 
-//    public void csvwriter() throws IOException {
-//        CSVReader csvReader = new CSVReader(new FileReader(Environment.getExternalStorageDirectory() + "/" + DATABASE_NAME));
-//        String[] nextLine;
-//        int count = 0;
-//        StringBuilder columns = new StringBuilder();
-//        StringBuilder value = new StringBuilder();
-//
-//        while ((nextLine = csvReader.readNext()) != null) {
-//            // nextLine[] is an array of values from the line
-//            for (int i = 0; i < nextLine.length - 1; i++) {
-//                if (count == 0) {
-//                    if (i == nextLine.length - 2)
-//                        columns.append(nextLine[i]);
-//                    else
-//                        columns.append(nextLine[i]).append(",");
-//                } else {
-//                    if (i == nextLine.length - 2)
-//                        value.append("'").append(nextLine[i]).append("'");
-//                    else
-//                        value.append("'").append(nextLine[i]).append("',");
-//                }
-//            }
-//
-//            Log.d(TAG, columns + "-------" + value);
-//        }
-//
-//    }
-
-    public void exportappdata(String appname) {
+    public void exportappdata(String appname,NumberFormat formatter) {
 
         String path = Environment.getExternalStorageDirectory() + "/" + DATABASE_NAME;
         File dir = new File(path);
@@ -184,9 +154,9 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
                 for (int i = 0; i < curCSV.getColumnCount(); i++){
                     if (i == 5){
                         long t = Long.parseLong(curCSV.getString(5));
-                        int seconds = (int) (t / 1000) % 60 ;
-                        int minutes = (int) ((t / (1000*60)) % 60);
-                        int hours   = (int) ((t / (1000*60*60)) % 24);
+                        String seconds = formatter.format((t / 1000) % 60) ;
+                        String minutes =  formatter.format(((t / (1000*60)) % 60));
+                        String hours   =  formatter.format(((t / (1000*60*60)) % 24));
 
                         String total = hours + ":" + minutes + ":" + seconds;
                         arrStr[5] = total;
@@ -206,7 +176,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
         }
     }
 
-    public void exportdatedata(String appname, String date){
+    public void exportdatedata(String appname, String date,NumberFormat formatter){
         String path = Environment.getExternalStorageDirectory() + "/" + DATABASE_NAME;
         File dir = new File(path);
         if (!dir.exists()) {
@@ -229,9 +199,9 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
                 for (int i = 0; i < curCSV.getColumnCount(); i++){
                     if (i == 5){
                         long t = Long.parseLong(curCSV.getString(5));
-                        int seconds = (int) (t / 1000) % 60 ;
-                        int minutes = (int) ((t / (1000*60)) % 60);
-                        int hours   = (int) ((t / (1000*60*60)) % 24);
+                        String seconds = formatter.format((t / 1000) % 60) ;
+                        String minutes =  formatter.format(((t / (1000*60)) % 60));
+                        String hours   =  formatter.format(((t / (1000*60*60)) % 24));
 
                         String total = hours + ":" + minutes + ":" + seconds;
                         arrStr[5] = total;
@@ -251,7 +221,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
         }
     }
 
-    public void exportallappdata(String date) {
+    public void exportallappdata(String date, boolean isEmail, Context context, NumberFormat formatter) {
 
         String path = Environment.getExternalStorageDirectory() + "/" + DATABASE_NAME;
         File dir = new File(path);
@@ -276,11 +246,13 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
 
                     if (i == 5){
                         long t = Long.parseLong(curCSV.getString(5));
-                        int seconds = (int) (t / 1000) % 60 ;
-                        int minutes = (int) ((t / (1000*60)) % 60);
-                        int hours   = (int) ((t / (1000*60*60)) % 24);
+                        String miliseconds = formatter.format(t) ;
+//                        String seconds = formatter.format((t / 1000) % 60) ;
+//                        String minutes =  formatter.format(((t / (1000*60)) % 60));
+//                        String hours   =  formatter.format(((t / (1000*60*60)) % 24));
 
-                        String total = hours + ":" + minutes + ":" + seconds;
+//                        String total = hours + ":" + minutes + ":" + seconds;
+                        String total = miliseconds;
                         arrStr[5] = total;
                     }
 
@@ -294,13 +266,29 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
             csvWrite.close();
             curCSV.close();
 
+
+            if (isEmail){
+
+                Uri u1 = FileProvider.getUriForFile(
+                        context,
+                        "com.screentime.provider", //(use your app signature + ".provider" )
+                        file);;
+
+                Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Yours ScreenTime");
+                sendIntent.putExtra(Intent.EXTRA_STREAM, u1);
+                sendIntent.setType("text/html");
+                context.startActivity(sendIntent);
+            }
+
+
         } catch (Exception sqlEx) {
             Log.e("MainActivity", sqlEx.getMessage(), sqlEx);
         }
     }
 
 
-    public class CSVWriter {
+    public static class CSVWriter {
 
         private PrintWriter pw;
 

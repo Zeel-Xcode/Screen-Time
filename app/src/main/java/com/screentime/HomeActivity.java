@@ -50,7 +50,7 @@ public class HomeActivity extends AppCompatActivity {
     FloatingActionButton fab;
     String date;
     Toolbar toolbar;
-    ImageView iv_back, ic_export;
+    ImageView iv_back, ic_share;
     TextView tvTitle, tvFacebook, tvInsta, tvSnapChat, tvfbTime, tvinstaTime, tvsnapchatTime, datepicker, tvMessages, tvmessageTime, tvTiktok, tvtiktokTime, tvPhone, tvphoneTime, tvtwitterTime, tvyoutubeTime;
     LinearLayout llFacebook, llSnapchat, llInsta, llMessages, llTktok, llPhone, llyoutube, lltwitter;
 
@@ -81,7 +81,7 @@ public class HomeActivity extends AppCompatActivity {
         datepicker = findViewById(R.id.datepicker);
         toolbar = findViewById(R.id.toolbar);
         iv_back = findViewById(R.id.iv_back);
-        ic_export = findViewById(R.id.ic_export);
+        ic_share = findViewById(R.id.ic_share);
         tvTitle = findViewById(R.id.tvTitle);
         tvFacebook = findViewById(R.id.tvFacebook);
         tvInsta = findViewById(R.id.tvInsta);
@@ -108,7 +108,12 @@ public class HomeActivity extends AppCompatActivity {
 
         checkStoragePermission();
 
-
+        ic_share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                databaseHandler2.exportallappdata(datepicker.getText().toString(),true,HomeActivity.this,formatter);
+            }
+        });
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,7 +127,7 @@ public class HomeActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         dialog.dismiss();
-                        databaseHandler2.exportallappdata(datepicker.getText().toString());
+                        databaseHandler2.exportallappdata(datepicker.getText().toString(),false,HomeActivity.this, formatter);
 
                     }
                 });
@@ -391,7 +396,7 @@ public class HomeActivity extends AppCompatActivity {
 
         ArrayList<NewModel> getdata = databaseHandler2.getAllTime();
 
-        if (getdata.size() > 0){
+        if (databaseHandler2.getAllTime().size() > 0){
             fab.setVisibility(View.VISIBLE);
         }else {
             fab.setVisibility(View.GONE);

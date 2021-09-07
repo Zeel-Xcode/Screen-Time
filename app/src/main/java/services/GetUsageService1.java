@@ -103,7 +103,6 @@ public class GetUsageService1 extends Service {
         }
     }
 
-
     @Override
     public void onDestroy() {
         stoptimertask();

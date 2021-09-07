@@ -27,15 +27,6 @@
         android:orientation="vertical"
         android:visibility="gone" >
 
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_centerHorizontal="true"
-            android:visibility="gone"/>
-
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
@@ -47,7 +38,8 @@
             app:fabSize="auto"
             android:src="@drawable/ic_export"
             app:tint="@android:color/white"
-            android:layout_marginRight="25dp" />
+            android:layout_marginRight="25dp"
+            android:visibility="gone"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview"

@@ -25,7 +25,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
         <activity android:name=".ResultActivity"></activity>
-        <activity android:name=".HomeActivity">
+        <activity android:name=".HomeActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -59,13 +60,14 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.dataintocsvformat"
-            android:grantUriPermissions="true"
-            android:exported="false">
+            android:authorities="com.screentime.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <!-- ressource file to create -->
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provide_path" />
-
+                android:resource="@xml/provide_path">
+            </meta-data>
         </provider>
 
     </application>

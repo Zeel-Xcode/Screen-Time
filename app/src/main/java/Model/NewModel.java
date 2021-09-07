@@ -3,6 +3,7 @@ package Model;
 public class NewModel {
 
     String Id;
+    String deviceid;
     String packagename;
     String appname;
     String starttime;
@@ -16,6 +17,14 @@ public class NewModel {
 
     public void setId(String id) {
         Id = id;
+    }
+
+    public String getDeviceid() {
+        return deviceid;
+    }
+
+    public void setDeviceid(String deviceid) {
+        this.deviceid = deviceid;
     }
 
     public String getPackagename() {
