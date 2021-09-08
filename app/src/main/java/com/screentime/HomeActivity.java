@@ -10,10 +10,12 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.DatePicker;
@@ -35,6 +37,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -50,9 +53,9 @@ public class HomeActivity extends AppCompatActivity {
     FloatingActionButton fab;
     String date;
     Toolbar toolbar;
-    ImageView iv_back, ic_share;
-    TextView tvTitle, tvFacebook, tvInsta, tvSnapChat, tvfbTime, tvinstaTime, tvsnapchatTime, datepicker, tvMessages, tvmessageTime, tvTiktok, tvtiktokTime, tvPhone, tvphoneTime, tvtwitterTime, tvyoutubeTime;
-    LinearLayout llFacebook, llSnapchat, llInsta, llMessages, llTktok, llPhone, llyoutube, lltwitter;
+    ImageView setting, ic_share;
+    TextView tvTitle, tvFacebook, tvInsta, tvSnapChat, tvfbTime, tvinstaTime, tvsnapchatTime, datepicker, tvMessages, tvmessageTime, tvTiktok, tvtiktokTime, tvPhone, tvphoneTime, tvtwitterTime, tvyoutubeTime, Phoneusage, phoneTime;
+    LinearLayout llFacebook, llSnapchat, llInsta, llMessages, llTktok, llPhone, llyoutube, lltwitter, llphoneusage;
 
     NumberFormat formatter;
     private AppEventsLogger logger;
@@ -66,11 +69,15 @@ public class HomeActivity extends AppCompatActivity {
 
     private int mYear, mMonth, mDay;
 
+    BackupAndRestore1 backupAndRestore;
+    boolean restoredata = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        phoneTime = findViewById(R.id.phoneTime);
         fab = findViewById(R.id.fab);
         tvphoneTime = findViewById(R.id.tvphoneTime);
         tvPhone = findViewById(R.id.tvPhone);
@@ -80,7 +87,7 @@ public class HomeActivity extends AppCompatActivity {
         tvMessages = findViewById(R.id.tvMessages);
         datepicker = findViewById(R.id.datepicker);
         toolbar = findViewById(R.id.toolbar);
-        iv_back = findViewById(R.id.iv_back);
+        setting = findViewById(R.id.setting);
         ic_share = findViewById(R.id.ic_share);
         tvTitle = findViewById(R.id.tvTitle);
         tvFacebook = findViewById(R.id.tvFacebook);
@@ -108,10 +115,48 @@ public class HomeActivity extends AppCompatActivity {
 
         checkStoragePermission();
 
+        backupAndRestore = new BackupAndRestore1();
+
+        setting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Dialog dialog = new Dialog(HomeActivity.this);
+                dialog.setContentView(R.layout.custom_backup_dialog);
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                TextView title = dialog.findViewById(R.id.title);
+                title.setText("Backup or Restore");
+
+                TextView msg = dialog.findViewById(R.id.msg);
+                msg.setText("Are you sure you want to backup or restore?");
+
+                TextView backup = dialog.findViewById(R.id.backup);
+
+                backup.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        backupAndRestore.exportDB(HomeActivity.this, databaseHandler2);
+                        dialog.dismiss();
+                    }
+                });
+
+                TextView cancel = dialog.findViewById(R.id.cancel);
+                cancel.setText("restore");
+                cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        backupAndRestore.importDB(HomeActivity.this, databaseHandler2);
+                        dialog.dismiss();
+                    }
+                });
+
+                dialog.show();
+            }
+        });
+
         ic_share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                databaseHandler2.exportallappdata(datepicker.getText().toString(),true,HomeActivity.this,formatter);
+                databaseHandler2.exportallappdata(datepicker.getText().toString(), true, HomeActivity.this, formatter);
             }
         });
 
@@ -127,7 +172,7 @@ public class HomeActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         dialog.dismiss();
-                        databaseHandler2.exportallappdata(datepicker.getText().toString(),false,HomeActivity.this, formatter);
+                        databaseHandler2.exportallappdata(datepicker.getText().toString(), false, HomeActivity.this, formatter);
 
                     }
                 });
@@ -263,15 +308,15 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode==123){
+        if (requestCode == 123) {
             if (grantResults.length > 0) {
-                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(this, "All permission Granted", Toast.LENGTH_SHORT).show();
-                    } else {
-                        //code for deny
-                        checkAgain();
-                    }
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "All permission Granted", Toast.LENGTH_SHORT).show();
+                } else {
+                    //code for deny
+                    checkAgain();
                 }
+            }
         }
     }
 
@@ -298,10 +343,58 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        iv_back.setVisibility(View.INVISIBLE);
-        iv_back.setEnabled(false);
+
+        SharedPreferences preferences = getSharedPreferences("sharedrestore", MODE_PRIVATE);
+        restoredata = preferences.getBoolean("restore", false);
 
         if (checkPermission()) {
+
+            if (!restoredata){
+                File sd = Environment.getExternalStorageDirectory();
+                String backupDBPath = String.format("%s.bak", databaseHandler2.DATABASE_NAME);
+                File backupDB = new File(sd, backupDBPath);
+
+                File file = new File(backupDB.getAbsolutePath());
+                if (file.exists()) {
+                    Dialog dialog = new Dialog(HomeActivity.this);
+                    dialog.setContentView(R.layout.custom_backup_dialog);
+                    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+                    TextView title = dialog.findViewById(R.id.title);
+                    title.setText("Restore");
+
+                    TextView msg = dialog.findViewById(R.id.msg);
+                    msg.setText("Are you sure you want to restore?");
+
+                    TextView backup = dialog.findViewById(R.id.backup);
+                    backup.setText("Restore");
+                    backup.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            backupAndRestore.importDB(HomeActivity.this, databaseHandler2);
+                            restoredata = true;
+                            setData(datepicker.getText().toString());
+                            SharedPreferences preferences = getSharedPreferences("sharedrestore", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = preferences.edit();
+                            editor.putBoolean("restore", restoredata);
+                            editor.apply();
+                            dialog.dismiss();
+                        }
+                    });
+
+                    TextView cancel = dialog.findViewById(R.id.cancel);
+                    cancel.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    dialog.show();
+                } else {
+
+                }
+            }
             setData(datepicker.getText().toString());
             startService(new Intent(this, GetUsageService1.class));
         } else {
@@ -396,9 +489,9 @@ public class HomeActivity extends AppCompatActivity {
 
         ArrayList<NewModel> getdata = databaseHandler2.getAllTime();
 
-        if (databaseHandler2.getAllTime().size() > 0){
+        if (databaseHandler2.getAllTime().size() > 0) {
             fab.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             fab.setVisibility(View.GONE);
         }
 
@@ -427,14 +520,14 @@ public class HomeActivity extends AppCompatActivity {
             }
         }
 
-        tvfbTime.setText(formatter.format(((totalfb / (1000*60*60)) % 24))  + ":" + formatter.format(((totalfb / (1000*60)) % 60)) + ":" + formatter.format((totalfb / 1000) % 60));
-        tvinstaTime.setText(formatter.format(((totalinsta / (1000*60*60)) % 24)) + ":" + formatter.format(((totalinsta / (1000*60)) % 60)) + ":" +  formatter.format((totalinsta / 1000) % 60));
-        tvmessageTime.setText(formatter.format(((totalmessage / (1000*60*60)) % 24))  + ":" + formatter.format(((totalmessage / (1000*60)) % 60)) + ":" + formatter.format((totalmessage / 1000) % 60));
-        tvtiktokTime.setText(formatter.format(((totaltiktok / (1000*60*60)) % 24)) + ":" + formatter.format(((totaltiktok / (1000*60)) % 60)) + ":" +  formatter.format((totaltiktok / 1000) % 60));
-        tvphoneTime.setText(formatter.format(((totalphone / (1000*60*60)) % 24)) + ":" + formatter.format(((totalphone / (1000*60)) % 60)) + ":" +  formatter.format((totalphone / 1000) % 60));
-        tvsnapchatTime.setText(formatter.format(((totalsnap / (1000*60*60)) % 24)) + ":" + formatter.format(((totalsnap / (1000*60)) % 60)) + ":" +  formatter.format((totalsnap / 1000) % 60));
-        tvtwitterTime.setText(formatter.format(((totaltwitter / (1000*60*60)) % 24)) + ":" + formatter.format(((totaltwitter / (1000*60)) % 60)) + ":" +  formatter.format((totaltwitter / 1000) % 60));
-        tvyoutubeTime.setText(formatter.format(((totalyoutube / (1000*60*60)) % 24)) + ":" + formatter.format(((totalyoutube / (1000*60)) % 60)) + ":" +  formatter.format((totalyoutube / 1000) % 60));
+        tvfbTime.setText(formatter.format(((totalfb / (1000 * 60 * 60)) % 24)) + ":" + formatter.format(((totalfb / (1000 * 60)) % 60)) + ":" + formatter.format((totalfb / 1000) % 60));
+        tvinstaTime.setText(formatter.format(((totalinsta / (1000 * 60 * 60)) % 24)) + ":" + formatter.format(((totalinsta / (1000 * 60)) % 60)) + ":" + formatter.format((totalinsta / 1000) % 60));
+        tvmessageTime.setText(formatter.format(((totalmessage / (1000 * 60 * 60)) % 24)) + ":" + formatter.format(((totalmessage / (1000 * 60)) % 60)) + ":" + formatter.format((totalmessage / 1000) % 60));
+        tvtiktokTime.setText(formatter.format(((totaltiktok / (1000 * 60 * 60)) % 24)) + ":" + formatter.format(((totaltiktok / (1000 * 60)) % 60)) + ":" + formatter.format((totaltiktok / 1000) % 60));
+        tvphoneTime.setText(formatter.format(((totalphone / (1000 * 60 * 60)) % 24)) + ":" + formatter.format(((totalphone / (1000 * 60)) % 60)) + ":" + formatter.format((totalphone / 1000) % 60));
+        tvsnapchatTime.setText(formatter.format(((totalsnap / (1000 * 60 * 60)) % 24)) + ":" + formatter.format(((totalsnap / (1000 * 60)) % 60)) + ":" + formatter.format((totalsnap / 1000) % 60));
+        tvtwitterTime.setText(formatter.format(((totaltwitter / (1000 * 60 * 60)) % 24)) + ":" + formatter.format(((totaltwitter / (1000 * 60)) % 60)) + ":" + formatter.format((totaltwitter / 1000) % 60));
+        tvyoutubeTime.setText(formatter.format(((totalyoutube / (1000 * 60 * 60)) % 24)) + ":" + formatter.format(((totalyoutube / (1000 * 60)) % 60)) + ":" + formatter.format((totalyoutube / 1000) % 60));
 
     }
 

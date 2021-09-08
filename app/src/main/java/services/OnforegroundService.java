@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.IBinder;
 import android.os.Looper;
+import android.provider.Settings;
 import android.text.format.DateFormat;
 import android.util.Log;
 
@@ -49,6 +50,8 @@ public class OnforegroundService extends Service {
     String currentPackage;
     String appname;
     String packagename;
+
+
     ArrayList<String> packageslist = new ArrayList<>();
     ArrayList<String> messagelist = new ArrayList<>();
     ArrayList<String> diallist = new ArrayList<>();
@@ -297,6 +300,8 @@ public class OnforegroundService extends Service {
 
         String currentdate = DateFormat.format("yyyy-MM-dd", startcal).toString();
 
+        newModel.setDeviceid(Settings.Secure.getString(getContentResolver(),
+                Settings.Secure.ANDROID_ID));
         newModel.setPackagename(packagename);
         newModel.setAppname(title);
         newModel.setStarttime(starttime1);
@@ -323,6 +328,8 @@ public class OnforegroundService extends Service {
         int hours   = (int) ((totalseconds / (1000*60*60)) % 24);
 
         newModel.setId(id);
+        newModel.setDeviceid(Settings.Secure.getString(getContentResolver(),
+                Settings.Secure.ANDROID_ID));
         newModel.setPackagename(packagename);
         newModel.setAppname(appname);
         newModel.setStarttime(starttime1);

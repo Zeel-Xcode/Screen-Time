@@ -17,11 +17,11 @@
         android:paddingRight="@dimen/dim_10">
 
         <ImageView
-            android:id="@+id/iv_back"
+            android:id="@+id/setting"
             android:layout_width="@dimen/dim_25"
             android:layout_height="@dimen/dim_25"
             android:layout_gravity="center"
-            android:src="@drawable/back"/>
+            android:src="@drawable/settings"/>
 
         <TextView
             android:id="@+id/tvTitle"

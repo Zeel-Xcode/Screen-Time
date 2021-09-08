@@ -108,12 +108,13 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
                 cursor.moveToNext();
                 contactModel = new NewModel();
                 contactModel.setId(cursor.getString(0));
-                contactModel.setPackagename(cursor.getString(1));
-                contactModel.setAppname(cursor.getString(2));
-                contactModel.setStarttime(cursor.getString(3));
-                contactModel.setEndtime(cursor.getString(4));
-                contactModel.setTotalsec(cursor.getLong(5));
-                contactModel.setCurrentdate(cursor.getString(6));
+                contactModel.setDeviceid(cursor.getString(1));
+                contactModel.setPackagename(cursor.getString(2));
+                contactModel.setAppname(cursor.getString(3));
+                contactModel.setStarttime(cursor.getString(4));
+                contactModel.setEndtime(cursor.getString(5));
+                contactModel.setTotalsec(cursor.getLong(6));
+                contactModel.setCurrentdate(cursor.getString(7));
 
                 contacts.add(contactModel);
             }
@@ -244,8 +245,8 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
                 String arrStr[] = new String[curCSV.getColumnCount()];
                 for (int i = 0; i < curCSV.getColumnCount(); i++){
 
-                    if (i == 5){
-                        long t = Long.parseLong(curCSV.getString(5));
+                    if (i == 6){
+                        long t = Long.parseLong(curCSV.getString(6));
                         String miliseconds = formatter.format(t) ;
 //                        String seconds = formatter.format((t / 1000) % 60) ;
 //                        String minutes =  formatter.format(((t / (1000*60)) % 60));
@@ -253,7 +254,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
 
 //                        String total = hours + ":" + minutes + ":" + seconds;
                         String total = miliseconds;
-                        arrStr[5] = total;
+                        arrStr[6] = total;
                     }
 
                     else {

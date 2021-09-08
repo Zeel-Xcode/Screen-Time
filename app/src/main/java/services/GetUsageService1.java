@@ -1,15 +1,19 @@
 package services;
 
+import static androidx.core.app.AppOpsManagerCompat.noteOpNoThrow;
 import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_ID;
 import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_NAME;
 import static com.screentime.HomeActivity.ONGOING_NOTIFICATION_ID;
 
+import android.Manifest;
 import android.app.ActivityManager;
+import android.app.AppOpsManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.TaskStackBuilder;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
@@ -18,16 +22,22 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Message;
+import android.service.notification.StatusBarNotification;
+import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.screentime.BackupAndRestore1;
 import com.screentime.HomeActivity;
 import com.screentime.R;
 import com.screentime.utils.AppConstant;
@@ -42,6 +52,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
 
+import SQLiteDatabase.DatabaseHandler2;
+
 /**
  * This Service calculates time spend by user on each app.
  * It runs on background in every 10 seconds
@@ -52,6 +64,12 @@ public class GetUsageService1 extends Service {
     private Timer timer;
     private TimerTask timerTask;
     String currentPackage;
+
+    BackupAndRestore1 backupAndRestore1;
+    DatabaseHandler2 databaseHandler2;
+
+    final int NOTIFY_ID = 1; // any integer number
+    int count = 0;
 
 
     @Nullable
@@ -83,9 +101,12 @@ public class GetUsageService1 extends Service {
         startForeground(ONGOING_NOTIFICATION_ID, notification1);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+        backupAndRestore1 = new BackupAndRestore1();
+        databaseHandler2 = new DatabaseHandler2(this);
         startTimer();
 
         return START_REDELIVER_INTENT;
@@ -112,8 +133,8 @@ public class GetUsageService1 extends Service {
     /**
      * Calculates the usage of app if it is on foreground and generate popup.
      */
-    private void getUsage(){
-             startService(new Intent(getApplicationContext(),OnforegroundService.class).putExtra("package", currentPackage));
+    private void getUsage() {
+        startService(new Intent(getApplicationContext(), OnforegroundService.class).putExtra("package", currentPackage));
 
     }
 
@@ -198,6 +219,7 @@ public class GetUsageService1 extends Service {
      * Resets all the value at 12 am.
      */
     private void isReset() {
+
         String preDate = CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.CURRENT_DATE);
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         String date = df.format(new Date());
@@ -205,6 +227,7 @@ public class GetUsageService1 extends Service {
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.CURRENT_DATE, date);
         } else if (preDate.equals(date)) {
         } else {
+            backupAndRestore1.exportDB(this, databaseHandler2);
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.CURRENT_DATE, date);
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.FBAVERAGE_COUNT, "0");
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.INSTAAVERAGE_COUNT, "0");
