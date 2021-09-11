@@ -51,10 +51,10 @@ public class OnforegroundService extends Service {
     String appname;
     String packagename;
 
-
     ArrayList<String> packageslist = new ArrayList<>();
     ArrayList<String> messagelist = new ArrayList<>();
     ArrayList<String> diallist = new ArrayList<>();
+
     DatabaseHandler2 databaseHandler2;
     String id;
     NumberFormat formatter;
@@ -180,7 +180,6 @@ public class OnforegroundService extends Service {
         return packageNames;
     }
 
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -268,7 +267,9 @@ public class OnforegroundService extends Service {
      * Returns the package name of app on foreground.
      */
     public String getRecentApps(Context context) {
+
         String currentApp = "";
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
             long time = System.currentTimeMillis();
@@ -323,9 +324,9 @@ public class OnforegroundService extends Service {
 
         long totalseconds = enddate1.getTime() - startdate1.getTime();
 
-        int seconds = (int) (totalseconds / 1000) % 60 ;
-        int minutes = (int) ((totalseconds / (1000*60)) % 60);
-        int hours   = (int) ((totalseconds / (1000*60*60)) % 24);
+        int seconds = (int) (totalseconds / 1000) % 60;
+        int minutes = (int) ((totalseconds / (1000 * 60)) % 60);
+        int hours = (int) ((totalseconds / (1000 * 60 * 60)) % 24);
 
         newModel.setId(id);
         newModel.setDeviceid(Settings.Secure.getString(getContentResolver(),

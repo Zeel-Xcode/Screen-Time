@@ -7,16 +7,21 @@ import android.app.AlertDialog;
 import android.app.AppOpsManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.KeyguardManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.ImageView;
@@ -344,12 +349,15 @@ public class HomeActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+//        registerReceiver(broadcastReceiver, new IntentFilter(GetUsageService1.COUNTDOWN_BR));
+//        Toast.makeText(this, "Registered broadcast receiver", Toast.LENGTH_SHORT).show();
+
         SharedPreferences preferences = getSharedPreferences("sharedrestore", MODE_PRIVATE);
         restoredata = preferences.getBoolean("restore", false);
 
         if (checkPermission()) {
 
-            if (!restoredata){
+            if (!restoredata) {
                 File sd = Environment.getExternalStorageDirectory();
                 String backupDBPath = String.format("%s.bak", databaseHandler2.DATABASE_NAME);
                 File backupDB = new File(sd, backupDBPath);
@@ -368,6 +376,7 @@ public class HomeActivity extends AppCompatActivity {
 
                     TextView backup = dialog.findViewById(R.id.backup);
                     backup.setText("Restore");
+
                     backup.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -397,6 +406,8 @@ public class HomeActivity extends AppCompatActivity {
             }
             setData(datepicker.getText().toString());
             startService(new Intent(this, GetUsageService1.class));
+            Toast.makeText(this, "Start service", Toast.LENGTH_SHORT).show();
+
         } else {
             Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
             startActivity(intent);
@@ -539,7 +550,40 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+//        stopService(new Intent(this, GetUsageService1.class));
+//        Toast.makeText(this, "Stopped service", Toast.LENGTH_SHORT).show();
         super.onDestroy();
         NotificationManagerCompat.from(HomeActivity.this).cancel(ONGOING_NOTIFICATION_ID);
     }
+
+//    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            updateGUI(intent);
+//        }
+//    };
+
+//    private void updateGUI(Intent intent) {
+//        if (intent.getExtras() != null) {
+//            long millisUntilFinished = intent.getLongExtra("countdown", 0);
+//            Toast.makeText(this, "Countdown second remaining : " + millisUntilFinished / 1000, Toast.LENGTH_SHORT).show();
+//        }
+//    }
+
+//    @Override
+//    protected void onStop() {
+//        try {
+//            unregisterReceiver(broadcastReceiver);
+//        } catch (Exception e) {
+//            // Receiver was probably already stopped in onPause()
+//        }
+//        super.onStop();
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        unregisterReceiver(broadcastReceiver);
+////        Toast.makeText(this, "Unregistered broadcast receiver", Toast.LENGTH_SHORT).show();
+//    }
 }
