@@ -35,12 +35,8 @@ public class Alldataadapter extends RecyclerView.Adapter<Alldataadapter.DataView
 
     @Override
     public void onBindViewHolder(@NonNull DataViewHolder holder, int position) {
-
-        SimpleDateFormat sdf1 = new SimpleDateFormat("MMM dd,yyyy hh:mm:ss aa");
-
         holder.startresult.setText(getAppdata.get(position).getStarttime());
         holder.endresult.setText(getAppdata.get(position).getEndtime());
-
     }
 
     @Override

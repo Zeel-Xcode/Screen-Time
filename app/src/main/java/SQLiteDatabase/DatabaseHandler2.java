@@ -247,13 +247,11 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
 
                     if (i == 6){
                         long t = Long.parseLong(curCSV.getString(6));
-                        String miliseconds = formatter.format(t) ;
-//                        String seconds = formatter.format((t / 1000) % 60) ;
-//                        String minutes =  formatter.format(((t / (1000*60)) % 60));
-//                        String hours   =  formatter.format(((t / (1000*60*60)) % 24));
+                        String seconds = formatter.format((t / 1000) % 60) ;
+                        String minutes =  formatter.format(((t / (1000*60)) % 60));
+                        String hours   =  formatter.format(((t / (1000*60*60)) % 24));
 
-//                        String total = hours + ":" + minutes + ":" + seconds;
-                        String total = miliseconds;
+                        String total = hours + ":" + minutes + ":" + seconds;
                         arrStr[6] = total;
                     }
 

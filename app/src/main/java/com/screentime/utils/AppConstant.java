@@ -32,4 +32,5 @@ public class AppConstant {
     public static final String SWEEKTTIME = "SWEEKTTIME";
     public static final String MWEEKTTIME = "MWEEKTTIME";
     public static final String ISACCESS = "ISACCESS";
+    public static final String TIMEFORMATE = "yyyy-MM-dd HH:mm:ss";
 }

@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.text.format.DateFormat;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,10 @@ public class CommonUtils {
 
     public static void snackBar(View parent, String msg) {
         Snackbar.make(parent, msg, Snackbar.LENGTH_SHORT).show();
+    }
+
+    public static String getDateFormatInMillisecond(String formate, Date date) {
+        return DateFormat.format(AppConstant.TIMEFORMATE, date).toString() + "." + String.format("%03d", (date.getTime()%1000)) + DateFormat.format(" a", date).toString();
     }
 
     public static void savePreferencesString(Context context, String key, String value) {

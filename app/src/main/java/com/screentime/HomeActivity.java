@@ -16,6 +16,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -280,6 +281,8 @@ public class HomeActivity extends AppCompatActivity {
                             }
                         }, mYear, mMonth, mDay);
                 datePickerDialog.show();
+                datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
+                datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(Color.BLACK);
             }
         });
 
@@ -344,6 +347,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onResume() {
@@ -355,7 +359,8 @@ public class HomeActivity extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("sharedrestore", MODE_PRIVATE);
         restoredata = preferences.getBoolean("restore", false);
 
-        if (checkPermission()) {
+        boolean firstrun = getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("firstrun", true);
+        if (firstrun){
 
             if (!restoredata) {
                 File sd = Environment.getExternalStorageDirectory();
@@ -404,6 +409,14 @@ public class HomeActivity extends AppCompatActivity {
 
                 }
             }
+
+            getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                    .edit()
+                    .putBoolean("firstrun", false)
+                    .commit();
+        }
+
+        if (checkPermission()) {
             setData(datepicker.getText().toString());
             startService(new Intent(this, GetUsageService1.class));
             Toast.makeText(this, "Start service", Toast.LENGTH_SHORT).show();

@@ -19,6 +19,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.screentime.MyApplication;
+import com.screentime.utils.AppConstant;
 import com.screentime.utils.CommonUtils;
 
 import java.text.DecimalFormat;
@@ -198,15 +199,8 @@ public class OnforegroundService extends Service {
 
             startcal.setTimeInMillis(starttime);
 
-            String startdate = DateFormat.format("yyyy-MM-dd HH:mm:ss", startcal).toString();
-
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-            try {
-                startdate1 = dateFormat.parse(startdate);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            String startdate = CommonUtils.getDateFormatInMillisecond(AppConstant.TIMEFORMATE, startcal.getTime());
+            startdate1 = startcal.getTime();
 
             CommonUtils.savePreferencesString(getApplicationContext(), "starttime", startdate);
             CommonUtils.savePreferencesString(getApplicationContext(), "endtime", "");
@@ -243,16 +237,8 @@ public class OnforegroundService extends Service {
             endcal = Calendar.getInstance(Locale.getDefault());
             endcal.setTimeInMillis(endtime);
 
-            String enddate = DateFormat.format("yyyy-MM-dd HH:mm:ss", endcal).toString();
-
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-            try {
-                enddate1 = dateFormat.parse(enddate);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-
+            String enddate = CommonUtils.getDateFormatInMillisecond(AppConstant.TIMEFORMATE, endcal.getTime());
+            enddate1 = endcal.getTime();
             CommonUtils.savePreferencesString(getApplicationContext(), "endtime", enddate);
             ArrayList<NewModel> getdata = databaseHandler2.getAllTime();
 
@@ -297,8 +283,7 @@ public class OnforegroundService extends Service {
     public void setdatanewdatabase(String title, String packagename) {
         NewModel newModel = new NewModel();
 
-        String starttime1 = DateFormat.format("yyyy-MM-dd hh:mm:ss aa", startcal).toString();
-
+        String starttime1 = CommonUtils.getDateFormatInMillisecond(AppConstant.TIMEFORMATE, startcal.getTime());
         String currentdate = DateFormat.format("yyyy-MM-dd", startcal).toString();
 
         newModel.setDeviceid(Settings.Secure.getString(getContentResolver(),
@@ -317,9 +302,9 @@ public class OnforegroundService extends Service {
 
         String currentdate = DateFormat.format("yyyy-MM-dd", startcal).toString();
 
-        String starttime1 = DateFormat.format("yyyy-MM-dd hh:mm:ss aa", startcal).toString();
+        String starttime1 = CommonUtils.getDateFormatInMillisecond(AppConstant.TIMEFORMATE, startcal.getTime());
 
-        String endtime1 = DateFormat.format("yyyy-MM-dd hh:mm:ss aa", endcal).toString();
+        String endtime1 = CommonUtils.getDateFormatInMillisecond(AppConstant.TIMEFORMATE, endcal.getTime());
 
 
         long totalseconds = enddate1.getTime() - startdate1.getTime();
