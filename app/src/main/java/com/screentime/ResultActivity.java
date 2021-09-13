@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
@@ -93,6 +94,8 @@ public class ResultActivity extends AppCompatActivity {
                                 }, mYear, mMonth, mDay);
 
                         datePickerDialog.show();
+                        datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
+                        datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(Color.BLACK);
 
                         break;
                 }

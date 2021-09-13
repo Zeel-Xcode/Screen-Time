@@ -51,7 +51,6 @@ public class AllDataFragment extends Fragment {
     RecyclerView recyclerview;
     String appname;
     FrameLayout llrecycler;
-    public static ProgressBar spinner;
     DatabaseHandler2 databaseHandler2;
     NumberFormat formatter;
 
@@ -71,7 +70,6 @@ public class AllDataFragment extends Fragment {
         norecord = view.findViewById(R.id.norecord);
         recyclerview = view.findViewById(R.id.recyclerview);
         llrecycler = view.findViewById(R.id.llrecycler);
-        spinner = (ProgressBar)view.findViewById(R.id.progress_bar);
 
         databaseHandler2 = new DatabaseHandler2(getContext());
         formatter = new DecimalFormat("00");
@@ -95,7 +93,6 @@ public class AllDataFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
                         dialog.dismiss();
-                        spinner.setVisibility(View.VISIBLE);
                         databaseHandler2.exportappdata(appname,formatter);
 
                     }

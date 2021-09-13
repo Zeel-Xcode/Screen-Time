@@ -8,7 +8,6 @@ import static com.screentime.HomeActivity.ONGOING_NOTIFICATION_ID;
 import android.Manifest;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
-import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -17,23 +16,18 @@ import android.app.Service;
 import android.app.TaskStackBuilder;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
-import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-import android.provider.Settings;
 import android.service.notification.StatusBarNotification;
-import android.util.Log;
 import android.widget.Toast;
 
 
@@ -50,21 +44,15 @@ import com.screentime.utils.AppConstant;
 import com.screentime.utils.CommonUtils;
 
 import java.text.DateFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.SortedMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
 
-import Model.NewModel;
 import SQLiteDatabase.DatabaseHandler2;
 
 /**
@@ -72,14 +60,7 @@ import SQLiteDatabase.DatabaseHandler2;
  * It runs on background in every 10 seconds
  */
 
-public class  GetUsageService1 extends Service {
-
-    private final static String TAG = "BroadcastService";
-
-    public static final String COUNTDOWN_BR = "com.screentime.countdown_br";
-    Intent bi = new Intent(COUNTDOWN_BR);
-
-    CountDownTimer countDownTimer = null;
+public class GetUsageService1 extends Service {
 
     private Timer timer;
     private TimerTask timerTask;
@@ -88,13 +69,9 @@ public class  GetUsageService1 extends Service {
     BackupAndRestore1 backupAndRestore1;
     DatabaseHandler2 databaseHandler2;
 
-    String id;
-    NumberFormat formatter;
-    Calendar startcal;
-    Calendar endcal;
+    final int NOTIFY_ID = 1; // any integer number
+    int count = 0;
 
-    Date startdate1;
-    Date enddate1;
 
     @Nullable
     @Override
@@ -104,7 +81,6 @@ public class  GetUsageService1 extends Service {
 
     @Override
     public void onCreate() {
-
         super.onCreate();
         final Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         createNotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME,
@@ -132,7 +108,6 @@ public class  GetUsageService1 extends Service {
         super.onStartCommand(intent, flags, startId);
         backupAndRestore1 = new BackupAndRestore1();
         databaseHandler2 = new DatabaseHandler2(this);
-
         startTimer();
 
         return START_REDELIVER_INTENT;
@@ -154,9 +129,6 @@ public class  GetUsageService1 extends Service {
     public void onDestroy() {
         stoptimertask();
 
-//        countDownTimer.cancel();
-//        Log.i(TAG, "Timer cancelled");
-
     }
 
     /**
@@ -169,10 +141,8 @@ public class  GetUsageService1 extends Service {
 
     /**
      * Returns the package name of app on foreground.
-     * @param applicationContext
      */
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    public String getRecentApps(Context applicationContext) {
+    public String getRecentApps(Context context) {
         String currentApp = "";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
@@ -182,13 +152,13 @@ public class  GetUsageService1 extends Service {
 
             if (appList != null && appList.size() > 0) {
                 SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();
-
                 for (UsageStats usageStats : appList) {
-                    mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
+                    mySortedMap.put(usageStats.getLastTimeUsed(),
+                            usageStats);
                 }
-
                 if (mySortedMap != null && !mySortedMap.isEmpty()) {
-                    currentApp = mySortedMap.get(mySortedMap.lastKey()).getPackageName();
+                    currentApp = mySortedMap.get(
+                            mySortedMap.lastKey()).getPackageName();
                 }
             }
         } else {
@@ -197,7 +167,7 @@ public class  GetUsageService1 extends Service {
 
         }
 
-        System.out.println("##################### " + currentApp);
+        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%% " + currentApp);
         return currentApp;
     }
 
@@ -218,18 +188,16 @@ public class  GetUsageService1 extends Service {
         }
     }
 
+
     /**
      * Initialize the timer.
      */
     public void initializeTimerTask() {
         timerTask = new TimerTask() {
-            @RequiresApi(api = Build.VERSION_CODES.Q)
             public void run() {
                 if (Looper.myLooper() == null) {
                     Looper.prepare();
                 }
-
-//                registerBroadcastReceiver();
                 isReset();
                 currentPackage = getRecentApps(getApplicationContext());
                 getUsage();
@@ -253,13 +221,31 @@ public class  GetUsageService1 extends Service {
      */
     private void isReset() {
 
+
+
         String preDate = CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.CURRENT_DATE);
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         String date = df.format(new Date());
         if (preDate.equals("")) {
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.CURRENT_DATE, date);
         } else if (preDate.equals(date)) {
+
         } else {
+            Calendar c = Calendar.getInstance();
+            int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
+
+            if(timeOfDay >= 0 && timeOfDay < 12){
+
+            }else if(timeOfDay >= 12 && timeOfDay < 16){
+                Toast.makeText(this, "Good Afternoon", Toast.LENGTH_SHORT).show();
+                backupAndRestore1.exportDB(this, databaseHandler2);
+            }else if(timeOfDay >= 16 && timeOfDay < 21){
+
+            }else if(timeOfDay >= 21 && timeOfDay < 24){
+
+            }
+
+            Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show();
             backupAndRestore1.exportDB(this, databaseHandler2);
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.CURRENT_DATE, date);
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.FBAVERAGE_COUNT, "0");
@@ -274,163 +260,5 @@ public class  GetUsageService1 extends Service {
         }
     }
 
-//    private void registerBroadcastReceiver() {
-//
-//        final IntentFilter theFilter = new IntentFilter();
-///** System Defined Broadcast */
-//        theFilter.addAction(Intent.ACTION_SCREEN_ON);
-//        theFilter.addAction(Intent.ACTION_SCREEN_OFF);
-//        theFilter.addAction(Intent.ACTION_USER_PRESENT);
-//
-//        BroadcastReceiver screenOnOffReceiver = new BroadcastReceiver() {
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//
-//                String strAction = intent.getAction();
-//
-//                KeyguardManager myKM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-//                if (strAction.equals(Intent.ACTION_USER_PRESENT) || strAction.equals(Intent.ACTION_SCREEN_OFF) || strAction.equals(Intent.ACTION_SCREEN_ON))
-//                    if (myKM.inKeyguardRestrictedInputMode()) {
-//                        System.out.println("Screen off " + "LOCKED");
-//                        Toast.makeText(getApplicationContext(), "Screen off " + "LOCKED", Toast.LENGTH_SHORT).show();
-//                    } else {
-//
-//                        Toast.makeText(getApplicationContext(), "Screen off " + "UNLOCKED", Toast.LENGTH_SHORT).show();
-//
-//                        Log.i(TAG, "Starting timer...");
-//                        Toast.makeText(getApplicationContext(), "Starting timer....", Toast.LENGTH_SHORT).show();
-//
-//                        countDownTimer = new CountDownTimer(10000, 1000) {
-//                            @Override
-//                            public void onTick(long millisUntilFinished) {
-//
-//                                Log.i(TAG, "Countdown seconds remaining: " + millisUntilFinished / 1000);
-//                                Toast.makeText(getApplicationContext(), "Countdown seconds remaining: " + millisUntilFinished / 1000, Toast.LENGTH_SHORT).show();
-//                                bi.putExtra("countdown", millisUntilFinished);
-//                                sendBroadcast(bi);
-//                            }
-//
-//                            @Override
-//                            public void onFinish() {
-//                                Log.i(TAG, "Timer finished");
-//                                Toast.makeText(getApplicationContext(), "Timer finished", Toast.LENGTH_SHORT).show();
-//
-//                            }
-//                        };
-//
-//                        countDownTimer.start();
-//
-//                    }
-//
-//            }
-//        };
-//
-//        getApplicationContext().registerReceiver(screenOnOffReceiver, theFilter);
-//    }
-//
-//    public void startTimer() {
-//        if (timer == null) {
-//            //set a new Timer
-//            timer = new Timer();
-//            //initialize the TimerTask's job
-//            long starttime = System.currentTimeMillis();
-//
-//            startcal = Calendar.getInstance(Locale.getDefault());
-//
-//            startcal.setTimeInMillis(starttime);
-//
-//            String startdate = android.text.format.DateFormat.format("yyyy-MM-dd HH:mm:ss", startcal).toString();
-//
-//            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//
-//            try {
-//                startdate1 = dateFormat.parse(startdate);
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            }
-//
-//            CommonUtils.savePreferencesString(getApplicationContext(), "starttime", startdate);
-//            CommonUtils.savePreferencesString(getApplicationContext(), "endtime", "");
-//            setdatanewdatabase(appname, packagename);
-//            //schedule the timer, to wake up every 10 second
-//            timer.schedule(timerTask, 0, 100);
-//        }
-//    }
-//
-//    public void stoptimer() {
-//        //stop the timer, if it's not already null
-//        if (timer != null) {
-//            timer.cancel();
-//            timer = null;
-//            long endtime = System.currentTimeMillis();
-//
-//            endcal = Calendar.getInstance(Locale.getDefault());
-//            endcal.setTimeInMillis(endtime);
-//
-//            String enddate = android.text.format.DateFormat.format("yyyy-MM-dd HH:mm:ss", endcal).toString();
-//
-//            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//
-//            try {
-//                enddate1 = dateFormat.parse(enddate);
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            }
-//
-//            CommonUtils.savePreferencesString(getApplicationContext(), "endtime", enddate);
-//            ArrayList<NewModel> getdata = databaseHandler2.getAllTime();
-//
-//            if (getdata.size() > 0) {
-//                id = getdata.get(getdata.size() - 1).getId();
-//                updatedatabase(id);
-//            }
-//        }
-//    }
-//
-//    public void setdatanewdatabase(String title, String packagename) {
-//        NewModel newModel = new NewModel();
-//
-//        String starttime1 = android.text.format.DateFormat.format("yyyy-MM-dd hh:mm:ss aa", startcal).toString();
-//
-//        String currentdate = android.text.format.DateFormat.format("yyyy-MM-dd", startcal).toString();
-//
-//        newModel.setDeviceid(Settings.Secure.getString(getContentResolver(),
-//                Settings.Secure.ANDROID_ID));
-//        newModel.setPackagename(packagename);
-//        newModel.setAppname(title);
-//        newModel.setStarttime(starttime1);
-//        newModel.setEndtime("");
-//        newModel.setTotalsec(0);
-//        newModel.setCurrentdate(currentdate);
-//        databaseHandler2.insertRecord(newModel);
-//    }
-//
-//    public void updatedatabase(String id) {
-//        NewModel newModel = new NewModel();
-//
-//        String currentdate = android.text.format.DateFormat.format("yyyy-MM-dd", startcal).toString();
-//
-//        String starttime1 = android.text.format.DateFormat.format("yyyy-MM-dd hh:mm:ss aa", startcal).toString();
-//
-//        String endtime1 = android.text.format.DateFormat.format("yyyy-MM-dd hh:mm:ss aa", endcal).toString();
-//
-//
-//        long totalseconds = enddate1.getTime() - startdate1.getTime();
-//
-//        int seconds = (int) (totalseconds / 1000) % 60 ;
-//        int minutes = (int) ((totalseconds / (1000*60)) % 60);
-//        int hours   = (int) ((totalseconds / (1000*60*60)) % 24);
-//
-//        newModel.setId(id);
-//        newModel.setDeviceid(Settings.Secure.getString(getContentResolver(),
-//                Settings.Secure.ANDROID_ID));
-//        newModel.setPackagename(packagename);
-//        newModel.setAppname(appname);
-//        newModel.setStarttime(starttime1);
-//        newModel.setEndtime(endtime1);
-//        newModel.setTotalsec(totalseconds);
-//        newModel.setCurrentdate(currentdate);
-//        databaseHandler2.updateRecord(newModel);
-//    }
 
 }
