@@ -3,6 +3,7 @@ package com.screentime;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.AppOpsManager;
 import android.app.DatePickerDialog;
@@ -55,7 +56,6 @@ import SQLiteDatabase.DatabaseHandler2;
 import services.GetUsageService1;
 
 public class HomeActivity extends AppCompatActivity {
-
     FloatingActionButton fab;
     String date;
     Toolbar toolbar;
@@ -419,7 +419,6 @@ public class HomeActivity extends AppCompatActivity {
         if (checkPermission()) {
             setData(datepicker.getText().toString());
             startService(new Intent(this, GetUsageService1.class));
-            Toast.makeText(this, "Start service", Toast.LENGTH_SHORT).show();
 
         } else {
             Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);

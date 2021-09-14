@@ -11,7 +11,7 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
-import android.content.ComponentName;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -29,11 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.OnLifecycleEvent;
 
-import com.screentime.ArchLifecycleApp;
 import com.screentime.BackupAndRestore1;
 import com.screentime.R;
 import com.screentime.utils.AppConstant;
@@ -64,9 +60,7 @@ public class GetUsageService1 extends Service {
 
     BackupAndRestore1 backupAndRestore1;
     DatabaseHandler2 databaseHandler2;
-
-    final int NOTIFY_ID = 1; // any integer number
-    int count = 0;
+    Boolean appRunningBackground;
 
     @Nullable
     @Override
@@ -104,6 +98,17 @@ public class GetUsageService1 extends Service {
         super.onStartCommand(intent, flags, startId);
         backupAndRestore1 = new BackupAndRestore1();
         databaseHandler2 = new DatabaseHandler2(this);
+
+        ActivityManager.RunningAppProcessInfo runningAppProcessInfo = new ActivityManager.RunningAppProcessInfo();
+        ActivityManager.getMyMemoryState(runningAppProcessInfo);
+        appRunningBackground = runningAppProcessInfo.importance != ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
+
+        if (appRunningBackground){
+            Toast.makeText(this, "app is in background", Toast.LENGTH_SHORT).show();
+        }else {
+            Toast.makeText(this, "app is not in background", Toast.LENGTH_SHORT).show();
+        }
+
         startTimer();
 
         return START_REDELIVER_INTENT;
@@ -124,7 +129,6 @@ public class GetUsageService1 extends Service {
     @Override
     public void onDestroy() {
         stoptimertask();
-
     }
 
     /**
@@ -132,7 +136,6 @@ public class GetUsageService1 extends Service {
      */
     private void getUsage() {
         startService(new Intent(getApplicationContext(), OnforegroundService.class).putExtra("package", currentPackage));
-
     }
 
     /**
@@ -150,7 +153,6 @@ public class GetUsageService1 extends Service {
                 SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();
                 for (UsageStats usageStats : appList) {
 
-
                     mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
                 }
                 if (mySortedMap != null && !mySortedMap.isEmpty()) {
@@ -159,6 +161,7 @@ public class GetUsageService1 extends Service {
                             mySortedMap.lastKey()).getPackageName();
                 }
             }
+
         } else {
             ActivityManager am = (ActivityManager) getBaseContext().getSystemService(ACTIVITY_SERVICE);
             currentApp = am.getRunningTasks(1).get(0).topActivity.getPackageName();
@@ -222,7 +225,7 @@ public class GetUsageService1 extends Service {
         String preDate = CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.CURRENT_DATE);
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         String date = df.format(new Date());
-        if (preDate.equals("") || timeOfDay >= 12 && timeOfDay < 16  ) {
+        if (preDate.equals("") || timeOfDay >= 12 && timeOfDay < 16) {
             backupAndRestore1.exportDB(this, databaseHandler2);
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.CURRENT_DATE, date);
         } else if (preDate.equals(date)) {
@@ -244,7 +247,4 @@ public class GetUsageService1 extends Service {
 
         }
     }
-
-
-
 }
