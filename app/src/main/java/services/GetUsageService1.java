@@ -1,33 +1,26 @@
 package services;
 
-import static androidx.core.app.AppOpsManagerCompat.noteOpNoThrow;
 import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_ID;
 import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_NAME;
 import static com.screentime.HomeActivity.ONGOING_NOTIFICATION_ID;
 
-import android.Manifest;
 import android.app.ActivityManager;
-import android.app.AppOpsManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
-import android.app.TaskStackBuilder;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.Message;
-import android.service.notification.StatusBarNotification;
 import android.widget.Toast;
 
 
@@ -36,9 +29,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 
+import com.screentime.ArchLifecycleApp;
 import com.screentime.BackupAndRestore1;
-import com.screentime.HomeActivity;
 import com.screentime.R;
 import com.screentime.utils.AppConstant;
 import com.screentime.utils.CommonUtils;
@@ -72,7 +68,6 @@ public class GetUsageService1 extends Service {
     final int NOTIFY_ID = 1; // any integer number
     int count = 0;
 
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -82,6 +77,7 @@ public class GetUsageService1 extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
         final Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         createNotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME,
                 NotificationManagerCompat.IMPORTANCE_HIGH, this);
@@ -153,10 +149,12 @@ public class GetUsageService1 extends Service {
             if (appList != null && appList.size() > 0) {
                 SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();
                 for (UsageStats usageStats : appList) {
-                    mySortedMap.put(usageStats.getLastTimeUsed(),
-                            usageStats);
+
+
+                    mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
                 }
                 if (mySortedMap != null && !mySortedMap.isEmpty()) {
+
                     currentApp = mySortedMap.get(
                             mySortedMap.lastKey()).getPackageName();
                 }
@@ -187,7 +185,6 @@ public class GetUsageService1 extends Service {
             timer.schedule(timerTask, 0, 100);
         }
     }
-
 
     /**
      * Initialize the timer.
@@ -220,32 +217,18 @@ public class GetUsageService1 extends Service {
      * Resets all the value at 12 am.
      */
     private void isReset() {
-
-
-
+        Calendar c = Calendar.getInstance();
+        int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
         String preDate = CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.CURRENT_DATE);
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         String date = df.format(new Date());
-        if (preDate.equals("")) {
+        if (preDate.equals("") || timeOfDay >= 12 && timeOfDay < 16  ) {
+            backupAndRestore1.exportDB(this, databaseHandler2);
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.CURRENT_DATE, date);
         } else if (preDate.equals(date)) {
 
         } else {
-            Calendar c = Calendar.getInstance();
-            int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
 
-            if(timeOfDay >= 0 && timeOfDay < 12){
-
-            }else if(timeOfDay >= 12 && timeOfDay < 16){
-                Toast.makeText(this, "Good Afternoon", Toast.LENGTH_SHORT).show();
-                backupAndRestore1.exportDB(this, databaseHandler2);
-            }else if(timeOfDay >= 16 && timeOfDay < 21){
-
-            }else if(timeOfDay >= 21 && timeOfDay < 24){
-
-            }
-
-            Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show();
             backupAndRestore1.exportDB(this, databaseHandler2);
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.CURRENT_DATE, date);
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.FBAVERAGE_COUNT, "0");
@@ -257,8 +240,11 @@ public class GetUsageService1 extends Service {
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME, "0");
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME, "0");
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.ICURRENTTIME, "0");
+
+
         }
     }
+
 
 
 }
