@@ -21,6 +21,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.Toast;
 
 
@@ -29,6 +30,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
+import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.screentime.BackupAndRestore1;
 import com.screentime.R;
@@ -52,7 +57,7 @@ import SQLiteDatabase.DatabaseHandler2;
  * It runs on background in every 10 seconds
  */
 
-public class GetUsageService1 extends Service {
+public class GetUsageService1 extends Service implements LifecycleObserver {
 
     private Timer timer;
     private TimerTask timerTask;
@@ -92,9 +97,25 @@ public class GetUsageService1 extends Service {
         startForeground(ONGOING_NOTIFICATION_ID, notification1);
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    public void appIsPaused(){
+        Log.d("abc", "appIsPaused: PAUSED");
+        stoptimertask();
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    public void appIsResumed(){
+        Log.d("abc", "appIsPaused: RESUMED");
+        startTimer();
+    }
+
+
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+        
         super.onStartCommand(intent, flags, startId);
         backupAndRestore1 = new BackupAndRestore1();
         databaseHandler2 = new DatabaseHandler2(this);
@@ -109,7 +130,7 @@ public class GetUsageService1 extends Service {
             Toast.makeText(this, "app is not in background", Toast.LENGTH_SHORT).show();
         }
 
-        startTimer();
+        appIsResumed();
 
         return START_REDELIVER_INTENT;
     }
@@ -128,7 +149,7 @@ public class GetUsageService1 extends Service {
 
     @Override
     public void onDestroy() {
-        stoptimertask();
+        appIsPaused();
     }
 
     /**
