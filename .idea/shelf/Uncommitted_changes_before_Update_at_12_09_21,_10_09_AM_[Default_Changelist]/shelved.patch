@@ -1,0 +1,243 @@
+Index: app/src/main/java/services/GetUsageService1.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package services;\n\nimport static androidx.core.app.AppOpsManagerCompat.noteOpNoThrow;\nimport static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_ID;\nimport static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_NAME;\nimport static com.screentime.HomeActivity.ONGOING_NOTIFICATION_ID;\n\nimport android.Manifest;\nimport android.app.ActivityManager;\nimport android.app.AppOpsManager;\nimport android.app.Notification;\nimport android.app.NotificationChannel;\nimport android.app.NotificationManager;\nimport android.app.PendingIntent;\nimport android.app.Service;\nimport android.app.TaskStackBuilder;\nimport android.app.usage.UsageStats;\nimport android.app.usage.UsageStatsManager;\nimport android.content.Context;\nimport android.content.Intent;\nimport android.graphics.BitmapFactory;\nimport android.graphics.Color;\nimport android.media.RingtoneManager;\nimport android.net.Uri;\nimport android.os.Binder;\nimport android.os.Build;\nimport android.os.IBinder;\nimport android.os.Looper;\nimport android.os.Message;\nimport android.service.notification.StatusBarNotification;\nimport android.widget.Toast;\n\n\nimport androidx.annotation.NonNull;\nimport androidx.annotation.Nullable;\nimport androidx.annotation.RequiresApi;\nimport androidx.core.app.NotificationCompat;\nimport androidx.core.app.NotificationManagerCompat;\n\nimport com.screentime.BackupAndRestore1;\nimport com.screentime.HomeActivity;\nimport com.screentime.R;\nimport com.screentime.utils.AppConstant;\nimport com.screentime.utils.CommonUtils;\n\nimport java.text.DateFormat;\nimport java.text.SimpleDateFormat;\nimport java.util.Date;\nimport java.util.List;\nimport java.util.SortedMap;\nimport java.util.Timer;\nimport java.util.TimerTask;\nimport java.util.TreeMap;\n\nimport SQLiteDatabase.DatabaseHandler2;\n\n/**\n * This Service calculates time spend by user on each app.\n * It runs on background in every 10 seconds\n */\n\npublic class GetUsageService1 extends Service {\n\n    private Timer timer;\n    private TimerTask timerTask;\n    String currentPackage;\n\n    BackupAndRestore1 backupAndRestore1;\n    DatabaseHandler2 databaseHandler2;\n\n    final int NOTIFY_ID = 1; // any integer number\n    int count = 0;\n\n\n    @Nullable\n    @Override\n    public IBinder onBind(Intent intent) {\n        return null;\n    }\n\n    @Override\n    public void onCreate() {\n        super.onCreate();\n        final Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);\n        createNotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME,\n                NotificationManagerCompat.IMPORTANCE_HIGH, this);\n        final NotificationCompat.Builder notification = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)\n                .setAutoCancel(false)\n                .setOngoing(true)\n                .setSmallIcon(R.drawable.ic_launcher_foreground)\n                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))\n                .setContentTitle(getResources().getString(R.string.app_name))\n                .setContentText(\"Background Service\")\n                .setSound(soundUri)\n                .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000})\n                .setLights(Color.RED, 3000, 3000)\n                .setPriority(Notification.PRIORITY_LOW);\n\n        Notification notification1 = notification.build();\n        notification1.flags = Notification.FLAG_ONGOING_EVENT;\n        startForeground(ONGOING_NOTIFICATION_ID, notification1);\n    }\n\n    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)\n    @Override\n    public int onStartCommand(Intent intent, int flags, int startId) {\n        super.onStartCommand(intent, flags, startId);\n        backupAndRestore1 = new BackupAndRestore1();\n        databaseHandler2 = new DatabaseHandler2(this);\n        startTimer();\n\n        return START_REDELIVER_INTENT;\n    }\n\n    private void createNotificationChannel(@NonNull String aChannelId, @NonNull String aChannelName,\n                                           int aImportance, Context aContext) {\n        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {\n            NotificationChannel channel = new NotificationChannel(aChannelId, aChannelName, aImportance);\n\n            final NotificationManager manager = aContext.getSystemService(NotificationManager.class);\n\n            assert manager != null;\n            manager.createNotificationChannel(channel);\n        }\n    }\n\n    @Override\n    public void onDestroy() {\n        stoptimertask();\n\n    }\n\n    /**\n     * Calculates the usage of app if it is on foreground and generate popup.\n     */\n    private void getUsage() {\n        startService(new Intent(getApplicationContext(), OnforegroundService.class).putExtra(\"package\", currentPackage));\n\n    }\n\n    /**\n     * Returns the package name of app on foreground.\n     */\n    public String getRecentApps(Context context) {\n        String currentApp = \"\";\n        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {\n            UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);\n            long time = System.currentTimeMillis();\n            List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,\n                    time - 1000 * 1000, time);\n\n            if (appList != null && appList.size() > 0) {\n                SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();\n                for (UsageStats usageStats : appList) {\n                    mySortedMap.put(usageStats.getLastTimeUsed(),\n                            usageStats);\n                }\n                if (mySortedMap != null && !mySortedMap.isEmpty()) {\n                    currentApp = mySortedMap.get(\n                            mySortedMap.lastKey()).getPackageName();\n                }\n            }\n        } else {\n            ActivityManager am = (ActivityManager) getBaseContext().getSystemService(ACTIVITY_SERVICE);\n            currentApp = am.getRunningTasks(1).get(0).topActivity.getPackageName();\n\n        }\n\n        System.out.println(\"%%%%%%%%%%%%%%%%%%%%%%%% \" + currentApp);\n        return currentApp;\n    }\n\n    /**\n     * Starts the timer.\n     */\n    public void startTimer() {\n\n        if (timer == null) {\n            //set a new Timer\n            timer = new Timer();\n\n            //initialize the TimerTask's job\n            initializeTimerTask();\n\n            //schedule the timer, to wake up every 1 second\n            timer.schedule(timerTask, 0, 100);\n        }\n    }\n\n\n    /**\n     * Initialize the timer.\n     */\n    public void initializeTimerTask() {\n        timerTask = new TimerTask() {\n            public void run() {\n                if (Looper.myLooper() == null) {\n                    Looper.prepare();\n                }\n                isReset();\n                currentPackage = getRecentApps(getApplicationContext());\n                getUsage();\n            }\n        };\n    }\n\n    /**\n     * Stops the timer.\n     */\n    public void stoptimertask() {\n        //stop the timer, if it's not already null\n        if (timer != null) {\n            timer.cancel();\n            timer = null;\n        }\n    }\n\n    /**\n     * Resets all the value at 12 am.\n     */\n    private void isReset() {\n\n        String preDate = CommonUtils.getPreferencesString(getApplicationContext(), AppConstant.CURRENT_DATE);\n        DateFormat df = new SimpleDateFormat(\"dd/MM/yyyy\");\n        String date = df.format(new Date());\n        if (preDate.equals(\"\")) {\n            CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.CURRENT_DATE, date);\n        } else if (preDate.equals(date)) {\n        } else {\n            backupAndRestore1.exportDB(this, databaseHandler2);\n            CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.CURRENT_DATE, date);\n            CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.FBAVERAGE_COUNT, \"0\");\n            CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.INSTAAVERAGE_COUNT, \"0\");\n            CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.SNAPAVERAGE_COUNT, \"0\");\n            CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.FB_TIME, \"\");\n            CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.INSTA_TIME, \"\");\n            CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.SNAPCHAT_TIME, \"\");\n            CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME, \"0\");\n            CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME, \"0\");\n            CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.ICURRENTTIME, \"0\");\n        }\n    }\n\n\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/services/GetUsageService1.java b/app/src/main/java/services/GetUsageService1.java
+--- a/app/src/main/java/services/GetUsageService1.java	(revision 9580aa4f540a89aa41f4773639e1dc16202f4d06)
++++ b/app/src/main/java/services/GetUsageService1.java	(date 1631167551886)
+@@ -6,20 +6,27 @@
+ import static com.screentime.HomeActivity.ONGOING_NOTIFICATION_ID;
+ 
+ import android.Manifest;
++import android.annotation.SuppressLint;
+ import android.app.ActivityManager;
+ import android.app.AppOpsManager;
++import android.app.KeyguardManager;
+ import android.app.Notification;
+ import android.app.NotificationChannel;
+ import android.app.NotificationManager;
+ import android.app.PendingIntent;
+ import android.app.Service;
+ import android.app.TaskStackBuilder;
++import android.app.usage.EventStats;
++import android.app.usage.UsageEvents;
+ import android.app.usage.UsageStats;
+ import android.app.usage.UsageStatsManager;
++import android.content.BroadcastReceiver;
+ import android.content.Context;
+ import android.content.Intent;
++import android.content.IntentFilter;
+ import android.graphics.BitmapFactory;
+ import android.graphics.Color;
++import android.graphics.drawable.Drawable;
+ import android.media.RingtoneManager;
+ import android.net.Uri;
+ import android.os.Binder;
+@@ -45,8 +52,11 @@
+ 
+ import java.text.DateFormat;
+ import java.text.SimpleDateFormat;
++import java.util.ArrayList;
+ import java.util.Date;
++import java.util.HashMap;
+ import java.util.List;
++import java.util.Map;
+ import java.util.SortedMap;
+ import java.util.Timer;
+ import java.util.TimerTask;
+@@ -141,21 +151,33 @@
+     /**
+      * Returns the package name of app on foreground.
+      */
++    @RequiresApi(api = Build.VERSION_CODES.Q)
+     public String getRecentApps(Context context) {
+         String currentApp = "";
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+             UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
+             long time = System.currentTimeMillis();
+-            List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,
+-                    time - 1000 * 1000, time);
++            List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, time - 1000 * 1000, time);
++
++            Map<String, UsageStats> stats = usm.queryAndAggregateUsageStats(time - 1000 * 1000, time);
++
++
++            if (stats != null && !stats.isEmpty()) {
++
++                for (Map.Entry<String, UsageStats> entry : stats.entrySet()) {
++                        UsageStats usageStats = entry.getValue();
++                }
++            }
+ 
+             if (appList != null && appList.size() > 0) {
+                 SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();
+                 for (UsageStats usageStats : appList) {
++
+                     mySortedMap.put(usageStats.getLastTimeUsed(),
+                             usageStats);
+                 }
+                 if (mySortedMap != null && !mySortedMap.isEmpty()) {
++
+                     currentApp = mySortedMap.get(
+                             mySortedMap.lastKey()).getPackageName();
+                 }
+@@ -193,6 +215,7 @@
+      */
+     public void initializeTimerTask() {
+         timerTask = new TimerTask() {
++            @RequiresApi(api = Build.VERSION_CODES.Q)
+             public void run() {
+                 if (Looper.myLooper() == null) {
+                     Looper.prepare();
+@@ -241,5 +264,43 @@
+         }
+     }
+ 
++    private void registerBroadcastReceiver() {
++
++        final IntentFilter theFilter = new IntentFilter();
++        theFilter.addAction(Intent.ACTION_SCREEN_ON);
++        theFilter.addAction(Intent.ACTION_SCREEN_OFF);
++        theFilter.addAction(Intent.ACTION_USER_PRESENT);
++
++        BroadcastReceiver screenOnOffReceiver = new BroadcastReceiver() {
++            @Override
++            public void onReceive(Context context, Intent intent) {
++                String strAction = intent.getAction();
++
++                KeyguardManager myKM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
++                if (strAction.equals(Intent.ACTION_USER_PRESENT) || strAction.equals(Intent.ACTION_SCREEN_OFF) || strAction.equals(Intent.ACTION_SCREEN_ON))
++                    if (myKM.inKeyguardRestrictedInputMode()) {
++                        System.out.println("Screen off " + "LOCKED");
++                    } else {
++
++                        System.out.println("Screen off " + "UNLOCKED");
++                    }
++
++            }
++        };
++
++        getApplicationContext().registerReceiver(screenOnOffReceiver, theFilter);
++    }
++
++    class AppUsageInfo {
++        Drawable appIcon; // You may add get this usage data also, if you wish.
++        String appName, packageName;
++        long timeInForeground;
++        int launchCount;
++
++        AppUsageInfo(String pName) {
++            this.packageName = pName;
++        }
++    }
++
+ 
+ }
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    package=\"com.screentime\">\n\n    <uses-permission android:name=\"android.permission.INTERNET\" />\n    <uses-permission android:name=\"android.permission.GET_TASKS\" />\n    <uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />\n    <uses-permission\n        android:name=\"android.permission.PACKAGE_USAGE_STATS\"\n        tools:ignore=\"ProtectedPermissions\" />\n    <uses-permission android:name=\"android.permission.WAKE_LOCK\" />\n    <uses-permission android:name=\"android.permission.VIBRATE\" />\n    <uses-permission android:name=\"android.permission.FOREGROUND_SERVICE\" />\n    <uses-permission android:name=\"android.permission.RECEIVE_BOOT_COMPLETED\" />\n    <uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\" />\n    <uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />\n\n    <application\n        android:allowBackup=\"true\"\n        android:icon=\"@mipmap/ic_launcher\"\n        android:label=\"@string/app_name\"\n        android:roundIcon=\"@mipmap/ic_launcher_round\"\n        android:supportsRtl=\"true\"\n        android:theme=\"@style/Theme.MaterialComponents.DayNight.NoActionBar\">\n\n        <activity android:name=\".ResultActivity\" />\n        <activity\n            android:name=\".HomeActivity\"\n            android:exported=\"true\">\n            <intent-filter>\n                <action android:name=\"android.intent.action.MAIN\" />\n\n                <category android:name=\"android.intent.category.LAUNCHER\" />\n            </intent-filter>\n        </activity>\n        <activity android:name=\".SplashActivity\" />\n\n        <service\n            android:name=\"services.GetUsageService1\"\n            android:enabled=\"true\"\n            android:stopWithTask=\"false\" />\n        <service\n            android:name=\"services.OnforegroundService\"\n            android:enabled=\"true\"\n            android:stopWithTask=\"false\" />\n\n        <receiver android:name=\"services.ScreeOnReciever\">\n            <intent-filter android:priority=\"100\">\n                <action android:name=\"android.intent.action.BOOT_COMPLETED\" />\n                <action android:name=\"android.intent.action.QUICKBOOT_POWERON\" />\n\n                <category android:name=\"android.intent.category.DEFAULT\" />\n            </intent-filter>\n        </receiver>\n\n        <meta-data\n            android:name=\"com.facebook.sdk.ApplicationId\"\n            android:value=\"@string/facebook_app_id\" />\n\n        <provider\n            android:name=\"androidx.core.content.FileProvider\"\n            android:authorities=\"com.screentime.provider\"\n            android:exported=\"false\"\n            android:grantUriPermissions=\"true\">\n\n            <!-- ressource file to create -->\n            <meta-data\n                android:name=\"android.support.FILE_PROVIDER_PATHS\"\n                android:resource=\"@xml/provide_path\" />\n        </provider>\n    </application>\n\n</manifest>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+--- a/app/src/main/AndroidManifest.xml	(revision 9580aa4f540a89aa41f4773639e1dc16202f4d06)
++++ b/app/src/main/AndroidManifest.xml	(date 1631165900920)
+@@ -15,6 +15,9 @@
+     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
++    <uses-permission
++        android:name="android.permission.PACKAGE_USAGE_STATS"
++        tools:ignore="ProtectedPermissions" />
+ 
+     <application
+         android:allowBackup="true"
+@@ -23,6 +26,10 @@
+         android:roundIcon="@mipmap/ic_launcher_round"
+         android:supportsRtl="true"
+         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
++        <service
++            android:name="services.onPhoneService"
++            android:enabled="true"
++            android:exported="true"></service>
+ 
+         <activity android:name=".ResultActivity" />
+         <activity
+Index: gradle/wrapper/gradle-wrapper.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#Sat Aug 14 12:06:37 IST 2021\ndistributionBase=GRADLE_USER_HOME\ndistributionPath=wrapper/dists\nzipStoreBase=GRADLE_USER_HOME\nzipStorePath=wrapper/dists\ndistributionUrl=https\\://services.gradle.org/distributions/gradle-6.5-all.zip\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
+--- a/gradle/wrapper/gradle-wrapper.properties	(revision 9580aa4f540a89aa41f4773639e1dc16202f4d06)
++++ b/gradle/wrapper/gradle-wrapper.properties	(date 1631096245501)
+@@ -3,4 +3,4 @@
+ distributionPath=wrapper/dists
+ zipStoreBase=GRADLE_USER_HOME
+ zipStorePath=wrapper/dists
+-distributionUrl=https\://services.gradle.org/distributions/gradle-6.5-all.zip
++distributionUrl=https\://services.gradle.org/distributions/gradle-7.0.2-all.zip
+Index: build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// Top-level build file where you can add configuration options common to all sub-projects/modules.\nbuildscript {\n    repositories {\n        google()\n        jcenter()\n        mavenCentral()\n    }\n    dependencies {\n        classpath \"com.android.tools.build:gradle:4.1.3\"\n        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'\n\n        // NOTE: Do not place your application dependencies here; they belong\n        // in the individual module build.gradle files\n    }\n}\n\nallprojects {\n    repositories {\n        google()\n        jcenter()\n        maven { url \"https://jitpack.io\" }\n    }\n}\n\ntask clean(type: Delete) {\n    delete rootProject.buildDir\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/build.gradle b/build.gradle
+--- a/build.gradle	(revision 9580aa4f540a89aa41f4773639e1dc16202f4d06)
++++ b/build.gradle	(date 1631096297214)
+@@ -6,7 +6,7 @@
+         mavenCentral()
+     }
+     dependencies {
+-        classpath "com.android.tools.build:gradle:4.1.3"
++        classpath 'com.android.tools.build:gradle:7.0.2'
+         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+ 
+         // NOTE: Do not place your application dependencies here; they belong
+Index: app/src/main/java/services/onPhoneService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/services/onPhoneService.java b/app/src/main/java/services/onPhoneService.java
+new file mode 100644
+--- /dev/null	(date 1631096941698)
++++ b/app/src/main/java/services/onPhoneService.java	(date 1631096941698)
+@@ -0,0 +1,28 @@
++package services;
++
++import android.app.Service;
++import android.content.Intent;
++import android.os.IBinder;
++
++import java.util.Timer;
++import java.util.TimerTask;
++
++public class onPhoneService extends Service {
++
++    private Timer timer;
++    private TimerTask timerTask;
++
++    public onPhoneService() {
++    }
++
++    @Override
++    public IBinder onBind(Intent intent) {
++        // TODO: Return the communication channel to the service.
++        throw new UnsupportedOperationException("Not yet implemented");
++    }
++
++    @Override
++    public int onStartCommand(Intent intent, int flags, int startId) {
++        return super.onStartCommand(intent, flags, startId);
++    }
++}
+\ No newline at end of file
