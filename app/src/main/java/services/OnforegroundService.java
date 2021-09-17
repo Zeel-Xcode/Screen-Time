@@ -2,6 +2,7 @@ package services;
 
 import android.app.ActivityManager;
 import android.app.Service;
+import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
@@ -264,8 +265,18 @@ public class OnforegroundService extends Service {
             if (appList != null && appList.size() > 0) {
                 SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();
                 for (UsageStats usageStats : appList) {
-                    mySortedMap.put(usageStats.getLastTimeUsed(),
-                            usageStats);
+
+                    int eventtype = 0;
+                    try {
+                        eventtype = (int) UsageStats.class.getDeclaredField("mLastEvent").get(usageStats);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (NoSuchFieldException e) {
+                        e.printStackTrace();
+                    }
+                    if (eventtype == UsageEvents.Event.ACTIVITY_RESUMED){
+                        mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
+                    }
                 }
                 if (mySortedMap != null && !mySortedMap.isEmpty()) {
                     currentApp = mySortedMap.get(

@@ -22,7 +22,6 @@ public class ResultActivity extends AppCompatActivity {
 
     TabLayout tabLayout;
     LinearLayout viewpager;
-
     private int mYear, mMonth, mDay;
     String currentdate;
     String appname;

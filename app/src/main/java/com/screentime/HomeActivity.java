@@ -513,7 +513,7 @@ public class HomeActivity extends AppCompatActivity {
         ArrayList<NewModel> getdata = databaseHandler2.getAllTime();
 
         if (databaseHandler2.getAllTime().size() > 0) {
-            fab.setVisibility(View.VISIBLE);
+            fab.setVisibility(View.GONE);
         } else {
             fab.setVisibility(View.GONE);
         }
