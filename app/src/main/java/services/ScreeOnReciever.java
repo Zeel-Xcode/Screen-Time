@@ -22,11 +22,12 @@ public class ScreeOnReciever extends BroadcastReceiver {
 //            context.startService(startService);
 //        }
 
-        Toast.makeText(context, "Success", Toast.LENGTH_LONG).show();
-        Intent i = new Intent(context, HomeActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(i);
-
+        if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
+            Intent i = new Intent(context, HomeActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            Toast.makeText(context, "Success", Toast.LENGTH_LONG).show();
+            context.startActivity(i);
+        }
 
 
     }
