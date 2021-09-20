@@ -93,7 +93,7 @@ public class AllDataFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
                         dialog.dismiss();
-                        databaseHandler2.exportappdata(appname,formatter);
+                        databaseHandler2.exportappdata(appname,formatter,getContext(),true);
 
                     }
                 });

@@ -4,23 +4,31 @@ import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_ID;
 import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_NAME;
 import static com.screentime.HomeActivity.ONGOING_NOTIFICATION_ID;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.app.usage.NetworkStats;
+import android.app.usage.NetworkStatsManager;
+import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.RemoteException;
+import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -28,12 +36,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.OnLifecycleEvent;
-import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.screentime.BackupAndRestore1;
 import com.screentime.R;
@@ -42,14 +47,27 @@ import com.screentime.utils.CommonUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
+import Model.AppConst;
+import Model.AppItem;
+import Model.AppUtil;
+import Model.IgnoreItem;
+import Model.PreferenceManager;
+import Model.SortEnum;
 import SQLiteDatabase.DatabaseHandler2;
 
 /**
@@ -57,7 +75,7 @@ import SQLiteDatabase.DatabaseHandler2;
  * It runs on background in every 10 seconds
  */
 
-public class GetUsageService1 extends Service implements LifecycleObserver {
+public class GetUsageService1 extends Service {
 
     private Timer timer;
     private TimerTask timerTask;
@@ -97,40 +115,14 @@ public class GetUsageService1 extends Service implements LifecycleObserver {
         startForeground(ONGOING_NOTIFICATION_ID, notification1);
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    public void appIsPaused(){
-        Log.d("abc", "appIsPaused: PAUSED");
-        stoptimertask();
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    public void appIsResumed(){
-        Log.d("abc", "appIsPaused: RESUMED");
-        startTimer();
-    }
-
-
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
-        
         super.onStartCommand(intent, flags, startId);
         backupAndRestore1 = new BackupAndRestore1();
         databaseHandler2 = new DatabaseHandler2(this);
 
-        ActivityManager.RunningAppProcessInfo runningAppProcessInfo = new ActivityManager.RunningAppProcessInfo();
-        ActivityManager.getMyMemoryState(runningAppProcessInfo);
-        appRunningBackground = runningAppProcessInfo.importance != ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
-
-        if (appRunningBackground){
-            Toast.makeText(this, "app is in background", Toast.LENGTH_SHORT).show();
-        }else {
-            Toast.makeText(this, "app is not in background", Toast.LENGTH_SHORT).show();
-        }
-
-        appIsResumed();
+        startTimer();
 
         return START_REDELIVER_INTENT;
     }
@@ -149,7 +141,7 @@ public class GetUsageService1 extends Service implements LifecycleObserver {
 
     @Override
     public void onDestroy() {
-        appIsPaused();
+        stoptimertask();
     }
 
     /**
@@ -164,17 +156,44 @@ public class GetUsageService1 extends Service implements LifecycleObserver {
      */
     public String getRecentApps(Context context) {
         String currentApp = "";
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
             long time = System.currentTimeMillis();
             List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,
                     time - 1000 * 1000, time);
 
+//            long[] range = AppUtil.getTimeRange(SortEnum.getSortEnum(0));
+//            UsageEvents events = usm.queryEvents(range[0], range[1]);
+//            UsageEvents.Event event = new UsageEvents.Event();
+
+//            while (events.hasNextEvent()){
+//                events.getNextEvent(event);
+//                String currentPackage = event.getPackageName();
+//                int eventType = event.getEventType();
+//                long eventTime = event.getTimeStamp();
+//
+//                if (eventType == UsageEvents.Event.ACTIVITY_RESUMED && eventTime == time){
+//                    currentApp  = event.getPackageName();
+//                }
+//            }
+
             if (appList != null && appList.size() > 0) {
                 SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();
+
                 for (UsageStats usageStats : appList) {
 
-                    mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
+                    int eventtype = 0;
+                    try {
+                        eventtype = (int) UsageStats.class.getDeclaredField("mLastEvent").get(usageStats);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (NoSuchFieldException e) {
+                        e.printStackTrace();
+                    }
+                    if (eventtype == UsageEvents.Event.ACTIVITY_RESUMED){
+                        mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
+                    }
                 }
                 if (mySortedMap != null && !mySortedMap.isEmpty()) {
 
@@ -215,6 +234,7 @@ public class GetUsageService1 extends Service implements LifecycleObserver {
      */
     public void initializeTimerTask() {
         timerTask = new TimerTask() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             public void run() {
                 if (Looper.myLooper() == null) {
                     Looper.prepare();

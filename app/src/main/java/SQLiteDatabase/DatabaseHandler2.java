@@ -131,7 +131,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
         return dateInString;
     }
 
-    public void exportappdata(String appname,NumberFormat formatter) {
+    public void exportappdata(String appname, NumberFormat formatter, Context context, boolean isEmail) {
 
         String path = Environment.getExternalStorageDirectory() + "/" + DATABASE_NAME;
         File dir = new File(path);
@@ -172,12 +172,26 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
             csvWrite.close();
             curCSV.close();
 
+            if (isEmail){
+
+                Uri u1 = FileProvider.getUriForFile(
+                        context,
+                        "com.screentime.provider", //(use your app signature + ".provider" )
+                        file);;
+
+                Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Yours ScreenTime");
+                sendIntent.putExtra(Intent.EXTRA_STREAM, u1);
+                sendIntent.setType("text/html");
+                context.startActivity(sendIntent);
+            }
+
         } catch (Exception sqlEx) {
             Log.e("MainActivity", sqlEx.getMessage(), sqlEx);
         }
     }
 
-    public void exportdatedata(String appname, String date,NumberFormat formatter){
+    public void exportdatedata(String appname, String date, NumberFormat formatter, Context context, boolean isEmail){
         String path = Environment.getExternalStorageDirectory() + "/" + DATABASE_NAME;
         File dir = new File(path);
         if (!dir.exists()) {
@@ -216,6 +230,20 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
             }
             csvWrite.close();
             curCSV.close();
+
+            if (isEmail){
+
+                Uri u1 = FileProvider.getUriForFile(
+                        context,
+                        "com.screentime.provider", //(use your app signature + ".provider" )
+                        file);;
+
+                Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Yours ScreenTime");
+                sendIntent.putExtra(Intent.EXTRA_STREAM, u1);
+                sendIntent.setType("text/html");
+                context.startActivity(sendIntent);
+            }
 
         } catch (Exception sqlEx) {
             Log.e("MainActivity", sqlEx.getMessage(), sqlEx);
