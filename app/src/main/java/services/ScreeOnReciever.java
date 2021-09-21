@@ -3,6 +3,7 @@ package services;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.widget.Toast;
 
 import com.screentime.HomeActivity;
@@ -23,12 +24,19 @@ public class ScreeOnReciever extends BroadcastReceiver {
 //            context.startService(startService);
 //        }
 
-        if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+            Intent i = new Intent(context, HomeActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            Toast.makeText(context, "Success", Toast.LENGTH_LONG).show();
+            context.startActivity(i);
+        } else{
             Intent i = new Intent(context, HomeActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             Toast.makeText(context, "Success " + R.string.app_name, Toast.LENGTH_LONG).show();
             context.startActivity(i);
         }
+
 
 
     }
