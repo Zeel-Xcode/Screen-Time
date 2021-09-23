@@ -264,7 +264,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
             file.createNewFile();
             CSVWriter csvWrite = new CSVWriter(new FileWriter(file));
             SQLiteDatabase database = this.getReadableDatabase();
-            String qery = "SELECT * FROM socialMedia_Timemanager2 WHERE currentdate='" + date + "'";
+            String qery = "SELECT * FROM socialMedia_Timemanager2";
             Cursor curCSV = database.rawQuery(qery, null);
             csvWrite.writeNext(curCSV.getColumnNames());
 
@@ -275,12 +275,12 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
 
                     if (i == 6){
                         long t = Long.parseLong(curCSV.getString(6));
-                        String seconds = formatter.format((t / 1000) % 60) ;
-                        String minutes =  formatter.format(((t / (1000*60)) % 60));
-                        String hours   =  formatter.format(((t / (1000*60*60)) % 24));
+//                        String seconds = formatter.format((t / 1000) % 60) ;
+//                        String minutes =  formatter.format(((t / (1000*60)) % 60));
+//                        String hours   =  formatter.format(((t / (1000*60*60)) % 24));
 
-                        String total = hours + ":" + minutes + ":" + seconds;
-                        arrStr[6] = total;
+//                        String total = hours + ":" + minutes + ":" + seconds;
+                        arrStr[6] = String.valueOf(t);
                     }
 
                     else {
