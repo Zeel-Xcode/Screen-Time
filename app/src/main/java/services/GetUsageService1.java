@@ -163,21 +163,6 @@ public class GetUsageService1 extends Service {
             List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,
                     time - 1000 * 1000, time);
 
-//            long[] range = AppUtil.getTimeRange(SortEnum.getSortEnum(0));
-//            UsageEvents events = usm.queryEvents(range[0], range[1]);
-//            UsageEvents.Event event = new UsageEvents.Event();
-
-//            while (events.hasNextEvent()){
-//                events.getNextEvent(event);
-//                String currentPackage = event.getPackageName();
-//                int eventType = event.getEventType();
-//                long eventTime = event.getTimeStamp();
-//
-//                if (eventType == UsageEvents.Event.ACTIVITY_RESUMED && eventTime == time){
-//                    currentApp  = event.getPackageName();
-//                }
-//            }
-
             if (appList != null && appList.size() > 0) {
                 SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();
 

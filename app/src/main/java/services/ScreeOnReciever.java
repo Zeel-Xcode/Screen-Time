@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import com.screentime.HomeActivity;
+import com.screentime.R;
 
 /**
  * This reciever starts usage service when device is rebooted or service is killed forcely.
@@ -25,7 +26,7 @@ public class ScreeOnReciever extends BroadcastReceiver {
         if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
             Intent i = new Intent(context, HomeActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            Toast.makeText(context, "Success", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Success " + R.string.app_name, Toast.LENGTH_LONG).show();
             context.startActivity(i);
         }
 

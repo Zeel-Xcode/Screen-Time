@@ -418,8 +418,11 @@ public class HomeActivity extends AppCompatActivity {
 
         if (checkPermission()) {
             setData(datepicker.getText().toString());
-            startService(new Intent(this, GetUsageService1.class));
-
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(new Intent(this, GetUsageService1.class));
+            }else {
+                startService(new Intent(this, GetUsageService1.class));
+            }
         } else {
             Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
             startActivity(intent);
