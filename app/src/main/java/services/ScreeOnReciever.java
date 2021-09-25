@@ -20,6 +20,12 @@ public class ScreeOnReciever extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
+        if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+            Toast.makeText(context, "Screen off", Toast.LENGTH_SHORT).show();
+        } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+            Toast.makeText(context, "Screen on", Toast.LENGTH_SHORT).show();
+        }
+
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
             if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
