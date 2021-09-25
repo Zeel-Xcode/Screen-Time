@@ -41,6 +41,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.screentime.BackupAndRestore1;
+import com.screentime.HomeActivity;
 import com.screentime.R;
 import com.screentime.utils.AppConstant;
 import com.screentime.utils.CommonUtils;
@@ -168,18 +169,29 @@ public class GetUsageService1 extends Service {
 
                 for (UsageStats usageStats : appList) {
 
-                    int eventtype = 0;
-                    try {
-                        eventtype = (int) UsageStats.class.getDeclaredField("mLastEvent").get(usageStats);
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchFieldException e) {
-                        e.printStackTrace();
-                    }
-                    if (eventtype == UsageEvents.Event.ACTIVITY_RESUMED){
+//
+
+                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+
                         mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
+
+                    } else{
+                        int eventtype = 0;
+                        try {
+                            eventtype = (int) UsageStats.class.getDeclaredField("mLastEvent").get(usageStats);
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        } catch (NoSuchFieldException e) {
+                            e.printStackTrace();
+                        }
+                        if (eventtype == UsageEvents.Event.ACTIVITY_RESUMED){
+                            mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
+                        }
+
                     }
+
                 }
+
                 if (mySortedMap != null && !mySortedMap.isEmpty()) {
 
                     currentApp = mySortedMap.get(
