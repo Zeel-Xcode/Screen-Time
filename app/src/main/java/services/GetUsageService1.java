@@ -4,44 +4,37 @@ import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_ID;
 import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_NAME;
 import static com.screentime.HomeActivity.ONGOING_NOTIFICATION_ID;
 
-import android.Manifest;
 import android.app.ActivityManager;
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
-import android.app.usage.NetworkStats;
-import android.app.usage.NetworkStatsManager;
 import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.RemoteException;
-import android.telephony.TelephonyManager;
-import android.text.TextUtils;
+import android.provider.Settings;
 import android.util.Log;
-import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.screentime.BackupAndRestore1;
-import com.screentime.HomeActivity;
 import com.screentime.R;
 import com.screentime.utils.AppConstant;
 import com.screentime.utils.CommonUtils;
@@ -50,25 +43,15 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 
-import Model.AppConst;
-import Model.AppItem;
-import Model.AppUtil;
-import Model.IgnoreItem;
-import Model.PreferenceManager;
-import Model.SortEnum;
+import Model.UsagesModel;
 import SQLiteDatabase.DatabaseHandler2;
 
 /**
@@ -84,7 +67,15 @@ public class GetUsageService1 extends Service {
 
     BackupAndRestore1 backupAndRestore1;
     DatabaseHandler2 databaseHandler2;
-    Boolean appRunningBackground;
+
+    Calendar startcal;
+    Calendar endcal;
+
+    Date startdate1;
+    Date enddate1;
+    String id;
+
+    Boolean aBoolean = false;
 
     @Nullable
     @Override
@@ -114,6 +105,7 @@ public class GetUsageService1 extends Service {
         Notification notification1 = notification.build();
         notification1.flags = Notification.FLAG_ONGOING_EVENT;
         startForeground(ONGOING_NOTIFICATION_ID, notification1);
+        broadcast();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -169,13 +161,11 @@ public class GetUsageService1 extends Service {
 
                 for (UsageStats usageStats : appList) {
 
-//
-
-                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 
                         mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
 
-                    } else{
+                    } else {
                         int eventtype = 0;
                         try {
                             eventtype = (int) UsageStats.class.getDeclaredField("mLastEvent").get(usageStats);
@@ -184,7 +174,7 @@ public class GetUsageService1 extends Service {
                         } catch (NoSuchFieldException e) {
                             e.printStackTrace();
                         }
-                        if (eventtype == UsageEvents.Event.ACTIVITY_RESUMED){
+                        if (eventtype == UsageEvents.Event.ACTIVITY_RESUMED) {
                             mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
                         }
 
@@ -205,7 +195,7 @@ public class GetUsageService1 extends Service {
 
         }
 
-        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%% " + currentApp);
+//        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%% " + currentApp);
         return currentApp;
     }
 
@@ -285,4 +275,96 @@ public class GetUsageService1 extends Service {
 
         }
     }
+
+    private void broadcast() {
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_SCREEN_ON);
+        intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        intentFilter.addAction(Intent.ACTION_USER_PRESENT);
+
+        KeyguardManager myKM = (KeyguardManager) getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
+
+        BroadcastReceiver screenreceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                if( myKM.inKeyguardRestrictedInputMode()) {
+                    //it is locked
+                    if (aBoolean == true){
+                        Log.d("Screen", "onReceive: off");
+                        long endtime = System.currentTimeMillis();
+                        endcal = Calendar.getInstance(Locale.getDefault());
+                        endcal.setTimeInMillis(endtime);
+                        enddate1 = endcal.getTime();
+
+                        if (enddate1.getTime() > startdate1.getTime()) {
+                            ArrayList<UsagesModel> getdata = databaseHandler2.getAllTimeUsages();
+
+                            if (getdata.size() > 0) {
+                                id = getdata.get(getdata.size() - 1).getId();
+                                updatedatabase(id);
+                            }
+                        }
+                    }
+
+                } else {
+
+                    //it is not locked
+                    aBoolean = true;
+                    Log.d("Screen", "onReceive: on");
+                    long starttime = System.currentTimeMillis();
+                    startcal = Calendar.getInstance(Locale.getDefault());
+                    startcal.setTimeInMillis(starttime);
+                    startdate1 = startcal.getTime();
+                    setdatanewdatabase();
+
+                }
+
+            }
+        };
+
+        getApplicationContext().registerReceiver(screenreceiver, intentFilter);
+    }
+
+    public void setdatanewdatabase() {
+        UsagesModel usagesModel = new UsagesModel();
+
+        String starttime1 = CommonUtils.getDateFormatInMillisecond(AppConstant.TIMEFORMATE, startcal.getTime());
+        String currentdate = android.text.format.DateFormat.format("yyyy-MM-dd", startcal).toString();
+
+        usagesModel.setDeviceid(Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
+        usagesModel.setStarttime(starttime1);
+        usagesModel.setEndtime("");
+        usagesModel.setTotalsec(0);
+        usagesModel.setCurrentdate(currentdate);
+        databaseHandler2.insertUsages(usagesModel);
+    }
+
+    public void updatedatabase(String id) {
+        UsagesModel usagesModel = new UsagesModel();
+
+        String currentdate = android.text.format.DateFormat.format("yyyy-MM-dd", startcal).toString();
+
+        String starttime1 = CommonUtils.getDateFormatInMillisecond(AppConstant.TIMEFORMATE, startcal.getTime());
+
+        String endtime1 = CommonUtils.getDateFormatInMillisecond(AppConstant.TIMEFORMATE, endcal.getTime());
+
+
+        long totalseconds = enddate1.getTime() - startdate1.getTime();
+
+        int seconds = (int) (totalseconds / 1000) % 60;
+        int minutes = (int) ((totalseconds / (1000 * 60)) % 60);
+        int hours = (int) ((totalseconds / (1000 * 60 * 60)) % 24);
+
+        usagesModel.setId(id);
+        usagesModel.setDeviceid(Settings.Secure.getString(getContentResolver(),
+                Settings.Secure.ANDROID_ID));
+        usagesModel.setStarttime(starttime1);
+        usagesModel.setEndtime(endtime1);
+        usagesModel.setTotalsec(totalseconds);
+        usagesModel.setCurrentdate(currentdate);
+        databaseHandler2.updateUsages(usagesModel);
+    }
+
 }

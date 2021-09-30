@@ -25,6 +25,7 @@ public class AppConstant {
     public static final String ICURRENTTIME = "ICURRENTTIME";
     public static final String SCURRENTTIME = "SCURRENTTIME";
     public static final String MCURRENTTIME = "MCURRENTTIME";
+    public static final String TOTALUSAGETIME = "TOTALUSAGETIME";
 
 
     public static final String FWEEKTTIME = "FWEEKTTIME";

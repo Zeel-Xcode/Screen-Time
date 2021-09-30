@@ -44,6 +44,7 @@ public class CommonUtils {
         return sharedPreferences.getString(key, "");
     }
 
+
     public static void savePreferencesBoolean(Context context, String key, boolean value) {
         try {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);

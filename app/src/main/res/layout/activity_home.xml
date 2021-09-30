@@ -452,7 +452,7 @@
                         android:layout_marginTop="@dimen/dim_25"
                         android:gravity="center"
                         android:orientation="horizontal"
-                        android:visibility="gone">
+                        android:visibility="visible">
 
 
                         <LinearLayout
@@ -467,7 +467,7 @@
                                 android:drawablePadding="@dimen/dim_8dp"
                                 android:fontFamily="@font/productsansregular"
                                 android:gravity="center"
-                                android:text="Phone Usage "
+                                android:text="Total Usage "
                                 android:textColor="@color/colorGrey"
                                 android:textSize="18dp" />
 

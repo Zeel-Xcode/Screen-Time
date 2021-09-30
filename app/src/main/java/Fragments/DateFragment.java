@@ -73,7 +73,7 @@ public class DateFragment extends Fragment {
                     public void onClick(View view) {
                         dialog.dismiss();
 
-                        databaseHandler2.exportdatedata(appname,date,formatter,getContext(),true);
+//                        databaseHandler2.exportdatedata(appname,date,formatter,getContext(),true);
 
                     }
                 });

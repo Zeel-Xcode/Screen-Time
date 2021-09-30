@@ -1,5 +1,6 @@
 package services;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.app.usage.UsageEvents;
@@ -7,6 +8,7 @@ import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -66,7 +68,6 @@ public class OnforegroundService extends Service {
     Date startdate1;
     Date enddate1;
 
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -76,6 +77,8 @@ public class OnforegroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+
+
         formatter = new DecimalFormat("00");
 
         packageslist.clear();
@@ -136,6 +139,7 @@ public class OnforegroundService extends Service {
                     CommonUtils.savePreferencesString(getApplicationContext(), "appname", appname);
 
                     startTimer();
+
                 }
             }
             return START_STICKY;
@@ -291,14 +295,14 @@ public class OnforegroundService extends Service {
         return currentApp;
     }
 
+    @SuppressLint("HardwareIds")
     public void setdatanewdatabase(String title, String packagename) {
         NewModel newModel = new NewModel();
 
         String starttime1 = CommonUtils.getDateFormatInMillisecond(AppConstant.TIMEFORMATE, startcal.getTime());
         String currentdate = DateFormat.format("yyyy-MM-dd", startcal).toString();
 
-        newModel.setDeviceid(Settings.Secure.getString(getContentResolver(),
-                Settings.Secure.ANDROID_ID));
+        newModel.setDeviceid(Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
         newModel.setPackagename(packagename);
         newModel.setAppname(title);
         newModel.setStarttime(starttime1);

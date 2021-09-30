@@ -25,14 +25,17 @@ import java.util.Date;
 import java.util.UUID;
 
 import Model.NewModel;
+import Model.UsagesModel;
 
 public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     // Database Name
     public static final String DATABASE_NAME = "TimeManager2";
+
     // Contacts table name
     private static final String TABLE_CONTACTS = "socialMedia_Timemanager2";
+    public static final String TABLE_NAME1 = "UsagesTimeManager";
     // Contacts Table Columns names
     private static final String KEY_ID = "id";
     private static final String KEY_DEVICEID = "deviceid";
@@ -59,12 +62,23 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
                 + KEY_TOTALSEC + " TEXT,"
                 + KEY_CURRENTDATE + " TEXT" + ")";
 
+        String CREATE_CONTACTS_TABLE1 = "CREATE TABLE " + TABLE_NAME1 + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_DEVICEID + " TEXT,"
+                + KEY_PACKAGENAME + " TEXT,"
+                + KEY_APPNAME + " TEXT,"
+                + KEY_STARTTIME + " TEXT,"
+                + KEY_ENDTIME + " TEXT,"
+                + KEY_TOTALSEC + " TEXT,"
+                + KEY_CURRENTDATE + " TEXT" + ")";
+
         db.execSQL(CREATE_CONTACTS_TABLE);
+        db.execSQL(CREATE_CONTACTS_TABLE1);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONTACTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME1);
         onCreate(db);
     }
 
@@ -131,124 +145,124 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
         return dateInString;
     }
 
-    public void exportappdata(String appname, NumberFormat formatter, Context context, boolean isEmail) {
-
-        String path = Environment.getExternalStorageDirectory() + "/" + DATABASE_NAME;
-        File dir = new File(path);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-
-        String fullName = path + "/" + appname + "_" + System.currentTimeMillis() + ".csv";
-        File file = new File(fullName);
-        try {
-            file.createNewFile();
-            CSVWriter csvWrite = new CSVWriter(new FileWriter(file));
-            SQLiteDatabase database = this.getReadableDatabase();
-            String qery = "SELECT * FROM socialMedia_Timemanager2 WHERE appname='" + appname + "'";
-            Cursor curCSV = database.rawQuery(qery, null);
-            csvWrite.writeNext(curCSV.getColumnNames());
-
-            while (curCSV.moveToNext()) {
-                //Which column you want to exprort
-                String arrStr[] = new String[curCSV.getColumnCount()];
-                for (int i = 0; i < curCSV.getColumnCount(); i++){
-                    if (i == 6){
-                        long t = Long.parseLong(curCSV.getString(6));
-                        String seconds = formatter.format((t / 1000) % 60) ;
-                        String minutes =  formatter.format(((t / (1000*60)) % 60));
-                        String hours   =  formatter.format(((t / (1000*60*60)) % 24));
-
-                        String total = hours + ":" + minutes + ":" + seconds;
-                        arrStr[6] = total;
-                    }
-
-                    else {
-                        arrStr[i] = curCSV.getString(i);
-                    }
-                }
-                csvWrite.writeNext(arrStr);
-            }
-            csvWrite.close();
-            curCSV.close();
-
-            if (isEmail){
-
-                Uri u1 = FileProvider.getUriForFile(
-                        context,
-                        "com.screentime.provider", //(use your app signature + ".provider" )
-                        file);;
-
-                Intent sendIntent = new Intent(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Yours ScreenTime");
-                sendIntent.putExtra(Intent.EXTRA_STREAM, u1);
-                sendIntent.setType("text/html");
-                context.startActivity(sendIntent);
-            }
-
-        } catch (Exception sqlEx) {
-            Log.e("MainActivity", sqlEx.getMessage(), sqlEx);
-        }
-    }
-
-    public void exportdatedata(String appname, String date, NumberFormat formatter, Context context, boolean isEmail){
-        String path = Environment.getExternalStorageDirectory() + "/" + DATABASE_NAME;
-        File dir = new File(path);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-
-        String fullName = path + "/" + appname + "_" + System.currentTimeMillis() + ".csv";
-        File file = new File(fullName);
-        try {
-            file.createNewFile();
-            CSVWriter csvWrite = new CSVWriter(new FileWriter(file));
-            SQLiteDatabase database = this.getReadableDatabase();
-            String qery = "SELECT * FROM socialMedia_Timemanager2 WHERE currentdate='" + date + "'  AND  appname='" + appname + "'";
-            Cursor curCSV = database.rawQuery(qery, null);
-            csvWrite.writeNext(curCSV.getColumnNames());
-
-            while (curCSV.moveToNext()) {
-                //Which column you want to exprort
-                String arrStr[] = new String[curCSV.getColumnCount()];
-                for (int i = 0; i < curCSV.getColumnCount(); i++){
-                    if (i == 6){
-                        long t = Long.parseLong(curCSV.getString(6));
-                        String seconds = formatter.format((t / 1000) % 60) ;
-                        String minutes =  formatter.format(((t / (1000*60)) % 60));
-                        String hours   =  formatter.format(((t / (1000*60*60)) % 24));
-
-                        String total = hours + ":" + minutes + ":" + seconds;
-                        arrStr[6] = total;
-                    }
-
-                    else {
-                        arrStr[i] = curCSV.getString(i);
-                    }
-                }
-                csvWrite.writeNext(arrStr);
-            }
-            csvWrite.close();
-            curCSV.close();
-
-            if (isEmail){
-
-                Uri u1 = FileProvider.getUriForFile(
-                        context,
-                        "com.screentime.provider", //(use your app signature + ".provider" )
-                        file);;
-
-                Intent sendIntent = new Intent(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Yours ScreenTime");
-                sendIntent.putExtra(Intent.EXTRA_STREAM, u1);
-                sendIntent.setType("text/html");
-                context.startActivity(sendIntent);
-            }
-
-        } catch (Exception sqlEx) {
-            Log.e("MainActivity", sqlEx.getMessage(), sqlEx);
-        }
-    }
+//    public void exportappdata(String appname, NumberFormat formatter, Context context, boolean isEmail) {
+//
+//        String path = Environment.getExternalStorageDirectory() + "/" + DATABASE_NAME;
+//        File dir = new File(path);
+//        if (!dir.exists()) {
+//            dir.mkdirs();
+//        }
+//
+//        String fullName = path + "/" + appname + "_" + System.currentTimeMillis() + ".csv";
+//        File file = new File(fullName);
+//        try {
+//            file.createNewFile();
+//            CSVWriter csvWrite = new CSVWriter(new FileWriter(file));
+//            SQLiteDatabase database = this.getReadableDatabase();
+//            String qery = "SELECT * FROM socialMedia_Timemanager2 WHERE appname='" + appname + "'";
+//            Cursor curCSV = database.rawQuery(qery, null);
+//            csvWrite.writeNext(curCSV.getColumnNames());
+//
+//            while (curCSV.moveToNext()) {
+//                //Which column you want to exprort
+//                String arrStr[] = new String[curCSV.getColumnCount()];
+//                for (int i = 0; i < curCSV.getColumnCount(); i++){
+//                    if (i == 6){
+//                        long t = Long.parseLong(curCSV.getString(6));
+//                        String seconds = formatter.format((t / 1000) % 60) ;
+//                        String minutes =  formatter.format(((t / (1000*60)) % 60));
+//                        String hours   =  formatter.format(((t / (1000*60*60)) % 24));
+//
+//                        String total = hours + ":" + minutes + ":" + seconds;
+//                        arrStr[6] = total;
+//                    }
+//
+//                    else {
+//                        arrStr[i] = curCSV.getString(i);
+//                    }
+//                }
+//                csvWrite.writeNext(arrStr);
+//            }
+//            csvWrite.close();
+//            curCSV.close();
+//
+//            if (isEmail){
+//
+//                Uri u1 = FileProvider.getUriForFile(
+//                        context,
+//                        "com.screentime.provider", //(use your app signature + ".provider" )
+//                        file);;
+//
+//                Intent sendIntent = new Intent(Intent.ACTION_SEND);
+//                sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Yours ScreenTime");
+//                sendIntent.putExtra(Intent.EXTRA_STREAM, u1);
+//                sendIntent.setType("text/html");
+//                context.startActivity(sendIntent);
+//            }
+//
+//        } catch (Exception sqlEx) {
+//            Log.e("MainActivity", sqlEx.getMessage(), sqlEx);
+//        }
+//    }
+//
+//    public void exportdatedata(String appname, String date, NumberFormat formatter, Context context, boolean isEmail){
+//        String path = Environment.getExternalStorageDirectory() + "/" + DATABASE_NAME;
+//        File dir = new File(path);
+//        if (!dir.exists()) {
+//            dir.mkdirs();
+//        }
+//
+//        String fullName = path + "/" + appname + "_" + System.currentTimeMillis() + ".csv";
+//        File file = new File(fullName);
+//        try {
+//            file.createNewFile();
+//            CSVWriter csvWrite = new CSVWriter(new FileWriter(file));
+//            SQLiteDatabase database = this.getReadableDatabase();
+//            String qery = "SELECT * FROM socialMedia_Timemanager2 WHERE currentdate='" + date + "'  AND  appname='" + appname + "'";
+//            Cursor curCSV = database.rawQuery(qery, null);
+//            csvWrite.writeNext(curCSV.getColumnNames());
+//
+//            while (curCSV.moveToNext()) {
+//                //Which column you want to exprort
+//                String arrStr[] = new String[curCSV.getColumnCount()];
+//                for (int i = 0; i < curCSV.getColumnCount(); i++){
+//                    if (i == 6){
+//                        long t = Long.parseLong(curCSV.getString(6));
+//                        String seconds = formatter.format((t / 1000) % 60) ;
+//                        String minutes =  formatter.format(((t / (1000*60)) % 60));
+//                        String hours   =  formatter.format(((t / (1000*60*60)) % 24));
+//
+//                        String total = hours + ":" + minutes + ":" + seconds;
+//                        arrStr[6] = total;
+//                    }
+//
+//                    else {
+//                        arrStr[i] = curCSV.getString(i);
+//                    }
+//                }
+//                csvWrite.writeNext(arrStr);
+//            }
+//            csvWrite.close();
+//            curCSV.close();
+//
+//            if (isEmail){
+//
+//                Uri u1 = FileProvider.getUriForFile(
+//                        context,
+//                        "com.screentime.provider", //(use your app signature + ".provider" )
+//                        file);;
+//
+//                Intent sendIntent = new Intent(Intent.ACTION_SEND);
+//                sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Yours ScreenTime");
+//                sendIntent.putExtra(Intent.EXTRA_STREAM, u1);
+//                sendIntent.setType("text/html");
+//                context.startActivity(sendIntent);
+//            }
+//
+//        } catch (Exception sqlEx) {
+//            Log.e("MainActivity", sqlEx.getMessage(), sqlEx);
+//        }
+//    }
 
     public void exportallappdata(String date, boolean isEmail, Context context, NumberFormat formatter) {
 
@@ -265,34 +279,48 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
             CSVWriter csvWrite = new CSVWriter(new FileWriter(file));
             SQLiteDatabase database = this.getReadableDatabase();
             String qery = "SELECT * FROM socialMedia_Timemanager2";
+            String qery1 = "SELECT * FROM UsagesTimeManager";
             Cursor curCSV = database.rawQuery(qery, null);
+            Cursor curCSV1 = database.rawQuery(qery1, null);
             csvWrite.writeNext(curCSV.getColumnNames());
 
             while (curCSV.moveToNext()) {
                 //Which column you want to exprort
                 String arrStr[] = new String[curCSV.getColumnCount()];
+
                 for (int i = 0; i < curCSV.getColumnCount(); i++){
 
                     if (i == 6){
                         long t = Long.parseLong(curCSV.getString(6));
-//                        String seconds = formatter.format((t / 1000) % 60) ;
-//                        String minutes =  formatter.format(((t / (1000*60)) % 60));
-//                        String hours   =  formatter.format(((t / (1000*60*60)) % 24));
-
-//                        String total = hours + ":" + minutes + ":" + seconds;
                         arrStr[6] = String.valueOf(t);
-                    }
-
-                    else {
+                    } else {
                         arrStr[i] = curCSV.getString(i);
                     }
 
                 }
                 csvWrite.writeNext(arrStr);
             }
-            csvWrite.close();
             curCSV.close();
 
+            while (curCSV1.moveToNext()){
+                String arrStr[] = new String[curCSV1.getColumnCount()];
+
+                for (int i = 0; i < curCSV1.getColumnCount(); i++){
+
+                    if (i == 6){
+                        long t = Long.parseLong(curCSV1.getString(6));
+                        arrStr[6] = String.valueOf(t);
+                    } else {
+                        arrStr[i] = curCSV1.getString(i);
+                    }
+
+                }
+                csvWrite.writeNext(arrStr);
+            }
+
+            csvWrite.close();
+
+            curCSV1.close();
 
             if (isEmail){
 
@@ -302,7 +330,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
                         file);;
 
                 Intent sendIntent = new Intent(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Yours ScreenTime");
+                sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Yours PasTime");
                 sendIntent.putExtra(Intent.EXTRA_STREAM, u1);
                 sendIntent.setType("text/html");
                 context.startActivity(sendIntent);
@@ -312,6 +340,60 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
         } catch (Exception sqlEx) {
             Log.e("MainActivity", sqlEx.getMessage(), sqlEx);
         }
+    }
+
+    public void insertUsages(UsagesModel usagesModel) {
+        SQLiteDatabase database = this.getReadableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_DEVICEID, usagesModel.getDeviceid());
+        values.put(KEY_PACKAGENAME,"");
+        values.put(KEY_APPNAME,"");
+        values.put(KEY_STARTTIME, usagesModel.getStarttime());
+        values.put(KEY_ENDTIME, usagesModel.getEndtime());
+        values.put(KEY_TOTALSEC, usagesModel.getTotalsec());
+        values.put(KEY_CURRENTDATE, getCurrentDate());
+
+        database.insert(TABLE_NAME1, null, values);
+        database.close();
+    }
+
+    public void updateUsages(UsagesModel usagesModel) {
+        SQLiteDatabase database = this.getReadableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_DEVICEID, usagesModel.getDeviceid());
+        values.put(KEY_PACKAGENAME,"");
+        values.put(KEY_APPNAME,"");
+        values.put(KEY_STARTTIME, usagesModel.getStarttime());
+        values.put(KEY_ENDTIME, usagesModel.getEndtime());
+        values.put(KEY_TOTALSEC, usagesModel.getTotalsec());
+        values.put(KEY_CURRENTDATE, getCurrentDate());
+
+        database.update(TABLE_NAME1, values, KEY_ID + "= ?", new String[]{usagesModel.getId()});
+        database.close();
+    }
+
+    public ArrayList<UsagesModel> getAllTimeUsages() {
+        SQLiteDatabase database = this.getReadableDatabase();
+        Cursor cursor = database.query(TABLE_NAME1, null, null, null, null,null,null);
+        ArrayList<UsagesModel> contacts = new ArrayList<UsagesModel>();
+        UsagesModel contactModel;
+        if (cursor.getCount() > 0) {
+            for (int i = 0; i < cursor.getCount(); i++) {
+                cursor.moveToNext();
+                contactModel = new UsagesModel();
+                contactModel.setId(cursor.getString(0));
+                contactModel.setDeviceid(cursor.getString(1));
+                contactModel.setStarttime(cursor.getString(4));
+                contactModel.setEndtime(cursor.getString(5));
+                contactModel.setTotalsec(cursor.getLong(6));
+                contactModel.setCurrentdate(cursor.getString(7));
+
+                contacts.add(contactModel);
+            }
+        }
+        cursor.close();
+        database.close();
+        return contacts;
     }
 
 

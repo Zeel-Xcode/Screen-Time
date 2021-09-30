@@ -3,27 +3,21 @@ package com.screentime;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.AppOpsManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.KeyguardManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Environment;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.ImageView;
@@ -36,7 +30,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
 import com.facebook.appevents.AppEventsLogger;
@@ -52,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import Model.NewModel;
+import Model.UsagesModel;
 import SQLiteDatabase.DatabaseHandler2;
 import services.GetUsageService1;
 
@@ -77,6 +71,9 @@ public class HomeActivity extends AppCompatActivity {
 
     BackupAndRestore1 backupAndRestore;
     boolean restoredata = false;
+
+    long startusages,endusages;
+    long totalseconds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +117,7 @@ public class HomeActivity extends AppCompatActivity {
         logger = AppEventsLogger.newLogger(this);
 
         checkStoragePermission();
-
+//        broadcast();
         backupAndRestore = new BackupAndRestore1();
 
         setting.setOnClickListener(new View.OnClickListener() {
@@ -286,6 +283,20 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+        SharedPreferences preferences = getSharedPreferences("Usagestime",MODE_PRIVATE);
+
+//        startusages = preferences.getLong("startusagestime",0);
+//        endusages = preferences.getLong("endusagestime",0);
+//
+//        if (endusages > startusages){
+//            totalseconds =+ endusages - startusages;
+//        }
+
+        totalseconds = preferences.getLong("totalusages",0);
+
+        phoneTime.setText(formatter.format(((totalseconds / (1000 * 60 * 60)) % 24)) + ":" + formatter.format(((totalseconds / (1000 * 60)) % 60)) + ":" + formatter.format((totalseconds / 1000) % 60));
+
+
     }
 
     private void checkStoragePermission() {
@@ -352,6 +363,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
 
 //        registerReceiver(broadcastReceiver, new IntentFilter(GetUsageService1.COUNTDOWN_BR));
 //        Toast.makeText(this, "Registered broadcast receiver", Toast.LENGTH_SHORT).show();
@@ -431,7 +443,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void setToolbar() {
         setSupportActionBar(toolbar);
-        tvTitle.setText("Home screen");
+        tvTitle.setText("PASTime");
 //        ic_export.setVisibility(View.INVISIBLE);
 
     }
@@ -512,8 +524,10 @@ public class HomeActivity extends AppCompatActivity {
         long totalphone = 0;
         long totaltwitter = 0;
         long totalyoutube = 0;
+        long totalphoneusages = 0;
 
         ArrayList<NewModel> getdata = databaseHandler2.getAllTime();
+        ArrayList<UsagesModel> getdatausages = databaseHandler2.getAllTimeUsages();
 
         if (databaseHandler2.getAllTime().size() > 0) {
             fab.setVisibility(View.GONE);
@@ -546,6 +560,17 @@ public class HomeActivity extends AppCompatActivity {
             }
         }
 
+        if (getdatausages.size() > 0){
+            for (int i = 0; i < getdatausages.size(); i++) {
+                if (getdatausages.get(i).getCurrentdate().equals(currentDate)) {
+                    totalphoneusages = totalphoneusages + getdatausages.get(i).getTotalsec();
+                }
+            }
+        }
+
+        phoneTime.setText(formatter.format(((totalphoneusages / (1000 * 60 * 60)) % 24)) + ":" + formatter.format(((totalphoneusages / (1000 * 60)) % 60)) + ":" + formatter.format((totalphoneusages / 1000) % 60));
+
+
         tvfbTime.setText(formatter.format(((totalfb / (1000 * 60 * 60)) % 24)) + ":" + formatter.format(((totalfb / (1000 * 60)) % 60)) + ":" + formatter.format((totalfb / 1000) % 60));
         tvinstaTime.setText(formatter.format(((totalinsta / (1000 * 60 * 60)) % 24)) + ":" + formatter.format(((totalinsta / (1000 * 60)) % 60)) + ":" + formatter.format((totalinsta / 1000) % 60));
         tvmessageTime.setText(formatter.format(((totalmessage / (1000 * 60 * 60)) % 24)) + ":" + formatter.format(((totalmessage / (1000 * 60)) % 60)) + ":" + formatter.format((totalmessage / 1000) % 60));
@@ -565,40 +590,8 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-//        stopService(new Intent(this, GetUsageService1.class));
-//        Toast.makeText(this, "Stopped service", Toast.LENGTH_SHORT).show();
         super.onDestroy();
-        NotificationManagerCompat.from(HomeActivity.this).cancel(ONGOING_NOTIFICATION_ID);
     }
 
-//    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            updateGUI(intent);
-//        }
-//    };
 
-//    private void updateGUI(Intent intent) {
-//        if (intent.getExtras() != null) {
-//            long millisUntilFinished = intent.getLongExtra("countdown", 0);
-//            Toast.makeText(this, "Countdown second remaining : " + millisUntilFinished / 1000, Toast.LENGTH_SHORT).show();
-//        }
-//    }
-
-//    @Override
-//    protected void onStop() {
-//        try {
-//            unregisterReceiver(broadcastReceiver);
-//        } catch (Exception e) {
-//            // Receiver was probably already stopped in onPause()
-//        }
-//        super.onStop();
-//    }
-//
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        unregisterReceiver(broadcastReceiver);
-////        Toast.makeText(this, "Unregistered broadcast receiver", Toast.LENGTH_SHORT).show();
-//    }
 }
