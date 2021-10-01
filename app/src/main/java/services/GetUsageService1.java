@@ -254,13 +254,13 @@ public class GetUsageService1 extends Service {
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         String date = df.format(new Date());
         if (preDate.equals("") || timeOfDay >= 12 && timeOfDay < 16) {
-            backupAndRestore1.exportDB(this, databaseHandler2);
+//            backupAndRestore1.exportDB(this, databaseHandler2);
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.CURRENT_DATE, date);
         } else if (preDate.equals(date)) {
 
         } else {
 
-            backupAndRestore1.exportDB(this, databaseHandler2);
+//            backupAndRestore1.exportDB(this, databaseHandler2);
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.CURRENT_DATE, date);
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.FBAVERAGE_COUNT, "0");
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.INSTAAVERAGE_COUNT, "0");

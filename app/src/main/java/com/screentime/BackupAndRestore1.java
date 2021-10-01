@@ -55,6 +55,8 @@ public class BackupAndRestore1 {
                 dst.close();
 
                 Toast.makeText(context, "Backup Successful!", Toast.LENGTH_SHORT).show();
+            } else {
+
             }
         } catch (Exception e) {
             e.printStackTrace();

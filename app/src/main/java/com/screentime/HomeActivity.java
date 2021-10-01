@@ -301,8 +301,8 @@ public class HomeActivity extends AppCompatActivity {
 
     private void checkStoragePermission() {
         int currentAPIVersion = Build.VERSION.SDK_INT;
-        if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+//        if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.MANAGE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     AlertDialog.Builder alertBuilder = new AlertDialog.Builder(HomeActivity.this);
                     alertBuilder.setCancelable(true);
@@ -311,17 +311,25 @@ public class HomeActivity extends AppCompatActivity {
                     alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
                         public void onClick(DialogInterface dialog, int which) {
-                            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                ActivityCompat.requestPermissions(HomeActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.MANAGE_EXTERNAL_STORAGE}, 123);
+                            }else {
+                                ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+                            }
                         }
                     });
                     AlertDialog alert = alertBuilder.create();
                     alert.show();
                 } else {
-                    ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        ActivityCompat.requestPermissions(HomeActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.MANAGE_EXTERNAL_STORAGE}, 123);
+                    }else {
+                        ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+                    }
                 }
 
             }
-        }
+//        }
     }
 
     @Override
@@ -348,13 +356,21 @@ public class HomeActivity extends AppCompatActivity {
             alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
                 public void onClick(DialogInterface dialog, int which) {
-                    ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        ActivityCompat.requestPermissions(HomeActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.MANAGE_EXTERNAL_STORAGE}, 123);
+                    }else {
+                        ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+                    }
                 }
             });
             AlertDialog alert = alertBuilder.create();
             alert.show();
         } else {
-            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                ActivityCompat.requestPermissions(HomeActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.MANAGE_EXTERNAL_STORAGE}, 123);
+            }else {
+                ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+            }
         }
     }
 
