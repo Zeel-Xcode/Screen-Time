@@ -1,5 +1,9 @@
 package com.screentime;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static android.os.Build.VERSION.SDK_INT;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -14,6 +18,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -26,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -72,7 +78,7 @@ public class HomeActivity extends AppCompatActivity {
     BackupAndRestore1 backupAndRestore;
     boolean restoredata = false;
 
-    long startusages,endusages;
+    long startusages, endusages;
     long totalseconds;
 
     @Override
@@ -116,9 +122,73 @@ public class HomeActivity extends AppCompatActivity {
         databaseHandler2 = new DatabaseHandler2(this);
         logger = AppEventsLogger.newLogger(this);
 
-        checkStoragePermission();
-//        broadcast();
         backupAndRestore = new BackupAndRestore1();
+
+        SharedPreferences preferences1 = getSharedPreferences("sharedrestore", MODE_PRIVATE);
+        restoredata = preferences1.getBoolean("restore", false);
+
+        boolean firstrun = getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("firstrun", true);
+        if (firstrun) {
+
+            if (!restoredata) {
+                File sd = Environment.getExternalStorageDirectory();
+                String backupDBPath = String.format("%s.bak", databaseHandler2.DATABASE_NAME);
+                File backupDB = new File(sd, backupDBPath);
+
+                File file = new File(backupDB.getAbsolutePath());
+                if (file.exists()) {
+                    Dialog dialog1 = new Dialog(HomeActivity.this);
+                    dialog1.setContentView(R.layout.custom_backup_dialog);
+                    dialog1.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+                    TextView title = dialog1.findViewById(R.id.title);
+                    title.setText("Restore");
+
+                    TextView msg = dialog1.findViewById(R.id.msg);
+                    msg.setText("Are you sure you want to restore?");
+
+                    TextView backup = dialog1.findViewById(R.id.backup);
+                    backup.setText("Restore");
+
+                    backup.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog1.dismiss();
+                            if (checkStoragePermission()) {
+                                backupAndRestore.importDB(HomeActivity.this, databaseHandler2);
+                                restoredata = true;
+                                setData(datepicker.getText().toString());
+                                SharedPreferences preferences = getSharedPreferences("sharedrestore", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = preferences.edit();
+                                editor.putBoolean("restore", restoredata);
+                                editor.apply();
+                            } else {
+                                requestPermission();
+                            }
+
+                        }
+                    });
+
+                    TextView cancel = dialog1.findViewById(R.id.cancel);
+                    cancel.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog1.dismiss();
+                        }
+                    });
+
+                    dialog1.show();
+                } else {
+
+                }
+            }
+
+            getSharedPreferences("PREFERENCE", MODE_PRIVATE)
+                    .edit()
+                    .putBoolean("firstrun", false)
+                    .commit();
+        }
+
 
         setting.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,8 +207,10 @@ public class HomeActivity extends AppCompatActivity {
                 backup.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+
                         backupAndRestore.exportDB(HomeActivity.this, databaseHandler2);
                         dialog.dismiss();
+
                     }
                 });
 
@@ -283,53 +355,88 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        SharedPreferences preferences = getSharedPreferences("Usagestime",MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences("Usagestime", MODE_PRIVATE);
 
-//        startusages = preferences.getLong("startusagestime",0);
-//        endusages = preferences.getLong("endusagestime",0);
-//
-//        if (endusages > startusages){
-//            totalseconds =+ endusages - startusages;
-//        }
-
-        totalseconds = preferences.getLong("totalusages",0);
+        totalseconds = preferences.getLong("totalusages", 0);
 
         phoneTime.setText(formatter.format(((totalseconds / (1000 * 60 * 60)) % 24)) + ":" + formatter.format(((totalseconds / (1000 * 60)) % 60)) + ":" + formatter.format((totalseconds / 1000) % 60));
 
-
     }
 
-    private void checkStoragePermission() {
-        int currentAPIVersion = Build.VERSION.SDK_INT;
-//        if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.MANAGE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    AlertDialog.Builder alertBuilder = new AlertDialog.Builder(HomeActivity.this);
-                    alertBuilder.setCancelable(true);
-                    alertBuilder.setTitle("Permission necessary");
-                    alertBuilder.setMessage("Write Storage permission is necessary to export App data!");
-                    alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                                ActivityCompat.requestPermissions(HomeActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.MANAGE_EXTERNAL_STORAGE}, 123);
-                            }else {
-                                ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+    private boolean checkStoragePermission() {
+        if (SDK_INT >= Build.VERSION_CODES.R) {
+
+            return Environment.isExternalStorageManager();
+
+        } else {
+            int result = ContextCompat.checkSelfPermission(HomeActivity.this, READ_EXTERNAL_STORAGE);
+            int result1 = ContextCompat.checkSelfPermission(HomeActivity.this, WRITE_EXTERNAL_STORAGE);
+
+            return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED;
+        }
+    }
+
+    private void requestPermission() {
+        if (SDK_INT >= Build.VERSION_CODES.R) {
+            try {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                intent.addCategory("android.intent.category.DEFAULT");
+                intent.setData(Uri.parse(String.format("package:%s", getApplicationContext().getPackageName())));
+                startActivityForResult(intent, 2296);
+            } catch (Exception e) {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                startActivityForResult(intent, 2296);
+            }
+        } else {
+            //below android 11
+            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 123);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 2296) {
+            if (SDK_INT >= Build.VERSION_CODES.R) {
+                if (Environment.isExternalStorageManager()) {
+                    // perform action when allow permission success
+                    backupAndRestore.importDB(HomeActivity.this, databaseHandler2);
+                    restoredata = true;
+                    setData(datepicker.getText().toString());
+                    SharedPreferences preferences = getSharedPreferences("sharedrestore", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putBoolean("restore", restoredata);
+                    editor.apply();
+                } else {
+                    Dialog dialog = new Dialog(this);
+                    dialog.setContentView(R.layout.files_permissiondialog);
+                    TextView ok = dialog.findViewById(R.id.ok);
+                    ok.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog.dismiss();
+                            try {
+                                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                                intent.addCategory("android.intent.category.DEFAULT");
+                                intent.setData(Uri.parse(String.format("package:%s", getApplicationContext().getPackageName())));
+                                startActivityForResult(intent, 2296);
+                            } catch (Exception e) {
+                                Intent intent = new Intent();
+                                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                                startActivityForResult(intent, 2296);
                             }
                         }
                     });
-                    AlertDialog alert = alertBuilder.create();
-                    alert.show();
-                } else {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        ActivityCompat.requestPermissions(HomeActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.MANAGE_EXTERNAL_STORAGE}, 123);
+                    if (!dialog.isShowing()) {
+                        dialog.show();
                     }else {
-                        ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+                        dialog.dismiss();
                     }
                 }
-
             }
-//        }
+        }
     }
 
     @Override
@@ -338,38 +445,28 @@ public class HomeActivity extends AppCompatActivity {
         if (requestCode == 123) {
             if (grantResults.length > 0) {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "All permission Granted", Toast.LENGTH_SHORT).show();
+                    backupAndRestore.importDB(HomeActivity.this, databaseHandler2);
+                    restoredata = true;
+                    setData(datepicker.getText().toString());
+                    SharedPreferences preferences = getSharedPreferences("sharedrestore", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putBoolean("restore", restoredata);
+                    editor.apply();
                 } else {
                     //code for deny
-                    checkAgain();
+                    AlertDialog.Builder alertBuilder = new AlertDialog.Builder(HomeActivity.this);
+                    alertBuilder.setCancelable(true);
+                    alertBuilder.setTitle("Permission necessary");
+                    alertBuilder.setMessage("Write Storage permission is necessary to export App Data");
+                    alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 123);
+                        }
+                    });
+                    AlertDialog alert = alertBuilder.create();
+                    alert.show();
                 }
-            }
-        }
-    }
-
-    private void checkAgain() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(HomeActivity.this);
-            alertBuilder.setCancelable(true);
-            alertBuilder.setTitle("Permission necessary");
-            alertBuilder.setMessage("Write Storage permission is necessary to export App Data");
-            alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-                public void onClick(DialogInterface dialog, int which) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        ActivityCompat.requestPermissions(HomeActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.MANAGE_EXTERNAL_STORAGE}, 123);
-                    }else {
-                        ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
-                    }
-                }
-            });
-            AlertDialog alert = alertBuilder.create();
-            alert.show();
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                ActivityCompat.requestPermissions(HomeActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.MANAGE_EXTERNAL_STORAGE}, 123);
-            }else {
-                ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
             }
         }
     }
@@ -380,75 +477,11 @@ public class HomeActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-
-//        registerReceiver(broadcastReceiver, new IntentFilter(GetUsageService1.COUNTDOWN_BR));
-//        Toast.makeText(this, "Registered broadcast receiver", Toast.LENGTH_SHORT).show();
-
-        SharedPreferences preferences = getSharedPreferences("sharedrestore", MODE_PRIVATE);
-        restoredata = preferences.getBoolean("restore", false);
-
-        boolean firstrun = getSharedPreferences("PREFERENCE", MODE_PRIVATE).getBoolean("firstrun", true);
-        if (firstrun){
-
-            if (!restoredata) {
-                File sd = Environment.getExternalStorageDirectory();
-                String backupDBPath = String.format("%s.bak", databaseHandler2.DATABASE_NAME);
-                File backupDB = new File(sd, backupDBPath);
-
-                File file = new File(backupDB.getAbsolutePath());
-                if (file.exists()) {
-                    Dialog dialog = new Dialog(HomeActivity.this);
-                    dialog.setContentView(R.layout.custom_backup_dialog);
-                    dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-
-                    TextView title = dialog.findViewById(R.id.title);
-                    title.setText("Restore");
-
-                    TextView msg = dialog.findViewById(R.id.msg);
-                    msg.setText("Are you sure you want to restore?");
-
-                    TextView backup = dialog.findViewById(R.id.backup);
-                    backup.setText("Restore");
-
-                    backup.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            backupAndRestore.importDB(HomeActivity.this, databaseHandler2);
-                            restoredata = true;
-                            setData(datepicker.getText().toString());
-                            SharedPreferences preferences = getSharedPreferences("sharedrestore", MODE_PRIVATE);
-                            SharedPreferences.Editor editor = preferences.edit();
-                            editor.putBoolean("restore", restoredata);
-                            editor.apply();
-                            dialog.dismiss();
-                        }
-                    });
-
-                    TextView cancel = dialog.findViewById(R.id.cancel);
-                    cancel.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            dialog.dismiss();
-                        }
-                    });
-
-                    dialog.show();
-                } else {
-
-                }
-            }
-
-            getSharedPreferences("PREFERENCE", MODE_PRIVATE)
-                    .edit()
-                    .putBoolean("firstrun", false)
-                    .commit();
-        }
-
         if (checkPermission()) {
             setData(datepicker.getText().toString());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(new Intent(this, GetUsageService1.class));
-            }else {
+            } else {
                 startService(new Intent(this, GetUsageService1.class));
             }
         } else {
@@ -576,7 +609,7 @@ public class HomeActivity extends AppCompatActivity {
             }
         }
 
-        if (getdatausages.size() > 0){
+        if (getdatausages.size() > 0) {
             for (int i = 0; i < getdatausages.size(); i++) {
                 if (getdatausages.get(i).getCurrentdate().equals(currentDate)) {
                     totalphoneusages = totalphoneusages + getdatausages.get(i).getTotalsec();
