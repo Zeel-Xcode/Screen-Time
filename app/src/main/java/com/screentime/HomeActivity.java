@@ -4,7 +4,6 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.os.Build.VERSION.SDK_INT;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -28,7 +27,6 @@ import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -163,7 +161,7 @@ public class HomeActivity extends AppCompatActivity {
                                 editor.putBoolean("restore", restoredata);
                                 editor.apply();
                             } else {
-                                requestPermission();
+                                requestPermission("restore_start");
                             }
 
                         }
@@ -207,9 +205,14 @@ public class HomeActivity extends AppCompatActivity {
                 backup.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
-                        backupAndRestore.exportDB(HomeActivity.this, databaseHandler2);
                         dialog.dismiss();
+                        if (checkStoragePermission()) {
+                            backupAndRestore.exportDB(HomeActivity.this, databaseHandler2);
+                        }else {
+                            requestPermission("backup_setting");
+                        }
+
+
 
                     }
                 });
@@ -219,8 +222,16 @@ public class HomeActivity extends AppCompatActivity {
                 cancel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        backupAndRestore.importDB(HomeActivity.this, databaseHandler2);
+
                         dialog.dismiss();
+
+                        if (checkStoragePermission()) {
+                            backupAndRestore.importDB(HomeActivity.this, databaseHandler2);
+                        }else {
+                            requestPermission("restore_setting");
+                        }
+
+
                     }
                 });
 
@@ -376,21 +387,43 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private void requestPermission() {
+    private void requestPermission(String str) {
         if (SDK_INT >= Build.VERSION_CODES.R) {
             try {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
                 intent.addCategory("android.intent.category.DEFAULT");
                 intent.setData(Uri.parse(String.format("package:%s", getApplicationContext().getPackageName())));
-                startActivityForResult(intent, 2296);
+                if (str.equalsIgnoreCase("restore_start")){
+                    startActivityForResult(intent, 2296);
+                }else if (str.equalsIgnoreCase("backup_setting")){
+                    startActivityForResult(intent,2297);
+                }else if (str.equalsIgnoreCase("restore_setting")){
+                    startActivityForResult(intent,2298);
+                }
+
             } catch (Exception e) {
                 Intent intent = new Intent();
                 intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                startActivityForResult(intent, 2296);
+                if (str.equalsIgnoreCase("restore_start")){
+                    startActivityForResult(intent, 2296);
+                }else if (str.equalsIgnoreCase("backup_setting")){
+                    startActivityForResult(intent,2297);
+                }else if (str.equalsIgnoreCase("restore_setting")){
+                    startActivityForResult(intent,2298);
+                }
             }
         } else {
             //below android 11
-            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 123);
+
+            if (str.equalsIgnoreCase("restore_start")){
+                ActivityCompat.requestPermissions(HomeActivity.this, new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 123);
+            }else if (str.equalsIgnoreCase("backup_setting")){
+                ActivityCompat.requestPermissions(HomeActivity.this, new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 124);
+            }else if (str.equalsIgnoreCase("restore_setting")){
+                ActivityCompat.requestPermissions(HomeActivity.this, new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 125);
+            }
+
+
         }
     }
 
@@ -436,6 +469,70 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 }
             }
+        }else if (requestCode == 2297){
+            if (SDK_INT >= Build.VERSION_CODES.R) {
+                if (Environment.isExternalStorageManager()) {
+                    // perform action when allow permission success
+                    backupAndRestore.exportDB(HomeActivity.this, databaseHandler2);
+                } else {
+                    Dialog dialog = new Dialog(this);
+                    dialog.setContentView(R.layout.files_permissiondialog);
+                    TextView ok = dialog.findViewById(R.id.ok);
+                    ok.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog.dismiss();
+                            try {
+                                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                                intent.addCategory("android.intent.category.DEFAULT");
+                                intent.setData(Uri.parse(String.format("package:%s", getApplicationContext().getPackageName())));
+                                startActivityForResult(intent, 2296);
+                            } catch (Exception e) {
+                                Intent intent = new Intent();
+                                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                                startActivityForResult(intent, 2296);
+                            }
+                        }
+                    });
+                    if (!dialog.isShowing()) {
+                        dialog.show();
+                    }else {
+                        dialog.dismiss();
+                    }
+                }
+            }
+        }else if (requestCode == 2298){
+            if (SDK_INT >= Build.VERSION_CODES.R) {
+                if (Environment.isExternalStorageManager()) {
+                    // perform action when allow permission success
+                    backupAndRestore.importDB(HomeActivity.this, databaseHandler2);
+                } else {
+                    Dialog dialog = new Dialog(this);
+                    dialog.setContentView(R.layout.files_permissiondialog);
+                    TextView ok = dialog.findViewById(R.id.ok);
+                    ok.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog.dismiss();
+                            try {
+                                Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                                intent.addCategory("android.intent.category.DEFAULT");
+                                intent.setData(Uri.parse(String.format("package:%s", getApplicationContext().getPackageName())));
+                                startActivityForResult(intent, 2296);
+                            } catch (Exception e) {
+                                Intent intent = new Intent();
+                                intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                                startActivityForResult(intent, 2296);
+                            }
+                        }
+                    });
+                    if (!dialog.isShowing()) {
+                        dialog.show();
+                    }else {
+                        dialog.dismiss();
+                    }
+                }
+            }
         }
     }
 
@@ -452,6 +549,46 @@ public class HomeActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putBoolean("restore", restoredata);
                     editor.apply();
+                } else {
+                    //code for deny
+                    AlertDialog.Builder alertBuilder = new AlertDialog.Builder(HomeActivity.this);
+                    alertBuilder.setCancelable(true);
+                    alertBuilder.setTitle("Permission necessary");
+                    alertBuilder.setMessage("Write Storage permission is necessary to export App Data");
+                    alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 123);
+                        }
+                    });
+                    AlertDialog alert = alertBuilder.create();
+                    alert.show();
+                }
+            }
+        } else if (requestCode == 124){
+            if (grantResults.length > 0) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    backupAndRestore.exportDB(HomeActivity.this, databaseHandler2);
+                } else {
+                    //code for deny
+                    AlertDialog.Builder alertBuilder = new AlertDialog.Builder(HomeActivity.this);
+                    alertBuilder.setCancelable(true);
+                    alertBuilder.setTitle("Permission necessary");
+                    alertBuilder.setMessage("Write Storage permission is necessary to export App Data");
+                    alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(HomeActivity.this, new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 123);
+                        }
+                    });
+                    AlertDialog alert = alertBuilder.create();
+                    alert.show();
+                }
+            }
+        }else if (requestCode == 125){
+            if (grantResults.length > 0) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    backupAndRestore.importDB(HomeActivity.this, databaseHandler2);
                 } else {
                     //code for deny
                     AlertDialog.Builder alertBuilder = new AlertDialog.Builder(HomeActivity.this);
