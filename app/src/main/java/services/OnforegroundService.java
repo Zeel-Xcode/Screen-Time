@@ -141,7 +141,7 @@ public class OnforegroundService extends Service {
 
                 }
             }
-            return START_STICKY;
+            return START_NOT_STICKY;
         } catch (NullPointerException ex) {
             Log.e("Message", ex.getMessage());
             return START_REDELIVER_INTENT;
@@ -328,8 +328,7 @@ public class OnforegroundService extends Service {
         int hours = (int) ((totalseconds / (1000 * 60 * 60)) % 24);
 
         newModel.setId(id);
-        newModel.setDeviceid(Settings.Secure.getString(getContentResolver(),
-                Settings.Secure.ANDROID_ID));
+        newModel.setDeviceid(Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
         newModel.setPackagename(packagename);
         newModel.setAppname(appname);
         newModel.setStarttime(starttime1);

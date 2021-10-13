@@ -80,7 +80,7 @@ public class GetUsageService1 extends Service {
     String id;
 
     Boolean aBoolean = false;
-    BroadcastReceiver mReceiver=null;
+    BroadcastReceiver mReceiver = null;
 
     @Nullable
     @Override
@@ -126,15 +126,15 @@ public class GetUsageService1 extends Service {
         boolean screenOn = false;
         boolean from_receiver = false;
 
-        try{
+        try {
             screenOn = intent.getBooleanExtra("screen_state", false);
-            from_receiver = intent.getBooleanExtra("from_receiver",false);
+            from_receiver = intent.getBooleanExtra("from_receiver", false);
 
-        }catch(Exception e){
+        } catch (Exception e) {
 
         }
 
-        if (from_receiver){
+        if (from_receiver) {
             if (!screenOn) {
                 Log.d("Screen", "`onReceive`: on");
                 Toast.makeText(getApplicationContext(), "time is tracking", Toast.LENGTH_SHORT).show();
@@ -147,7 +147,7 @@ public class GetUsageService1 extends Service {
 
             } else {
 
-                if (aBoolean){
+                if (aBoolean) {
                     Log.d("Screen", "onReceive: off");
                     long endtime = System.currentTimeMillis();
                     endcal = Calendar.getInstance(Locale.getDefault());
@@ -221,11 +221,7 @@ public class GetUsageService1 extends Service {
 
                 for (UsageStats usageStats : appList) {
 
-                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-
-                        mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
-
-                    } else {
+                    if (android.os.Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
                         int eventtype = 0;
                         try {
                             eventtype = (int) UsageStats.class.getDeclaredField("mLastEvent").get(usageStats);
@@ -238,6 +234,8 @@ public class GetUsageService1 extends Service {
                             mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
                         }
 
+                    } else {
+                        mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
                     }
 
                 }
@@ -255,7 +253,7 @@ public class GetUsageService1 extends Service {
 
         }
 
-//        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%% " + currentApp);
+        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%% " + currentApp);
         return currentApp;
     }
 
@@ -353,9 +351,9 @@ public class GetUsageService1 extends Service {
                 Log.d("Screen", "onReceive: brodcast");
 
 
-                if( myKM.inKeyguardRestrictedInputMode()) {
+                if (myKM.inKeyguardRestrictedInputMode()) {
 //                    it is locked
-                    if (aBoolean == true){
+                    if (aBoolean == true) {
                         Log.d("Screen", "onReceive: off");
                         long endtime = System.currentTimeMillis();
                         endcal = Calendar.getInstance(Locale.getDefault());
@@ -373,8 +371,7 @@ public class GetUsageService1 extends Service {
                         }
                     }
 
-                }
-                else {
+                } else {
 
                     //it is not locked
                     Toast.makeText(context, "time is tracking", Toast.LENGTH_SHORT).show();

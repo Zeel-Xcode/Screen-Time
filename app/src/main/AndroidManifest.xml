@@ -32,6 +32,7 @@
             android:exported="true"></receiver>
 
         <activity android:name=".ResultActivity" />
+
         <activity
             android:name=".HomeActivity"
             android:exported="true">
@@ -46,11 +47,11 @@
         <service
             android:name="services.GetUsageService1"
             android:enabled="true"
-            android:stopWithTask="false" ></service>
+            android:stopWithTask="false" />
         <service
             android:name="services.OnforegroundService"
             android:enabled="true"
-            android:stopWithTask="false" />
+            android:stopWithTask="false"/>
 
         <receiver android:name="services.ScreeOnReciever">
             <intent-filter android:priority="100">
