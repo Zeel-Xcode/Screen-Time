@@ -5,6 +5,7 @@ import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_NAME;
 import static com.screentime.HomeActivity.ONGOING_NOTIFICATION_ID;
 
 import android.app.ActivityManager;
+import android.app.IntentService;
 import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -24,8 +25,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Log;
+import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
@@ -35,6 +38,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.screentime.BackupAndRestore1;
+import com.screentime.HomeActivity;
 import com.screentime.R;
 import com.screentime.utils.AppConstant;
 import com.screentime.utils.CommonUtils;
@@ -76,6 +80,7 @@ public class GetUsageService1 extends Service {
     String id;
 
     Boolean aBoolean = false;
+    BroadcastReceiver mReceiver=null;
 
     @Nullable
     @Override
@@ -86,6 +91,8 @@ public class GetUsageService1 extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        backupAndRestore1 = new BackupAndRestore1();
+        databaseHandler2 = new DatabaseHandler2(this);
 
         final Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         createNotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME,
@@ -105,15 +112,68 @@ public class GetUsageService1 extends Service {
         Notification notification1 = notification.build();
         notification1.flags = Notification.FLAG_ONGOING_EVENT;
         startForeground(ONGOING_NOTIFICATION_ID, notification1);
-        broadcast();
+//        broadcast();
+
+        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        filter.addAction(Intent.ACTION_USER_PRESENT);
+        mReceiver = new MyReceiver();
+        registerReceiver(mReceiver, filter);
+    }
+
+    @Override
+    public void onStart(Intent intent, int startId) {
+        boolean screenOn = false;
+        boolean from_receiver = false;
+
+        try{
+            screenOn = intent.getBooleanExtra("screen_state", false);
+            from_receiver = intent.getBooleanExtra("from_receiver",false);
+
+        }catch(Exception e){
+
+        }
+
+        if (from_receiver){
+            if (!screenOn) {
+                Log.d("Screen", "`onReceive`: on");
+                Toast.makeText(getApplicationContext(), "time is tracking", Toast.LENGTH_SHORT).show();
+                aBoolean = true;
+                long starttime = System.currentTimeMillis();
+                startcal = Calendar.getInstance(Locale.getDefault());
+                startcal.setTimeInMillis(starttime);
+                startdate1 = startcal.getTime();
+                setdatanewdatabase();
+
+            } else {
+
+                if (aBoolean){
+                    Log.d("Screen", "onReceive: off");
+                    long endtime = System.currentTimeMillis();
+                    endcal = Calendar.getInstance(Locale.getDefault());
+                    endcal.setTimeInMillis(endtime);
+                    enddate1 = endcal.getTime();
+
+                    if (enddate1.getTime() > startdate1.getTime()) {
+                        ArrayList<UsagesModel> getdata = databaseHandler2.getAllTimeUsages();
+
+                        if (getdata.size() > 0) {
+                            id = getdata.get(getdata.size() - 1).getId();
+                            updatedatabase(id);
+                        }
+                    }
+                }
+            }
+        }
+
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        backupAndRestore1 = new BackupAndRestore1();
-        databaseHandler2 = new DatabaseHandler2(this);
+
 
         startTimer();
 
@@ -229,6 +289,7 @@ public class GetUsageService1 extends Service {
                 isReset();
                 currentPackage = getRecentApps(getApplicationContext());
                 getUsage();
+
             }
         };
     }
@@ -281,7 +342,7 @@ public class GetUsageService1 extends Service {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_SCREEN_ON);
         intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
-        intentFilter.addAction(Intent.ACTION_USER_PRESENT);
+//        intentFilter.addAction(Intent.ACTION_USER_PRESENT);
 
         KeyguardManager myKM = (KeyguardManager) getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
 
@@ -289,14 +350,18 @@ public class GetUsageService1 extends Service {
             @Override
             public void onReceive(Context context, Intent intent) {
 
+                Log.d("Screen", "onReceive: brodcast");
+
+
                 if( myKM.inKeyguardRestrictedInputMode()) {
-                    //it is locked
+//                    it is locked
                     if (aBoolean == true){
                         Log.d("Screen", "onReceive: off");
                         long endtime = System.currentTimeMillis();
                         endcal = Calendar.getInstance(Locale.getDefault());
                         endcal.setTimeInMillis(endtime);
                         enddate1 = endcal.getTime();
+                        Toast.makeText(context, "time tracking is closed", Toast.LENGTH_SHORT).show();
 
                         if (enddate1.getTime() > startdate1.getTime()) {
                             ArrayList<UsagesModel> getdata = databaseHandler2.getAllTimeUsages();
@@ -308,9 +373,11 @@ public class GetUsageService1 extends Service {
                         }
                     }
 
-                } else {
+                }
+                else {
 
                     //it is not locked
+                    Toast.makeText(context, "time is tracking", Toast.LENGTH_SHORT).show();
                     aBoolean = true;
                     Log.d("Screen", "onReceive: on");
                     long starttime = System.currentTimeMillis();
@@ -318,7 +385,6 @@ public class GetUsageService1 extends Service {
                     startcal.setTimeInMillis(starttime);
                     startdate1 = startcal.getTime();
                     setdatanewdatabase();
-
                 }
 
             }
@@ -365,6 +431,7 @@ public class GetUsageService1 extends Service {
         usagesModel.setTotalsec(totalseconds);
         usagesModel.setCurrentdate(currentdate);
         databaseHandler2.updateUsages(usagesModel);
+        aBoolean = false;
     }
 
 }

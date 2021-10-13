@@ -242,7 +242,12 @@ public class HomeActivity extends AppCompatActivity {
         ic_share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                databaseHandler2.exportallappdata(datepicker.getText().toString(), true, HomeActivity.this, formatter);
+                if (checkStoragePermission()) {
+                    databaseHandler2.exportallappdata(datepicker.getText().toString(), true, HomeActivity.this, formatter);
+                } else {
+                    requestPermission("restore_start");
+                }
+
             }
         });
 
@@ -614,7 +619,11 @@ public class HomeActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+
+
         if (checkPermission()) {
+
+
             setData(datepicker.getText().toString());
             if (SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(new Intent(this, GetUsageService1.class));
