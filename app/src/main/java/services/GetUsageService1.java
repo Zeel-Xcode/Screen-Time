@@ -174,7 +174,6 @@ public class GetUsageService1 extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-
         startTimer();
 
         return START_REDELIVER_INTENT;
@@ -237,7 +236,6 @@ public class GetUsageService1 extends Service {
                     } else {
                         mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
                     }
-
                 }
 
                 if (mySortedMap != null && !mySortedMap.isEmpty()) {
@@ -261,7 +259,6 @@ public class GetUsageService1 extends Service {
      * Starts the timer.
      */
     public void startTimer() {
-
         if (timer == null) {
             //set a new Timer
             timer = new Timer();
@@ -330,7 +327,6 @@ public class GetUsageService1 extends Service {
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.FCURRENTTIME, "0");
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.SCURRENTTIME, "0");
             CommonUtils.savePreferencesString(getApplicationContext(), AppConstant.ICURRENTTIME, "0");
-
 
         }
     }

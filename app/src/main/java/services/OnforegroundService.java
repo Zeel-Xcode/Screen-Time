@@ -68,6 +68,7 @@ public class OnforegroundService extends Service {
     Date startdate1;
     Date enddate1;
 
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -277,7 +278,7 @@ public class OnforegroundService extends Service {
                     } catch (NoSuchFieldException e) {
                         e.printStackTrace();
                     }
-                    if (eventtype == UsageEvents.Event.ACTIVITY_RESUMED){
+                    if (eventtype == UsageEvents.Event.ACTIVITY_RESUMED) {
                         mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
                     }
                 }
@@ -336,5 +337,10 @@ public class OnforegroundService extends Service {
         newModel.setTotalsec(totalseconds);
         newModel.setCurrentdate(currentdate);
         databaseHandler2.updateRecord(newModel);
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
     }
 }
