@@ -15,6 +15,7 @@ import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -36,10 +37,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 
 import com.screentime.BackupAndRestore1;
 import com.screentime.HomeActivity;
 import com.screentime.R;
+import com.screentime.ServiceUtills;
 import com.screentime.utils.AppConstant;
 import com.screentime.utils.CommonUtils;
 
@@ -176,7 +179,7 @@ public class GetUsageService1 extends Service {
 
         startTimer();
 
-        return START_REDELIVER_INTENT;
+        return START_STICKY;
     }
 
     private void createNotificationChannel(@NonNull String aChannelId, @NonNull String aChannelName,
@@ -200,7 +203,12 @@ public class GetUsageService1 extends Service {
      * Calculates the usage of app if it is on foreground and generate popup.
      */
     private void getUsage() {
-        startService(new Intent(getApplicationContext(), OnforegroundService.class).putExtra("package", currentPackage));
+
+        Intent intent = new Intent(getBaseContext(), OnforegroundService.class);
+        intent.putExtra("package", currentPackage);
+        startService(intent);
+
+
     }
 
     /**
@@ -267,7 +275,7 @@ public class GetUsageService1 extends Service {
             initializeTimerTask();
 
             //schedule the timer, to wake up every 1 second
-            timer.schedule(timerTask, 0, 100);
+            timer.schedule(timerTask, 0, 1000);
         }
     }
 

@@ -51,7 +51,7 @@
         <service
             android:name="services.OnforegroundService"
             android:enabled="true"
-            android:stopWithTask="false"/>
+            android:stopWithTask="false" />
 
         <receiver android:name="services.ScreeOnReciever">
             <intent-filter android:priority="100">

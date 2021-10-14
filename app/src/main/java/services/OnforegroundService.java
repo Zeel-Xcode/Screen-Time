@@ -1,7 +1,14 @@
 package services;
 
+import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_ID;
+import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_NAME;
+import static com.screentime.HomeActivity.ONGOING_NOTIFICATION_ID;
+
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
@@ -13,15 +20,25 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
 import android.text.format.DateFormat;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.screentime.MyApplication;
+import com.screentime.R;
+import com.screentime.ServiceUtills;
 import com.screentime.utils.AppConstant;
 import com.screentime.utils.CommonUtils;
 
@@ -74,6 +91,7 @@ public class OnforegroundService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -139,14 +157,16 @@ public class OnforegroundService extends Service {
                     CommonUtils.savePreferencesString(getApplicationContext(), "appname", appname);
 
                     startTimer();
-
                 }
             }
             return START_NOT_STICKY;
+
         } catch (NullPointerException ex) {
             Log.e("Message", ex.getMessage());
-            return START_REDELIVER_INTENT;
+            return START_NOT_STICKY;
         }
+
+
     }
 
     private ArrayList<String> getMessagingAppPackageNames(Context context) {
@@ -189,7 +209,9 @@ public class OnforegroundService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        stopSelf();
         stoptimertask();
+
     }
 
     public void startTimer() {
@@ -211,7 +233,7 @@ public class OnforegroundService extends Service {
             CommonUtils.savePreferencesString(getApplicationContext(), "endtime", "");
             setdatanewdatabase(appname, packagename);
             //schedule the timer, to wake up every 10 second
-            timer.schedule(timerTask, 0, 100);
+            timer.schedule(timerTask, 0, 1000);
         }
     }
 
@@ -258,40 +280,51 @@ public class OnforegroundService extends Service {
      * Returns the package name of app on foreground.
      */
     public String getRecentApps(Context context) {
-
         String currentApp = "";
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             UsageStatsManager usm = (UsageStatsManager) getSystemService(USAGE_STATS_SERVICE);
             long time = System.currentTimeMillis();
             List<UsageStats> appList = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,
                     time - 1000 * 1000, time);
+
             if (appList != null && appList.size() > 0) {
                 SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();
+
                 for (UsageStats usageStats : appList) {
 
-                    int eventtype = 0;
-                    try {
-                        eventtype = (int) UsageStats.class.getDeclaredField("mLastEvent").get(usageStats);
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchFieldException e) {
-                        e.printStackTrace();
-                    }
-                    if (eventtype == UsageEvents.Event.ACTIVITY_RESUMED) {
+                    if (android.os.Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+                        int eventtype = 0;
+                        try {
+                            eventtype = (int) UsageStats.class.getDeclaredField("mLastEvent").get(usageStats);
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        } catch (NoSuchFieldException e) {
+                            e.printStackTrace();
+                        }
+                        if (eventtype == UsageEvents.Event.ACTIVITY_RESUMED) {
+                            mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
+                        }
+
+                    } else {
                         mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
                     }
                 }
+
                 if (mySortedMap != null && !mySortedMap.isEmpty()) {
+
                     currentApp = mySortedMap.get(
                             mySortedMap.lastKey()).getPackageName();
                 }
             }
+
         } else {
             ActivityManager am = (ActivityManager) getBaseContext().getSystemService(ACTIVITY_SERVICE);
             currentApp = am.getRunningTasks(1).get(0).topActivity.getPackageName();
 
         }
+
+        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%% " + currentApp);
         return currentApp;
     }
 
@@ -310,6 +343,7 @@ public class OnforegroundService extends Service {
         newModel.setTotalsec(0);
         newModel.setCurrentdate(currentdate);
         databaseHandler2.insertRecord(newModel);
+
     }
 
     public void updatedatabase(String id) {
@@ -337,10 +371,6 @@ public class OnforegroundService extends Service {
         newModel.setTotalsec(totalseconds);
         newModel.setCurrentdate(currentdate);
         databaseHandler2.updateRecord(newModel);
-    }
 
-    @Override
-    public void onTaskRemoved(Intent rootIntent) {
-        super.onTaskRemoved(rootIntent);
     }
 }
