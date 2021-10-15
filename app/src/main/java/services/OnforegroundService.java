@@ -233,7 +233,7 @@ public class OnforegroundService extends Service {
             CommonUtils.savePreferencesString(getApplicationContext(), "endtime", "");
             setdatanewdatabase(appname, packagename);
             //schedule the timer, to wake up every 10 second
-            timer.schedule(timerTask, 0, 1000);
+            timer.schedule(timerTask, 0, 100);
         }
     }
 
@@ -328,14 +328,13 @@ public class OnforegroundService extends Service {
         return currentApp;
     }
 
-    @SuppressLint("HardwareIds")
     public void setdatanewdatabase(String title, String packagename) {
         NewModel newModel = new NewModel();
 
         String starttime1 = CommonUtils.getDateFormatInMillisecond(AppConstant.TIMEFORMATE, startcal.getTime());
         String currentdate = DateFormat.format("yyyy-MM-dd", startcal).toString();
 
-        newModel.setDeviceid(Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
+        newModel.setDeviceid("");
         newModel.setPackagename(packagename);
         newModel.setAppname(title);
         newModel.setStarttime(starttime1);
@@ -346,6 +345,7 @@ public class OnforegroundService extends Service {
 
     }
 
+    @SuppressLint("HardwareIds")
     public void updatedatabase(String id) {
         NewModel newModel = new NewModel();
 
