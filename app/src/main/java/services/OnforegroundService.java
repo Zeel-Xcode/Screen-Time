@@ -33,6 +33,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -345,6 +347,7 @@ public class OnforegroundService extends Service {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint("HardwareIds")
     public void updatedatabase(String id) {
         NewModel newModel = new NewModel();
@@ -363,7 +366,7 @@ public class OnforegroundService extends Service {
         int hours = (int) ((totalseconds / (1000 * 60 * 60)) % 24);
 
         newModel.setId(id);
-        newModel.setDeviceid(Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
+        newModel.setDeviceid(Build.HARDWARE);
         newModel.setPackagename(packagename);
         newModel.setAppname(appname);
         newModel.setStarttime(starttime1);
