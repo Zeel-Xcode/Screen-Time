@@ -24,7 +24,7 @@ public class CommonUtils {
         Snackbar.make(parent, msg, Snackbar.LENGTH_SHORT).show();
     }
 
-    public static String getDateFormatInMillisecond(String formate, Date date) {
+    public static String getDateFormatInMillisecond(String format, Date date) {
         return DateFormat.format(AppConstant.TIMEFORMATE, date).toString() + "." + String.format("%03d", (date.getTime()%1000)) + DateFormat.format(" a", date).toString();
     }
 

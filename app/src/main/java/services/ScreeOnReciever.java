@@ -25,7 +25,7 @@ public class ScreeOnReciever extends BroadcastReceiver {
             if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
                 Intent activityIntent = new Intent(context, HomeActivity.class);
                 activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                Toast.makeText(context, "sucess", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "success", Toast.LENGTH_SHORT).show();
                 context.startActivity(activityIntent);
             }
         } else{

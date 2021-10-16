@@ -401,7 +401,7 @@ public class GetUsageService1 extends Service {
         String starttime1 = CommonUtils.getDateFormatInMillisecond(AppConstant.TIMEFORMATE, startcal.getTime());
         String currentdate = android.text.format.DateFormat.format("yyyy-MM-dd", startcal).toString();
 
-        usagesModel.setDeviceid(Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
+        usagesModel.setDeviceid(Build.HARDWARE);
         usagesModel.setStarttime(starttime1);
         usagesModel.setEndtime("");
         usagesModel.setTotalsec(0);
@@ -426,8 +426,7 @@ public class GetUsageService1 extends Service {
         int hours = (int) ((totalseconds / (1000 * 60 * 60)) % 24);
 
         usagesModel.setId(id);
-        usagesModel.setDeviceid(Settings.Secure.getString(getContentResolver(),
-                Settings.Secure.ANDROID_ID));
+        usagesModel.setDeviceid(Build.HARDWARE);
         usagesModel.setStarttime(starttime1);
         usagesModel.setEndtime(endtime1);
         usagesModel.setTotalsec(totalseconds);

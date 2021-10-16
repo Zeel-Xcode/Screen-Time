@@ -281,7 +281,9 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
             String qery = "SELECT * FROM socialMedia_Timemanager2";
             String qery1 = "SELECT * FROM UsagesTimeManager";
             Cursor curCSV = database.rawQuery(qery, null);
-            Cursor curCSV1 = database.rawQuery(qery1, null);
+            Cursor curCSV1 = database.rawQuery(qery1,null);
+
+
             csvWrite.writeNext(curCSV.getColumnNames());
 
             while (curCSV.moveToNext()) {
@@ -302,6 +304,14 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
             }
             curCSV.close();
 
+
+            csvWrite.writeNext(new String[] {""});
+            csvWrite.writeNext(new String[] {""});
+            csvWrite.writeNext(new String[] {""});
+            csvWrite.writeNext(new String[] {""});
+            csvWrite.writeNext(new String[] {"Phone Usage"});
+
+
             while (curCSV1.moveToNext()){
                 String arrStr[] = new String[curCSV1.getColumnCount()];
 
@@ -311,7 +321,15 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
                         long t = Long.parseLong(curCSV1.getString(6));
                         arrStr[6] = String.valueOf(t);
                     } else {
-                        arrStr[i] = curCSV1.getString(i);
+                        if (i == 2) {
+                            arrStr[i] = "Unlock";
+                        }
+                        else if (i == 3) {
+                            arrStr[i] = "Lock";
+                        }
+                        else {
+                            arrStr[i] = curCSV1.getString(i);
+                        }
                     }
 
                 }

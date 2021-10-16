@@ -113,8 +113,12 @@ public class OnforegroundService extends Service {
         packageslist.add("com.twitter.android");
 
         messagelist = getMessagingAppPackageNames(getApplicationContext());
+        if (!messagelist.contains("com.google.android.apps.messaging")){
+           messagelist.add("com.google.android.apps.messaging");
+        }
         diallist = getPackagesOfDialerApps(getApplicationContext());
         packageslist.addAll(messagelist);
+
         packageslist.addAll(diallist);
 
         try {
