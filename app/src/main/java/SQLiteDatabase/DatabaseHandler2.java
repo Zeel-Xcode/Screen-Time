@@ -304,11 +304,6 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
             }
             curCSV.close();
 
-
-            csvWrite.writeNext(new String[] {""});
-            csvWrite.writeNext(new String[] {""});
-            csvWrite.writeNext(new String[] {""});
-            csvWrite.writeNext(new String[] {""});
             csvWrite.writeNext(new String[] {"Phone Usage"});
 
 
@@ -322,10 +317,10 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
                         arrStr[6] = String.valueOf(t);
                     } else {
                         if (i == 2) {
-                            arrStr[i] = "Unlock";
+                            arrStr[i] = "Lock/Unlock";
                         }
                         else if (i == 3) {
-                            arrStr[i] = "Lock";
+                            arrStr[i] = "Total";
                         }
                         else {
                             arrStr[i] = curCSV1.getString(i);
@@ -348,7 +343,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
                         file);;
 
                 Intent sendIntent = new Intent(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Yours PasTime");
+                sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Yours PASTime");
                 sendIntent.putExtra(Intent.EXTRA_STREAM, u1);
                 sendIntent.setType("text/html");
                 context.startActivity(sendIntent);

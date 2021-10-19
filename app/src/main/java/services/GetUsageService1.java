@@ -340,60 +340,60 @@ public class GetUsageService1 extends Service {
         }
     }
 
-    private void broadcast() {
-
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Intent.ACTION_SCREEN_ON);
-        intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
-//        intentFilter.addAction(Intent.ACTION_USER_PRESENT);
-
-        KeyguardManager myKM = (KeyguardManager) getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
-
-        BroadcastReceiver screenreceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-
-                Log.d("Screen", "onReceive: brodcast");
-
-
-                if (myKM.inKeyguardRestrictedInputMode()) {
-//                    it is locked
-                    if (aBoolean == true) {
-                        Log.d("Screen", "onReceive: off");
-                        long endtime = System.currentTimeMillis();
-                        endcal = Calendar.getInstance(Locale.getDefault());
-                        endcal.setTimeInMillis(endtime);
-                        enddate1 = endcal.getTime();
-                        Toast.makeText(context, "time tracking is closed", Toast.LENGTH_SHORT).show();
-
-                        if (enddate1.getTime() > startdate1.getTime()) {
-                            ArrayList<UsagesModel> getdata = databaseHandler2.getAllTimeUsages();
-
-                            if (getdata.size() > 0) {
-                                id = getdata.get(getdata.size() - 1).getId();
-                                updatedatabase(id);
-                            }
-                        }
-                    }
-
-                } else {
-
-                    //it is not locked
-                    Toast.makeText(context, "time is tracking", Toast.LENGTH_SHORT).show();
-                    aBoolean = true;
-                    Log.d("Screen", "onReceive: on");
-                    long starttime = System.currentTimeMillis();
-                    startcal = Calendar.getInstance(Locale.getDefault());
-                    startcal.setTimeInMillis(starttime);
-                    startdate1 = startcal.getTime();
-                    setdatanewdatabase();
-                }
-
-            }
-        };
-
-        getApplicationContext().registerReceiver(screenreceiver, intentFilter);
-    }
+//    private void broadcast() {
+//
+//        IntentFilter intentFilter = new IntentFilter();
+//        intentFilter.addAction(Intent.ACTION_SCREEN_ON);
+//        intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+////        intentFilter.addAction(Intent.ACTION_USER_PRESENT);
+//
+//        KeyguardManager myKM = (KeyguardManager) getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
+//
+//        BroadcastReceiver screenreceiver = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//
+//                Log.d("Screen", "onReceive: brodcast");
+//
+//
+//                if (myKM.inKeyguardRestrictedInputMode()) {
+////                    it is locked
+//                    if (aBoolean == true) {
+//                        Log.d("Screen", "onReceive: off");
+//                        long endtime = System.currentTimeMillis();
+//                        endcal = Calendar.getInstance(Locale.getDefault());
+//                        endcal.setTimeInMillis(endtime);
+//                        enddate1 = endcal.getTime();
+//                        Toast.makeText(context, "time tracking is closed", Toast.LENGTH_SHORT).show();
+//
+//                        if (enddate1.getTime() > startdate1.getTime()) {
+//                            ArrayList<UsagesModel> getdata = databaseHandler2.getAllTimeUsages();
+//
+//                            if (getdata.size() > 0) {
+//                                id = getdata.get(getdata.size() - 1).getId();
+//                                updatedatabase(id);
+//                            }
+//                        }
+//                    }
+//
+//                } else {
+//
+//                    //it is not locked
+//                    Toast.makeText(context, "time is tracking", Toast.LENGTH_SHORT).show();
+//                    aBoolean = true;
+//                    Log.d("Screen", "onReceive: on");
+//                    long starttime = System.currentTimeMillis();
+//                    startcal = Calendar.getInstance(Locale.getDefault());
+//                    startcal.setTimeInMillis(starttime);
+//                    startdate1 = startcal.getTime();
+//                    setdatanewdatabase();
+//                }
+//
+//            }
+//        };
+//
+//        getApplicationContext().registerReceiver(screenreceiver, intentFilter);
+//    }
 
     public void setdatanewdatabase() {
         UsagesModel usagesModel = new UsagesModel();
@@ -401,12 +401,14 @@ public class GetUsageService1 extends Service {
         String starttime1 = CommonUtils.getDateFormatInMillisecond(AppConstant.TIMEFORMATE, startcal.getTime());
         String currentdate = android.text.format.DateFormat.format("yyyy-MM-dd", startcal).toString();
 
-        usagesModel.setDeviceid(Build.HARDWARE);
-        usagesModel.setStarttime(starttime1);
-        usagesModel.setEndtime("");
-        usagesModel.setTotalsec(0);
-        usagesModel.setCurrentdate(currentdate);
-        databaseHandler2.insertUsages(usagesModel);
+            usagesModel.setDeviceid(Build.HARDWARE);
+            usagesModel.setStarttime(starttime1);
+            usagesModel.setEndtime("");
+            usagesModel.setTotalsec(0);
+            usagesModel.setCurrentdate(currentdate);
+            databaseHandler2.insertUsages(usagesModel);
+
+
     }
 
     public void updatedatabase(String id) {
@@ -425,14 +427,18 @@ public class GetUsageService1 extends Service {
         int minutes = (int) ((totalseconds / (1000 * 60)) % 60);
         int hours = (int) ((totalseconds / (1000 * 60 * 60)) % 24);
 
-        usagesModel.setId(id);
-        usagesModel.setDeviceid(Build.HARDWARE);
-        usagesModel.setStarttime(starttime1);
-        usagesModel.setEndtime(endtime1);
-        usagesModel.setTotalsec(totalseconds);
-        usagesModel.setCurrentdate(currentdate);
-        databaseHandler2.updateUsages(usagesModel);
-        aBoolean = false;
+        if (!endtime1.equalsIgnoreCase("0") && !endtime1.equalsIgnoreCase("")) {
+            usagesModel.setId(id);
+            usagesModel.setDeviceid(Build.HARDWARE);
+            usagesModel.setStarttime(starttime1);
+            usagesModel.setEndtime(endtime1);
+            usagesModel.setTotalsec(totalseconds);
+            usagesModel.setCurrentdate(currentdate);
+            databaseHandler2.updateUsages(usagesModel);
+            aBoolean = false;
+        }
+
+
     }
 
 }

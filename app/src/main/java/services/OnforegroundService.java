@@ -260,6 +260,7 @@ public class OnforegroundService extends Service {
         };
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void stoptimertask() {
         //stop the timer, if it's not already null
         if (timer != null) {
