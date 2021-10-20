@@ -625,11 +625,11 @@ public class HomeActivity extends AppCompatActivity {
 
 
             setData(datepicker.getText().toString());
-            if (SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(new Intent(this, GetUsageService1.class));
-            } else {
-                startService(new Intent(this, GetUsageService1.class));
-            }
+//            if (SDK_INT >= Build.VERSION_CODES.O) {
+//                startForegroundService(new Intent(this, GetUsageService1.class));
+//            } else {
+//                startService(new Intent(this, GetUsageService1.class));
+//            }
         } else {
             Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
             startActivity(intent);

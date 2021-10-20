@@ -59,6 +59,8 @@
             android:enabled="true"
             android:stopWithTask="false" />
 
+        //for restart application
+
         <receiver android:name="services.ScreeOnReciever">
             <intent-filter android:priority="100">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -67,6 +69,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+
+
         <receiver android:name="services.GetUsageService1" />
 
         <meta-data

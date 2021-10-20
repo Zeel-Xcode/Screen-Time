@@ -1,5 +1,7 @@
 package services;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import android.app.KeyguardManager;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -21,20 +23,24 @@ public class ScreeOnReciever extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
                 Intent activityIntent = new Intent(context, HomeActivity.class);
                 activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                Intent serviceIntent = new Intent(context, GetUsageService1.class);
+                context.startForegroundService(serviceIntent);
+                Toast.makeText(context, "foreground service started", Toast.LENGTH_SHORT).show();
+
                 Toast.makeText(context, "success", Toast.LENGTH_SHORT).show();
                 context.startActivity(activityIntent);
+
             }
-        } else{
+        } else {
             Intent i = new Intent(context, HomeActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(i);
         }
-
-
 
     }
 }
