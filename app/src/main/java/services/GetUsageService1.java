@@ -4,6 +4,7 @@ import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_ID;
 import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_NAME;
 import static com.screentime.HomeActivity.ONGOING_NOTIFICATION_ID;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.IntentService;
 import android.app.KeyguardManager;
@@ -23,6 +24,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
@@ -82,6 +85,7 @@ public class GetUsageService1 extends Service {
     Date startdate1;
     Date enddate1;
     String id;
+    String android_id;
 
     Boolean aBoolean = false;
     BroadcastReceiver mReceiver = null;
@@ -97,6 +101,9 @@ public class GetUsageService1 extends Service {
         super.onCreate();
         backupAndRestore1 = new BackupAndRestore1();
         databaseHandler2 = new DatabaseHandler2(this);
+
+        android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(),
+                Settings.Secure.ANDROID_ID);
 
         final Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         createNotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME,
@@ -401,7 +408,7 @@ public class GetUsageService1 extends Service {
         String starttime1 = CommonUtils.getDateFormatInMillisecond(AppConstant.TIMEFORMATE, startcal.getTime());
         String currentdate = android.text.format.DateFormat.format("yyyy-MM-dd", startcal).toString();
 
-            usagesModel.setDeviceid(Build.HARDWARE);
+            usagesModel.setDeviceid(android_id);
             usagesModel.setStarttime(starttime1);
             usagesModel.setEndtime("");
             usagesModel.setTotalsec(0);
@@ -429,7 +436,7 @@ public class GetUsageService1 extends Service {
 
         if (!endtime1.equalsIgnoreCase("0") && !endtime1.equalsIgnoreCase("")) {
             usagesModel.setId(id);
-            usagesModel.setDeviceid(Build.HARDWARE);
+            usagesModel.setDeviceid(android_id);
             usagesModel.setStarttime(starttime1);
             usagesModel.setEndtime(endtime1);
             usagesModel.setTotalsec(totalseconds);

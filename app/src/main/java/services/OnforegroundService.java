@@ -4,6 +4,7 @@ import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_ID;
 import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_NAME;
 import static com.screentime.HomeActivity.ONGOING_NOTIFICATION_ID;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.Notification;
@@ -24,6 +25,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
@@ -51,6 +54,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.SortedMap;
@@ -86,6 +90,7 @@ public class OnforegroundService extends Service {
 
     Date startdate1;
     Date enddate1;
+    String android_id;
 
 
     @Nullable
@@ -94,10 +99,12 @@ public class OnforegroundService extends Service {
         return null;
     }
 
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+
+        android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(),
+                Settings.Secure.ANDROID_ID);
 
         formatter = new DecimalFormat("00");
 
@@ -172,7 +179,6 @@ public class OnforegroundService extends Service {
             return START_NOT_STICKY;
         }
 
-
     }
 
     private ArrayList<String> getMessagingAppPackageNames(Context context) {
@@ -212,6 +218,7 @@ public class OnforegroundService extends Service {
         return packageNames;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -371,7 +378,7 @@ public class OnforegroundService extends Service {
         int hours = (int) ((totalseconds / (1000 * 60 * 60)) % 24);
 
         newModel.setId(id);
-        newModel.setDeviceid(Build.HARDWARE);
+        newModel.setDeviceid(android_id);
         newModel.setPackagename(packagename);
         newModel.setAppname(appname);
         newModel.setStarttime(starttime1);
