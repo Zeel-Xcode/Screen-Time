@@ -2,13 +2,19 @@ package services;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import android.app.AppOpsManager;
 import android.app.KeyguardManager;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
+import android.provider.Settings;
 import android.widget.Toast;
+
+import androidx.annotation.RequiresApi;
 
 import com.screentime.HomeActivity;
 import com.screentime.R;
@@ -25,15 +31,22 @@ public class ScreeOnReciever extends BroadcastReceiver {
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-                Intent activityIntent = new Intent(context, HomeActivity.class);
-                activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                Intent activityIntent = new Intent(context, HomeActivity.class);
+//                activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                Intent serviceIntent = new Intent(context, GetUsageService1.class);
-                context.startForegroundService(serviceIntent);
-                Toast.makeText(context, "foreground service started", Toast.LENGTH_SHORT).show();
+                if (checkPermission(context)){
+                    if (SDK_INT >= Build.VERSION_CODES.O) {
+                        context.startForegroundService(new Intent(context, GetUsageService1.class));
+                    } else {
+                        context.startService(new Intent(context, GetUsageService1.class));
+                    }
+                } else {
+                    Intent intent1 = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+                    context.startActivity(intent1);
+                }
 
                 Toast.makeText(context, "success", Toast.LENGTH_SHORT).show();
-                context.startActivity(activityIntent);
+//                context.startActivity(activityIntent);
 
             }
         } else {
@@ -42,5 +55,19 @@ public class ScreeOnReciever extends BroadcastReceiver {
             context.startActivity(i);
         }
 
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private boolean checkPermission(Context context) {
+        try {
+            PackageManager packageManager = context.getPackageManager();
+            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), 0);
+            AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, applicationInfo.uid, applicationInfo.packageName);
+            return (mode == AppOpsManager.MODE_ALLOWED);
+
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 }
