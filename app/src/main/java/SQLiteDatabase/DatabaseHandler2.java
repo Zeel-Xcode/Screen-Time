@@ -265,14 +265,14 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
 //    }
 
     public void exportallappdata(String date, boolean isEmail, Context context, NumberFormat formatter) {
-
+        int columnNumber = 0;
         String path = Environment.getExternalStorageDirectory() + "/" + DATABASE_NAME;
         File dir = new File(path);
         if (!dir.exists()) {
             dir.mkdirs();
         }
 
-        String fullName = path + "/" + UUID.randomUUID()+ "_" + System.currentTimeMillis() + ".csv";
+        String fullName = path + "/" + UUID.randomUUID() + "_" + System.currentTimeMillis() + ".csv";
         File file = new File(fullName);
         try {
             file.createNewFile();
@@ -281,8 +281,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
             String qery = "SELECT * FROM socialMedia_Timemanager2";
             String qery1 = "SELECT * FROM UsagesTimeManager";
             Cursor curCSV = database.rawQuery(qery, null);
-            Cursor curCSV1 = database.rawQuery(qery1,null);
-
+            Cursor curCSV1 = database.rawQuery(qery1, null);
 
             csvWrite.writeNext(curCSV.getColumnNames());
 
@@ -290,9 +289,11 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
                 //Which column you want to exprort
                 String arrStr[] = new String[curCSV.getColumnCount()];
 
-                for (int i = 0; i < curCSV.getColumnCount(); i++){
-
-                    if (i == 6){
+                for (int i = 0; i < curCSV.getColumnCount(); i++) {
+                    if (i == 0) {
+                        arrStr[i] = String.valueOf(++columnNumber);
+                    }
+                    if (i == 6) {
                         long t = Long.parseLong(curCSV.getString(6));
                         arrStr[6] = String.valueOf(t);
                     } else {
@@ -304,43 +305,57 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
             }
             curCSV.close();
 
-            csvWrite.writeNext(new String[] {"Phone Usage"});
+            csvWrite.writeNext(new String[]{"Phone Usage"});
 
 
-            while (curCSV1.moveToNext()){
+            int columnNumber1 = 0;
+            while (curCSV1.moveToNext()) {
                 String arrStr[] = new String[curCSV1.getColumnCount()];
+                boolean isempty = false;
 
-                for (int i = 0; i < curCSV1.getColumnCount(); i++){
-
-                    if (i == 6){
+                for (int i = 0; i < curCSV1.getColumnCount(); i++) {
+                    if (i == 0) {
+                        arrStr[i] = String.valueOf(++columnNumber1);
+                    }
+                    if (i == 6) {
                         long t = Long.parseLong(curCSV1.getString(6));
+
                         arrStr[6] = String.valueOf(t);
+
                     } else {
                         if (i == 2) {
                             arrStr[i] = "Lock/Unlock";
-                        }
-                        else if (i == 3) {
+                        } else if (i == 3) {
                             arrStr[i] = "Total";
-                        }
-                        else {
+                        } else {
                             arrStr[i] = curCSV1.getString(i);
                         }
-                    }
 
+                    }
                 }
-                csvWrite.writeNext(arrStr);
+                for (int i = 0; i < arrStr.length; i++) {
+                    if (arrStr[i].equalsIgnoreCase("")) {
+                        isempty = true;
+                        --columnNumber1;
+                    }
+                }
+                if (!isempty) {
+                    csvWrite.writeNext(arrStr);
+                }
+
             }
 
             csvWrite.close();
 
             curCSV1.close();
 
-            if (isEmail){
+            if (isEmail) {
 
                 Uri u1 = FileProvider.getUriForFile(
                         context,
                         "com.screentime.provider", //(use your app signature + ".provider" )
-                        file);;
+                        file);
+                ;
 
                 Intent sendIntent = new Intent(Intent.ACTION_SEND);
                 sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Yours PASTime");
@@ -359,8 +374,8 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getReadableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_DEVICEID, usagesModel.getDeviceid());
-        values.put(KEY_PACKAGENAME,"");
-        values.put(KEY_APPNAME,"");
+        values.put(KEY_PACKAGENAME, "");
+        values.put(KEY_APPNAME, "");
         values.put(KEY_STARTTIME, usagesModel.getStarttime());
         values.put(KEY_ENDTIME, usagesModel.getEndtime());
         values.put(KEY_TOTALSEC, usagesModel.getTotalsec());
@@ -374,8 +389,8 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getReadableDatabase();
         ContentValues values = new ContentValues();
         values.put(KEY_DEVICEID, usagesModel.getDeviceid());
-        values.put(KEY_PACKAGENAME,"");
-        values.put(KEY_APPNAME,"");
+        values.put(KEY_PACKAGENAME, "");
+        values.put(KEY_APPNAME, "");
         values.put(KEY_STARTTIME, usagesModel.getStarttime());
         values.put(KEY_ENDTIME, usagesModel.getEndtime());
         values.put(KEY_TOTALSEC, usagesModel.getTotalsec());
@@ -387,7 +402,7 @@ public class DatabaseHandler2<insertRecord> extends SQLiteOpenHelper {
 
     public ArrayList<UsagesModel> getAllTimeUsages() {
         SQLiteDatabase database = this.getReadableDatabase();
-        Cursor cursor = database.query(TABLE_NAME1, null, null, null, null,null,null);
+        Cursor cursor = database.query(TABLE_NAME1, null, null, null, null, null, null);
         ArrayList<UsagesModel> contacts = new ArrayList<UsagesModel>();
         UsagesModel contactModel;
         if (cursor.getCount() > 0) {

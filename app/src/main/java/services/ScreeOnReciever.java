@@ -31,9 +31,6 @@ public class ScreeOnReciever extends BroadcastReceiver {
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-//                Intent activityIntent = new Intent(context, HomeActivity.class);
-//                activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
                 if (checkPermission(context)){
                     if (SDK_INT >= Build.VERSION_CODES.O) {
                         context.startForegroundService(new Intent(context, GetUsageService1.class));
@@ -46,7 +43,6 @@ public class ScreeOnReciever extends BroadcastReceiver {
                 }
 
                 Toast.makeText(context, "success", Toast.LENGTH_SHORT).show();
-//                context.startActivity(activityIntent);
 
             }
         } else {
