@@ -7,6 +7,7 @@ import static com.screentime.HomeActivity.ONGOING_NOTIFICATION_ID;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -91,7 +92,7 @@ public class OnforegroundService extends Service {
     Date startdate1;
     Date enddate1;
     String android_id;
-
+    boolean aBoolean = false;
 
     @Nullable
     @Override
@@ -99,9 +100,11 @@ public class OnforegroundService extends Service {
         return null;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+
 
         android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID);
@@ -168,8 +171,17 @@ public class OnforegroundService extends Service {
                         }
                     }
                     CommonUtils.savePreferencesString(getApplicationContext(), "appname", appname);
+                    KeyguardManager myKM = (KeyguardManager) getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
 
-                    startTimer();
+                    if( myKM.inKeyguardRestrictedInputMode()) {
+                        //it is locked
+                        stoptimertask();
+                    } else {
+                        //it is not locked
+                        aBoolean = true;
+                        startTimer();
+                    }
+
                 }
             }
             return START_NOT_STICKY;
@@ -224,7 +236,6 @@ public class OnforegroundService extends Service {
         super.onDestroy();
         stopSelf();
         stoptimertask();
-
     }
 
     public void startTimer() {

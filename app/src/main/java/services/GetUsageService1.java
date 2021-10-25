@@ -5,6 +5,7 @@ import static com.screentime.HomeActivity.NOTIFICATION_CHANNEL_NAME;
 import static com.screentime.HomeActivity.ONGOING_NOTIFICATION_ID;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.IntentService;
 import android.app.KeyguardManager;
@@ -89,6 +90,7 @@ public class GetUsageService1 extends Service {
 
     Boolean aBoolean = false;
     BroadcastReceiver mReceiver = null;
+    boolean servicerunning = false;
 
     @Nullable
     @Override
@@ -207,13 +209,16 @@ public class GetUsageService1 extends Service {
         stoptimertask();
     }
 
+
     /**
      * Calculates the usage of app if it is on foreground and generate popup.
      */
     private void getUsage() {
 
+
         Intent intent = new Intent(getBaseContext(), OnforegroundService.class);
         intent.putExtra("package", currentPackage);
+        servicerunning = true;
         startService(intent);
 
 
@@ -408,12 +413,12 @@ public class GetUsageService1 extends Service {
         String starttime1 = CommonUtils.getDateFormatInMillisecond(AppConstant.TIMEFORMATE, startcal.getTime());
         String currentdate = android.text.format.DateFormat.format("yyyy-MM-dd", startcal).toString();
 
-            usagesModel.setDeviceid(android_id);
-            usagesModel.setStarttime(starttime1);
-            usagesModel.setEndtime("");
-            usagesModel.setTotalsec(0);
-            usagesModel.setCurrentdate(currentdate);
-            databaseHandler2.insertUsages(usagesModel);
+        usagesModel.setDeviceid(android_id);
+        usagesModel.setStarttime(starttime1);
+        usagesModel.setEndtime("");
+        usagesModel.setTotalsec(0);
+        usagesModel.setCurrentdate(currentdate);
+        databaseHandler2.insertUsages(usagesModel);
 
 
     }
