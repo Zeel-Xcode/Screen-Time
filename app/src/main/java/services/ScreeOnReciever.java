@@ -29,21 +29,14 @@ public class ScreeOnReciever extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
                 if (checkPermission(context)){
-                    if (SDK_INT >= Build.VERSION_CODES.O) {
-                        context.startForegroundService(new Intent(context, GetUsageService1.class));
-                    } else {
-                        context.startService(new Intent(context, GetUsageService1.class));
-                    }
+                    context.startForegroundService(new Intent(context, GetUsageService1.class));
                 } else {
                     Intent intent1 = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
                     context.startActivity(intent1);
                 }
-
-                Toast.makeText(context, "success", Toast.LENGTH_SHORT).show();
-
             }
         } else {
             Intent i = new Intent(context, HomeActivity.class);
@@ -51,6 +44,7 @@ public class ScreeOnReciever extends BroadcastReceiver {
             context.startActivity(i);
         }
 
+        Toast.makeText(context, "success", Toast.LENGTH_SHORT).show();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)

@@ -27,6 +27,7 @@ import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -474,7 +475,8 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 }
             }
-        }else if (requestCode == 2297){
+        }
+        else if (requestCode == 2297){
             if (SDK_INT >= Build.VERSION_CODES.R) {
                 if (Environment.isExternalStorageManager()) {
                     // perform action when allow permission success
@@ -506,7 +508,8 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 }
             }
-        }else if (requestCode == 2298){
+        }
+        else if (requestCode == 2298){
             if (SDK_INT >= Build.VERSION_CODES.R) {
                 if (Environment.isExternalStorageManager()) {
                     // perform action when allow permission success
@@ -620,7 +623,6 @@ public class HomeActivity extends AppCompatActivity {
         super.onResume();
 
         if (checkPermission()) {
-
             setData(datepicker.getText().toString());
             if (SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(new Intent(this, GetUsageService1.class));
@@ -630,6 +632,17 @@ public class HomeActivity extends AppCompatActivity {
         } else {
             Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
             startActivity(intent);
+        }
+    }
+
+    private void RequestPermission() {
+        // Check if Android M or higher
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Show alert dialog to the user saying a separate permission is needed
+            // Launch the settings activity if the user prefers
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, 2210);
         }
     }
 

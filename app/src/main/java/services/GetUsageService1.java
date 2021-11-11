@@ -107,6 +107,12 @@ public class GetUsageService1 extends Service {
         android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID);
 
+        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        filter.addAction(Intent.ACTION_USER_PRESENT);
+        mReceiver = new MyReceiver();
+        registerReceiver(mReceiver, filter);
+
         final Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         createNotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME,
                 NotificationManagerCompat.IMPORTANCE_HIGH, this);
@@ -126,16 +132,20 @@ public class GetUsageService1 extends Service {
         notification1.flags = Notification.FLAG_ONGOING_EVENT;
         startForeground(ONGOING_NOTIFICATION_ID, notification1);
 //        broadcast();
-
-        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-        filter.addAction(Intent.ACTION_SCREEN_OFF);
-        filter.addAction(Intent.ACTION_USER_PRESENT);
-        mReceiver = new MyReceiver();
-        registerReceiver(mReceiver, filter);
     }
 
     @Override
     public void onStart(Intent intent, int startId) {
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+
+        startTimer();
+
         boolean screenOn = false;
         boolean from_receiver = false;
 
@@ -148,7 +158,7 @@ public class GetUsageService1 extends Service {
         }
 
         if (from_receiver) {
-            if (!screenOn) {
+            if (!screenOn && !aBoolean) {
                 Log.d("Screen", "`onReceive`: on");
                 Toast.makeText(getApplicationContext(), "time is tracking", Toast.LENGTH_SHORT).show();
                 aBoolean = true;
@@ -179,16 +189,6 @@ public class GetUsageService1 extends Service {
             }
         }
 
-
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent, flags, startId);
-
-        startTimer();
-
         return START_STICKY;
     }
 
@@ -207,6 +207,7 @@ public class GetUsageService1 extends Service {
     @Override
     public void onDestroy() {
         stoptimertask();
+        unregisterReceiver(mReceiver);
     }
 
 
@@ -351,61 +352,6 @@ public class GetUsageService1 extends Service {
 
         }
     }
-
-//    private void broadcast() {
-//
-//        IntentFilter intentFilter = new IntentFilter();
-//        intentFilter.addAction(Intent.ACTION_SCREEN_ON);
-//        intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
-////        intentFilter.addAction(Intent.ACTION_USER_PRESENT);
-//
-//        KeyguardManager myKM = (KeyguardManager) getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
-//
-//        BroadcastReceiver screenreceiver = new BroadcastReceiver() {
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//
-//                Log.d("Screen", "onReceive: brodcast");
-//
-//
-//                if (myKM.inKeyguardRestrictedInputMode()) {
-////                    it is locked
-//                    if (aBoolean == true) {
-//                        Log.d("Screen", "onReceive: off");
-//                        long endtime = System.currentTimeMillis();
-//                        endcal = Calendar.getInstance(Locale.getDefault());
-//                        endcal.setTimeInMillis(endtime);
-//                        enddate1 = endcal.getTime();
-//                        Toast.makeText(context, "time tracking is closed", Toast.LENGTH_SHORT).show();
-//
-//                        if (enddate1.getTime() > startdate1.getTime()) {
-//                            ArrayList<UsagesModel> getdata = databaseHandler2.getAllTimeUsages();
-//
-//                            if (getdata.size() > 0) {
-//                                id = getdata.get(getdata.size() - 1).getId();
-//                                updatedatabase(id);
-//                            }
-//                        }
-//                    }
-//
-//                } else {
-//
-//                    //it is not locked
-//                    Toast.makeText(context, "time is tracking", Toast.LENGTH_SHORT).show();
-//                    aBoolean = true;
-//                    Log.d("Screen", "onReceive: on");
-//                    long starttime = System.currentTimeMillis();
-//                    startcal = Calendar.getInstance(Locale.getDefault());
-//                    startcal.setTimeInMillis(starttime);
-//                    startdate1 = startcal.getTime();
-//                    setdatanewdatabase();
-//                }
-//
-//            }
-//        };
-//
-//        getApplicationContext().registerReceiver(screenreceiver, intentFilter);
-//    }
 
     public void setdatanewdatabase() {
         UsagesModel usagesModel = new UsagesModel();

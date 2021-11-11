@@ -4,6 +4,7 @@ import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,7 +21,7 @@ public class MyReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        //Toast.makeText(context, "BroadcastReceiver", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "" + intent.getAction(), Toast.LENGTH_SHORT).show();
 
         myKM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
 
